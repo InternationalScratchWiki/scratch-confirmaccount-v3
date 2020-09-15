@@ -22,7 +22,7 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 		
 		if (isUsernameBlocked($username)) {
-			$out_error = 'username blocked';
+			$out_error = 'username blocked'; // note : blocks are not publicly visible on scratch, so this will never firet
 			return;
 		}
 		
@@ -77,7 +77,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement('input', ['type' => 'email', 'name' => 'email', 'id' => 'scratch-confirmaccount-email', 'value' => $request->getText('email')]);
 		$form .= '</p>';
 		
-		$form .= '<p>' . wfMessage('scratch-confirmaccount-vercode-explanation')->params(sprintf(PROJECT_LINK, wfMessage('scratch-confirmaccount-request-verification-project-id')->text()))->parse() . '</p>';
+		$form .= '<p>' . wfMessage('scratch-confirmaccount-vercode-explanation')->params(sprintf(PROJECT_LINK, $GLOBALS['wgScratchVerificationProjectID'] ?: "10135908"))->parse() . '</p>';
 		$form .= '<p style=\"font-weight: bold\">' . sessionVerificationCode($session) . '</p>';
 		
 		$form .= $this->formSectionFooter();
