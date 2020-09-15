@@ -11,8 +11,14 @@ function getAccountRequests($status) {
 function addHistoryEntry($request, $history) {
 }
 
+function getRequestHistory($request) {
+}
+
 function processRequest($request, $status, $comment) {
 }
 
-function isUsernameRequestable($username) {
+function userExists($username) {
+}
+
+function hasActiveRequest($username) {
 }

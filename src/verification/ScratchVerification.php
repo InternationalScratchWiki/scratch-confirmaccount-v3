@@ -33,12 +33,15 @@ function verifComments() {
 	);
 }
 
+function isValidScratchUsername($username) {
+	return !preg_match('/^_+|_+$|__+|[^a-zA-Z0-9\-_]/', $username);
+}
+
 function topVerifCommenter($req_comment) {
 	$comments = verifComments();
 
 	$matching_comments = array_filter($comments, function(&$comment) use($req_comment) {
-		if (preg_match('/^_+|_+$|__+/', $comment['author']['username'])) return false;
-		return stristr($comment['content'], $req_comment);
+		return !preg_match('/^_+|_+$|__+/', $comment['author']['username']) && stristr($comment['content'], $req_comment);
 	});
 	if (empty($matching_comments)) {
 		return null;
