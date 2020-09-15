@@ -7,14 +7,18 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function getGroupName() {
 		return 'users';
 	}
-
+	
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$this->setHeaders();
+		
+		//check permissions
+		$user = $this->getUser();
 
-		# Get request data from, e.g.
-		$param = $request->getText( 'param' );
+		if (!$user->isAllowed('confirmaccount')) {
+			throw new PermissionsError('confirmaccount');
+		}
 
 		# Do stuff
 		# ...
