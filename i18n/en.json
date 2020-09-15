@@ -7,5 +7,12 @@
 	"scratch-confirmaccount": "Scratch Account Request System",
 	"scratch-confirmaccount-desc": "Request and confirm accounts linked to Scratch",
 	"requestaccount": "Request an account",
-	"confirmaccounts": "Confirm account requests"
+	"confirmaccounts": "Confirm account requests",
+	"scratch-confirmaccount-usernameverification": "Username and verification",
+	"scratch-confirmaccount-requestnotes": "Request notes",
+	"scratch-confirmaccount-requestnotes-explanation": "Enter your request notes here",
+	"scratch-confirmaccount-scratchusername": "Scratch username",
+	"scratch-confirmaccount-request-submit": "Request account",
+	"scratch-confirmaccount-request-verification-project-id": "10135908",
+	"scratch-confirmaccount-vercode-explanation": "Please go to the <span class=\"plainlinks\">[$1 user verification project]</span> and comment the code below"
 }

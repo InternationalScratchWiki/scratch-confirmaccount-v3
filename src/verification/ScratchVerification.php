@@ -1,0 +1,47 @@
+<?php
+define('SCRATCH_COMMENT_API_URL', 'https://api.scratch.mit.edu/users/%s/projects/%s/comments?offset=0&limit=20');
+define('PROJECT_LINK', 'https://scratch.mit.edu/projects/%s/');
+
+function randomVerificationCode() {
+	// translate 0->A, 1->B, etc to bypass Scratch phone number censor
+	return strtr(hash('sha256', random_bytes(16)), '0123456789', 'ABCDEFGHIJ');
+}
+
+function generateNewCodeForSession(&$session) {
+	$session->persist();
+	$session->set('vercode', randomVerificationCode());
+	$session->save();
+}
+
+function sessionVerificationCode(&$session) {
+	if (!$session->exists('vercode')) {
+		generateNewCodeForSession($session);
+	}
+	return $session->get('vercode');
+}
+
+function commentsForProject($author, $project_id) {
+	return json_decode(file_get_contents(sprintf(
+		SCRATCH_COMMENT_API_URL, $author, $project_id
+	)), true);
+}
+
+function verifComments() {
+	return commentsForProject(
+		wfMessage('scratchlogin-project-author')->text(),
+		wfMessage('scratchlogin-project-id')->text()
+	);
+}
+
+function topVerifCommenter($req_comment) {
+	$comments = verifComments();
+
+	$matching_comments = array_filter($comments, function(&$comment) use($req_comment) {
+		if (preg_match('/^_+|_+$|__+/', $comment['author']['username'])) return false;
+		return stristr($comment['content'], $req_comment);
+	});
+	if (empty($matching_comments)) {
+		return null;
+	}
+	return $matching_comments[0]['author']['username'];
+}
