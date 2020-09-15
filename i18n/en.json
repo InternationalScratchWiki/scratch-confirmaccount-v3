@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": [
+			"jvvg"
+		]
+	},
+	"scratch-confirmaccount": "Scratch Account Request System",
+	"scratch-confirmaccount-desc": "Request and confirm accounts linked to Scratch",
+	"requestaccount": "Request an account",
+	"confirmaccounts": "Confirm account requests"
+}

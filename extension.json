@@ -1,0 +1,24 @@
+{
+	"name": "Scratch Account Request System",
+	"descriptionmsg": "scratch-confirmaccount-desc",
+	"author": ["Jacob G. (jvvg)"],
+	"version": "0.1",
+	"license-name": "GPL-2.0-or-later",
+	"MessagesDirs": {
+		"Scratch-ConfirmAccount": [
+			"i18n"
+		]
+	},
+	"AutoloadClasses": {
+		"SpecialRequestAccount": "src/SpecialRequestAccount.php",
+		"SpecialConfirmAccounts": "src/SpecialConfirmAccounts.php",
+		"ScratchConfirmAccountHooks": "src/ScratchConfirmAccountHooks.php"
+	},
+	"SpecialPages": {
+		"RequestAccount": "SpecialRequestAccount",
+		"ConfirmAccounts": "SpecialConfirmAccounts"
+	},
+	"Hooks": {
+		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates"
+	}
+}
