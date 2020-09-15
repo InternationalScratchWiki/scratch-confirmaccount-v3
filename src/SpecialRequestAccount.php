@@ -1,35 +1,50 @@
 <?php
 require_once __DIR__ . '/verification/ScratchVerification.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
+require_once __DIR__ . '/objects/AccountRequest.php';
+
 class SpecialRequestAccount extends SpecialPage {
 	function __construct() {
 		parent::__construct( 'RequestAccount' );
 	}
 	
-	function validate(&$request, &$session) {
+	function sanitizedPostData(&$request, &$session, &$out_error) {
 		$username = $request->getText('scratchusername');
 		
 		if ($username == '' || !isValidScratchUsername($username)) {
-			return 'invalid scratch username' . $username;
+			$out_error = 'invalid scratch username';
+			return;
 		}
 		
 		if (userExists($username)) {
-			return 'user already exists';
+			$out_error = 'user already exists';
+			return;
 		}
 		
 		if (isUsernameBlocked($username)) {
-			return 'username blocked';
+			$out_error = 'username blocked';
+			return;
 		}
 		
 		if (hasActiveRequest($username)) {
-			return 'user already has active request';
+			$out_error = 'user already has active request';
+			return;
 		}
 		
 		if (topVerifCommenter(sessionVerificationCode($session)) != $username) {
-			return 'verification code missing';
+			$out_error = 'verification code missing';
+			return;
 		}
 		
-		return '';
+		$email = $request->getText('email');
+		if ($email != '' && !Sanitizer::validateEmail($email)) {
+			$out_error = 'invalid email';
+			return;
+		}
+		
+		$request_notes = $request->getText('requestnotes');
+		
+		return ['username' => $username, 'email' => $email, 'requestnotes' => $request_notes];
 	}
 	
 	function getGroupName() {
@@ -52,8 +67,15 @@ class SpecialRequestAccount extends SpecialPage {
 	function usernameAndVerificationArea(&$session, $request) {
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-usernameverification'));
 		
+		$form .= '<p>';
 		$form .= '<label for="scratch-confirmaccount-username">' . wfMessage('scratch-confirmaccount-scratchusername') . '</label><br />';
 		$form .= Html::rawElement('input', ['type' => 'text', 'name' => 'scratchusername', 'id' => 'scratch-confirmaccount-username', 'value' => $request->getText('scratchusername')]);
+		$form .= '</p>';
+		
+		$form .= '<p>';
+		$form .= '<label for="scratch-confirmaccount-email">' . wfMessage('scratch-confirmaccount-email') . '</label><br />';
+		$form .= Html::rawElement('input', ['type' => 'email', 'name' => 'email', 'id' => 'scratch-confirmaccount-email', 'value' => $request->getText('email')]);
+		$form .= '</p>';
 		
 		$form .= '<p>' . wfMessage('scratch-confirmaccount-vercode-explanation')->params(sprintf(PROJECT_LINK, wfMessage('scratch-confirmaccount-request-verification-project-id')->text()))->parse() . '</p>';
 		$form .= '<p style=\"font-weight: bold\">' . sessionVerificationCode($session) . '</p>';
@@ -81,11 +103,17 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 	
 	function handleFormSubmission(&$request, &$output, &$session) {
-		$error = $this->validate($request, $session);
+		//validate and sanitize the input
+		$formData = $this->sanitizedPostData($request, $session, $error);
 		if ($error != '') {
 			return $this->requestForm($request, $output, $session, $error);
 		}
 		
+		//now actually create the request and reset the verification code
+		createAccountRequest($formData['username'], $formData['requestnotes'], $formData['email'], $request->getIP());
+		generateNewCodeForSession($session);
+		
+		//and show the output
 		$output->addHTML('success');
 	}
 	

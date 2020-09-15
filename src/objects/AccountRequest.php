@@ -1,5 +1,6 @@
 <?php
 class AccountRequest {
+	var $id;
 	var $username;
 	var $requestNotes;
 	var $status;
