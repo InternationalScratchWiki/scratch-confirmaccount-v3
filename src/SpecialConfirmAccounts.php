@@ -16,8 +16,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 		//check permissions
 		$user = $this->getUser();
 
-		if (!$user->isAllowed('confirmaccount')) {
-			throw new PermissionsError('confirmaccount');
+		if (!$user->isAllowed('createaccount')) {
+			throw new PermissionsError('createaccount');
 		}
 
 		# Do stuff
