@@ -15,5 +15,6 @@
 	"scratch-confirmaccount-email": "Email (optional)",
 	"scratch-confirmaccount-request-submit": "Request account",
 	"scratch-confirmaccount-request-verification-project-id": "10135908",
+	"scratch-confirmaccount-request-verification-project-author": "ModShare",
 	"scratch-confirmaccount-vercode-explanation": "Please go to the <span class=\"plainlinks\">[$1 user verification project]</span> and comment the code below"
 }
