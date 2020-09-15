@@ -28,8 +28,8 @@ function commentsForProject($author, $project_id) {
 
 function verifComments() {
 	return commentsForProject(
-		wfMessage('scratchlogin-project-author')->text(),
-		wfMessage('scratchlogin-project-id')->text()
+		wfMessage('scratch-confirmaccount-request-verification-project-author')->text(),
+		wfMessage('scratch-confirmaccount-request-verification-project-id')->text()
 	);
 }
 
