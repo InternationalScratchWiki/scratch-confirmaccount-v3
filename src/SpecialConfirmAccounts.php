@@ -187,74 +187,77 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}, $history));
 
 		//actions section
-		$disp .= Html::element(
-			'h4',
-			[],
-			wfMessage('scratch-confirmaccount-actions')->text()
-		);
-		$disp .= Html::openElement(
-			'form',
-			[
-				'action' => $this->getPageTitle()->getLocalUrl(),
-				'method' => 'post',
-				'enctype' => 'multipart/form-data'
-			]
-		);
-		$disp .= Html::rawElement(
-			'input',
-			[
-				'type' => 'hidden',
-				'name' => 'requestid',
-				'value' => $requestId
-			]
-		);
-		$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
-		
-		$usable_actions = array_filter(actions, function($action) { return in_array('admin', $action['performers']); });
-		
-		$disp .= implode(array_map(function($key, $val) {
-			$row = Html::openElement('li');
-			$row .= Html::element(
-				'input',
+		if (!in_array($accountRequest->status, ['accepted'])) {
+			$disp .= Html::element(
+				'h4',
+				[],
+				wfMessage('scratch-confirmaccount-actions')->text()
+			);
+			$disp .= Html::openElement(
+				'form',
 				[
-					'type' => 'radio',
-					'name' => 'action',
-					'id' => 'scratch-confirmaccount-action-' . $key,
-					'value' => $key
+					'action' => $this->getPageTitle()->getLocalUrl(),
+					'method' => 'post',
+					'enctype' => 'multipart/form-data'
 				]
 			);
-			$row .= Html::element(
-				'label',
-				['for' => 'scratch-confirmaccount-action-' . $key],
-				wfMessage($val['message'])->text()
+			$disp .= Html::rawElement(
+				'input',
+				[
+					'type' => 'hidden',
+					'name' => 'requestid',
+					'value' => $requestId
+				]
 			);
-			$row .= Html::closeElement('li');
-			return $row;
-		}, array_keys($usable_actions), array_values($usable_actions)));
-		$disp .= Html::closeElement('ul');
-		$disp .= Html::openElement('p');
-		$disp .= Html::element(
-			'label',
-			['for' => 'cratch-confirmaccount-comment'],
-			wfMessage('scratch-confirmaccount-comment')->text()
-		);
-		$disp .= Html::element(
-			'textarea',
-			[
-				'name' => 'comment',
-				'id' => 'scratch-confirmaccount-comment'
-			]
-		);
-		$disp .= Html::closeElement('p');
-		$disp .= Html::rawElement(
-			'p',
-			[],
-			Html::element('input', [
-				'type' => 'submit',
-				'value' => wfMessage('scratch-confirmaccount-submit')->parse()
-			])
-		);
-		$disp .= Html::closeElement('form');
+			$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
+			
+			$usable_actions = array_filter(actions, function($action) { return in_array('admin', $action['performers']); });
+			
+			$disp .= implode(array_map(function($key, $val) {
+				$row = Html::openElement('li');
+				$row .= Html::element(
+					'input',
+					[
+						'type' => 'radio',
+						'name' => 'action',
+						'id' => 'scratch-confirmaccount-action-' . $key,
+						'value' => $key,
+						'required' => true
+					]
+				);
+				$row .= Html::element(
+					'label',
+					['for' => 'scratch-confirmaccount-action-' . $key],
+					wfMessage($val['message'])->text()
+				);
+				$row .= Html::closeElement('li');
+				return $row;
+			}, array_keys($usable_actions), array_values($usable_actions)));
+			$disp .= Html::closeElement('ul');
+			$disp .= Html::openElement('p');
+			$disp .= Html::element(
+				'label',
+				['for' => 'cratch-confirmaccount-comment'],
+				wfMessage('scratch-confirmaccount-comment')->text()
+			);
+			$disp .= Html::element(
+				'textarea',
+				[
+					'name' => 'comment',
+					'id' => 'scratch-confirmaccount-comment'
+				]
+			);
+			$disp .= Html::closeElement('p');
+			$disp .= Html::rawElement(
+				'p',
+				[],
+				Html::element('input', [
+					'type' => 'submit',
+					'value' => wfMessage('scratch-confirmaccount-submit')->parse()
+				])
+			);
+			$disp .= Html::closeElement('form');
+		}
 
 		$output->addHTML($disp);
 	}
