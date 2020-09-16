@@ -6,6 +6,6 @@ Rewrite of previous versions of ConfirmAccount which were based on [MediaWiki Co
 $wgScratchVerificationProjectAuthor - Author of the verification project (default: `ModShare`)
 $wgScratchVerificationProjectID - ID of the verification project (default: `10135908`)
 ## Previous Versions
-[Version 1](https://github.com/jacob-g/scratch-confirmaccount)
+[Version 1](https://github.com/jacob-g/swiki-confirmaccount)
 
 [Version 2](https://github.com/InternationalScratchWiki/scratch-confirmaccount-v2)
