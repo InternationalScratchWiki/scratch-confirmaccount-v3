@@ -3,14 +3,24 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 
 class SpecialConfirmAccounts extends SpecialPage {
 	const statuses = [
-		'unreviewed' => wfMessage('scratch-confirmaccount-unreviewed')->text()
+		'unreviewed' => function (l10n) {
+            return l10n('scratch-confirmaccount-unreviewed')->text();
+        }
 	];
 
 	const actions = [
-		'comment' => wfMessage('scratch-confirmaccount-comment')->text(),
-		'accept' => wfMessage('scratch-confirmaccount-accept')->text(),
-		'reject' => wfMessage('scratch-confirmaccount-reject')->text(),
-		'reqfeedback' => wfMessage('scratch-confirmaccount-reqfeedback')->text()
+		'comment' => function (l10n) {
+            return l10n('scratch-confirmaccount-comment')->text();
+        },
+		'accept' => function (l10n) {
+            return l10n('scratch-confirmaccount-accept')->text();
+        },
+		'reject' => function (l10n) {
+            return l10n('scratch-confirmaccount-reject')->text();
+        },
+		'reqfeedback' => function (l10n) {
+            return l10n('scratch-confirmaccount-reqfeedback')->text();
+        },
 	];
 
 	function __construct() {
@@ -122,7 +132,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$disp .= Html::element(
 			'td',
 			[],
-			self::statuses[$accountRequest->status]
+			self::statuses[$accountRequest->status](wfMessage)
 		);
 		$disp .= Html::closeElement('tr');
 		$disp .= Html::openElement('tr');
@@ -186,7 +196,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$row = Html::openElement('div');
 			$row .= Html::openElement('h5');
 			$row .= Html::element('span', [], wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ));
-			$row .= Html::element('span', [], self::actions[$historyEntry->action]);
+			$row .= Html::element('span', [], self::actions[$historyEntry->action](wfMessage));
 			$row .= Html::closeElement('h5');
 			$row .= Html::element('p', [], $historyEntry->comment);
 			$row .= Html::closeElement('div');
@@ -231,7 +241,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$row .= Html::element(
 				'label',
 				['for' => 'scratch-confirmaccount-action-' . $key],
-				$val
+				$val(wfMessage)
 			);
 			$row = Html::closeElement('li');
 			return $row;
