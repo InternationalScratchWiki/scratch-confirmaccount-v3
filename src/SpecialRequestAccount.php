@@ -307,7 +307,7 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function requestPage($requestId, &$request, &$output, &$session) {
-		if (!$this->isAuthorizedToViewRequest($request->getText('requestId'), $session)) { 
+		if (!$this->isAuthorizedToViewRequest($requestId, $session)) { 
 			return $this->findRequestPage($request, $output, $session);
 		}
 		
