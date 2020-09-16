@@ -22,24 +22,37 @@ function createAccountRequest($username, $requestNotes, $email, $ip) {
 	return $dbw->insertID();
 }
 
-function getAccountRequests(string $status = null, string $username = null, int $offset = 0, int $limit = 10) : array {
-	$criteria = [];
-	if ($status != null) {
-		$criteria['request_status'] = $status;
-	}
-	if ($username != null) {
-		$criteria['LOWER(request_username)'] = strtolower($username);
-	}
-	
-	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), $criteria, __METHOD__, ['order_by' => ['request_timestamp', 'DESC']]);
-	
-	$requests = array();
-	foreach ($result as $row) {
-		$requests[] = AccountRequest::fromRow($row);
+abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
+	private $criteria;
+	function __construct($username, $status) {
+		$this->criteria = [];
+		if ($status != null) {
+			$this->criteria['request_status'] = $status;
+		}
+		if ($username != null) {
+			$this->criteria['LOWER(request_username)'] = strtolower($username);
+		}
+		
+		parent::__construct();
 	}
 	
-	return $requests;
+	function getQueryInfo() {
+		return [
+			'tables' => 'scratch_accountrequest',
+			'fields' => ['request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'],
+			'conds' => $this->criteria
+		];
+	}
+	
+	function getIndexField() {
+		return 'request_timestamp';
+	}
+	
+	function formatRow($row) {
+		return $this->rowFromRequest(AccountRequest::fromRow($row));
+	}
+	
+	abstract function rowFromRequest($accountRequest);
 }
 
 function getAccountRequestById($id) {

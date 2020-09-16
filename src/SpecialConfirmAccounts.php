@@ -3,9 +3,34 @@ require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/RequestPage.php';
 
-class SpecialConfirmAccounts extends SpecialPage {
+class AccountRequestPager extends AbstractAccountRequestPager {
+	private $linkRenderer;
+	function __construct($username, $status, $linkRenderer) {
+		parent::__construct($username, $status);
+		
+		$this->linkRenderer = $linkRenderer;
+	}
 	
+	function rowFromRequest($accountRequest) {
+		$row = Html::openElement('tr');
+		$row .= Html::element('td', [], wfTimestamp( TS_ISO_8601, $accountRequest->timestamp ));
+		$row .= Html::element('td', [], $accountRequest->username);
+		$row .= Html::element('td', [], $accountRequest->requestNotes);
+		$row .= Html::rawElement(
+			'td',
+			[],
+			$this->linkRenderer->makeKnownLink(
+				SpecialPage::getTitleFor('ConfirmAccounts', $accountRequest->id),
+				wfMessage('scratch-confirmaccount-view')->text()
+			)
+		);
+		$row .= Html::closeElement('tr');
 
+		return $row;
+	}
+}
+
+class SpecialConfirmAccounts extends SpecialPage {
 	function __construct() {
 		parent::__construct( 'ConfirmAccounts' );
 	}
@@ -14,8 +39,16 @@ class SpecialConfirmAccounts extends SpecialPage {
 		return 'users';
 	}
 	
-	function requestTable($requests, &$linkRenderer) {
-		$table = Html::openElement('table');
+	function requestTable($status, $username, &$linkRenderer) {
+		$pager = new AccountRequestPager($status, $username, $linkRenderer);
+		
+		if ($pager->getNumRows() == 0) {
+			return Html::element('p', [], wfMessage('scratch-confirmaccount-norequests')->text());
+		}
+		
+		$table = $pager->getNavigationBar();
+		
+		$table .= Html::openElement('table');
 
 		//table heading
 		$table .= Html::openElement('tr');
@@ -42,25 +75,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$table .= Html::closeElement('tr');
 
 		//results
-		$table .= implode(array_map(function (&$accountRequest) use ($linkRenderer) {
-			$row = Html::openElement('tr');
-			$row .= Html::element('td', [], wfTimestamp( TS_ISO_8601, $accountRequest->timestamp ));
-			$row .= Html::element('td', [], $accountRequest->username);
-			$row .= Html::element('td', [], $accountRequest->requestNotes);
-			$row .= Html::rawElement(
-				'td',
-				[],
-				$linkRenderer->makeKnownLink(
-					SpecialPage::getTitleFor('ConfirmAccounts', $accountRequest->id),
-					wfMessage('scratch-confirmaccount-view')->text()
-				)
-			);
-			$row .= Html::closeElement('tr');
-
-			return $row;
-		}, $requests));
+		$table .= $pager->getBody();
 
 		$table .= Html::closeElement('table');
+		
+		$table .= $pager->getNavigationBar();
 		
 		return $table;
 	}
@@ -68,24 +87,13 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function listRequestsByStatus($status, &$output) {
 		$linkRenderer = $this->getLinkRenderer();
 
-		$requests = getAccountRequests($status);
-
 		$output->addHTML(Html::element(
 			'h3',
 			[],
 			wfMessage('scratch-confirmaccount-confirm-header', $status)->text()
 		));
 
-		if (empty($requests)) {
-			$output->addHTML(Html::element(
-				'p',
-				[],
-				wfMessage('scratch-confirmaccount-norequests')->text()
-			));
-			return;
-		}
-
-		$table = $this->requestTable($requests, $linkRenderer);
+		$table = $this->requestTable(null, $status, $linkRenderer);
 
 		$output->addHTML($table);
 	}
