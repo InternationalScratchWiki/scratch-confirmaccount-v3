@@ -36,7 +36,7 @@ function getAccountRequests(string $status, int $offset = 0, int $limit = 10, st
 
 function getAccountRequestById($id) {
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->selectRow('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__,);
+	$result = $dbr->selectRow('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__);
 	
 	return $result ? AccountRequest::fromRow($result) : false;
 }
