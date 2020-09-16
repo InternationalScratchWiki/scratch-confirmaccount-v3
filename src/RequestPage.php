@@ -6,13 +6,13 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 }
 	
 function findRequestPage(&$request, &$output, &$session) {
-	$form = '<form method="post">';
+	$form = '<form method="post">'; //TODO: give this a URL to actually go to
 	$form .= '<input type="hidden" name="findRequest" value="1" />';
 	$form .= '<table>';
-	$form .= '<tr><td>Scratch username</td><td><input type="text" name="username" /></td></tr>';
-	$form .= '<tr><td>Password for request</td><td><input type="password" name="password" /></td></tr>';
+	$form .= '<tr><td>' . wfMessage('scratch-confirmaccount-scratchusername') . '</td><td><input type="text" name="username" /></td></tr>';
+	$form .= '<tr><td>' . wfMessage('scratch-confirmaccount-findrequest-password-prompt') . '</td><td><input type="password" name="password" /></td></tr>';
 	$form .= '</table>';
-	$form .= '<input type="submit" value="Submit" />';
+	$form .= '<input type="submit" value="' . wfMessage('scratch-confirmaccount-submit') . '" />';
 	$form .= '</form>';
 	
 	$output->addHTML($form);
@@ -20,7 +20,7 @@ function findRequestPage(&$request, &$output, &$session) {
 
 function requestPage($requestId, $userContext, &$output, &$pageContext, &$session) {
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
-		$output->addHTML('no permission');
+		$output->addHTML(Html::rawElement('p', [], wfMessage('scratch-confirmaccount-findrequest-nopermission')->parse()));
 		return;
 	}
 	
@@ -225,7 +225,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	$requestId = $request->getText('requestid');
 	
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
-		$output->addHTML('no permission');
+		$output->addHTML(Html::rawElement('p', [], wfMessage('scratch-confirmaccount-findrequest-nopermission')->parse()));
 		return;
 	}
 	

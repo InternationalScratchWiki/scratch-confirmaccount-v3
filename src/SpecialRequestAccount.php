@@ -306,7 +306,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
 		
 		if (empty($matchingRequests)) {
-			$output->addHTML('no matching requests');
+			$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-findrequest-nomatch')));
 			return;
 		}
 		
