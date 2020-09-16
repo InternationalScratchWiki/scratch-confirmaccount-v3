@@ -45,7 +45,7 @@
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which include underscore are not allowed.",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
 	"scratch-confirmaccount-request-exists": "The request is already received. Please wait for the administrators to handle it.",
-	"scratch-confirmaccount-verif-missing": "Please comment the verification code while logged into Scratch account $1.",
+	"scratch-confirmaccount-verif-missing": "Please comment the verification code while logged into Scratch account '$1'.",
 	"scratch-confirmaccount-user-blocked": "You are not allowed to request an account. Reason: $1",
 	"scratch-confirmaccount-invalid-email": "The email address is invalid.",
 	"scratch-confirmaccount-disagree-tos": "You have to agree to the Terms of Service to request an account.",
