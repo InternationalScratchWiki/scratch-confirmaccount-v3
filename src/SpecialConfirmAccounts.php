@@ -3,159 +3,310 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 
 class SpecialConfirmAccounts extends SpecialPage {
 	const statuses = [
-		'unreviewed' => 'Unreviewed'
+		'unreviewed' => wfMessage('scratch-confirmaccount-unreviewed')->text()
 	];
-	
+
 	const actions = [
-		'comment' => 'Comment',
-		'accept' => 'Accept',
-		'reject' => 'Reject',
-		'reqfeedback' => 'Request further feedback'
+		'comment' => wfMessage('scratch-confirmaccount-comment')->text(),
+		'accept' => wfMessage('scratch-confirmaccount-accept')->text(),
+		'reject' => wfMessage('scratch-confirmaccount-reject')->text(),
+		'reqfeedback' => wfMessage('scratch-confirmaccount-reqfeedback')->text()
 	];
-	
+
 	function __construct() {
 		parent::__construct( 'ConfirmAccounts' );
 	}
-	
+
 	function getGroupName() {
 		return 'users';
 	}
-	
+
 	function listRequestsByStatus($status, &$output) {
 		$linkRenderer = $this->getLinkRenderer();
-		
+
 		$requests = getAccountRequests($status);
-		
-		$output->addHTML('<h3>Requests with status ' . $status . '</h3>');
-		
+
+		$output->addHTML(Html::element(
+			'h3',
+			[],
+			wfMessage('scratch-confirmaccount-confirm-header', $output)->text()
+		));
+
 		if (empty($requests)) {
-			$output->addHTML('<p>There are no requests to view.</p>');
+			$output->addHTML(Html::element(
+				'p',
+				[],
+				wfMessage('scratch-confirmaccount-norequests')->text()
+			));
 			return;
 		}
-		
-		$table = '<table>';
-		
+
+		$table = Html::openElement('table');
+
 		//table heading
-		$table .= '<tr>';
-		$table .= '<th>Date</th>';
-		$table .= '<th>Username</th>';
-		$table .= '<th>Request notes</th>';
-		$table .= '<th>Actions</th>';
-		$table .= '</tr>';
-		
+		$table .= Html::openElement('tr');
+		$table .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-date')->text()
+		);
+		$table .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-username')->text()
+		);
+		$table .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-requestnotes')->text()
+		);
+		$table .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-actions')->text()
+		);
+		$table .= Html::closeElement('tr');
+
 		//results
 		$table .= implode(array_map(function (&$accountRequest) use ($linkRenderer) {
-			$row = '<tr>';
+			$row = Html::openElement('tr');
 			$row .= Html::element('td', [], wfTimestamp( TS_ISO_8601, $accountRequest->timestamp ));
 			$row .= Html::element('td', [], $accountRequest->username);
 			$row .= Html::element('td', [], $accountRequest->requestNotes);
-			$row .= '<td>';
-			$row .= $linkRenderer->makeKnownLink(SpecialPage::getTitleFor('ConfirmAccounts', $accountRequest->id), 'View');
-			$row .= '</td>';
-			$row .= '</tr>';
-			
+			$row .= Html::rawElement(
+				'td',
+				[],
+				$linkRenderer->makeKnownLink(
+					SpecialPage::getTitleFor('ConfirmAccounts', $accountRequest->id),
+					wfMessage('scratch-confirmaccount-view')->text()
+				)
+			);
+			$row .= Html::closeElement('tr');
+
 			return $row;
 		}, $requests));
-		
-		$table .= '</table>';
-		
+
+		$table .= Html::closeElement('table');
+
 		$output->addHTML($table);
 	}
-	
-	function showIndividualRequest($requestId, &$output) {		
+
+	function showIndividualRequest($requestId, &$output) {
 		$accountRequest = getAccountRequestById($requestId);
 		if (!$accountRequest) {
-			$output->addHTML('<p>No such request</p>');
+			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 			return;
 		}
-		
+
 		$history = getRequestHistory($accountRequest);
-		
-		$disp = '<h3>Account request</h3>';
-		
+
+		$disp = Html::element(
+			'h3',
+			[],
+			wfMessage('scratch-confirmaccount-accountrequest')->text()
+		);
+
 		//the top of the request, basic metadata
-		$disp .= '<h4>Details</h4>';
-		$disp .= '<table>';
-		$html_username = htmlspecialchars($accountRequest->username);
-		$disp .= '<tr><td>Status</td><td>' . self::statuses[$accountRequest->status] . '</td></tr>';
-		$disp .= '<tr><td>Request timestamp</td><td>' . wfTimestamp( TS_ISO_8601, $accountRequest->timestamp ) . '</td></tr>';
-		$disp .= '<tr><td>' . wfMessage('scratch-confirmaccount-scratchusername') . '</td><td><a href="https://scratch.mit.edu/users/' . $html_username . '">' . $html_username . '</a></td></tr>';
-		$disp .= '<tr><td>' . wfMessage('scratch-confirmaccount-requestnotes') . '</td><td>' . Html::element('textarea', ['readonly' => true], $accountRequest->requestNotes) . '</td></tr>';
-		$disp .= '</table>';
-		
+		$disp .= Html::element(
+			'h4',
+			[],
+			wfMessage('scratch-confirmaccount-details')->text()
+		);
+		$disp .= Html::openElement('table');
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'td',
+			[],
+			wfMessage('scratch-confirmaccount-status')->text()
+		);
+		$disp .= Html::element(
+			'td',
+			[],
+			self::statuses[$accountRequest->status]
+		);
+		$disp .= Html::closeElement('tr');
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'td',
+			[],
+			wfMessage('scratch-confirmaccount-request-timestamp')->text()
+		);
+		$disp .= Html::element(
+			'td',
+			[],
+			wfTimestamp( TS_ISO_8601, $accountRequest->timestamp )
+		);
+		$disp .= Html::closeElement('tr');
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'td',
+			[],
+			wfMessage('scratch-confirmaccount-scratchusername')->text()
+		);
+		$disp .= Html::rawElement(
+			'td',
+			[],
+			Html::element(
+				'a',
+				[
+					'href' => 'https://scratch.mit.edu/users/' . $accountRequest->username,
+					'target' => '_blank'
+				],
+				$accountRequest->username
+			)
+		);
+		$disp .= Html::closeElement('tr');
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'td',
+			[],
+			wfMessage('scratch-confirmaccount-requestnotes')->text()
+		);
+		$disp .= Html::rawElement(
+			'td',
+			[],
+			Html::element(
+				'textarea',
+				[
+					'readonly' => true
+				],
+				$accountRequest->requestNotes
+			)
+		);
+		$disp .= Html::closeElement('tr');
+		$disp .= Html::closeElement('table');
+
 		//history section
-		$disp .= '<h4>History</h4>';
+		$disp .= Html::element(
+			'h4',
+			[],
+			wfMessage('scratch-confirmaccount-history')->text()
+		);
 		$disp .= implode(array_map(function($historyEntry) {
-			$row = '<div>';
-			$row .= '<h5>' . wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ) . ' ' . self::actions[$historyEntry->action] . '</h5>';
+			$row = Html::openElement('div');
+			$row .= Html::openElement('h5');
+			$row .= Html::element('span', [], wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ));
+			$row .= Html::element('span', [], self::actions[$historyEntry->action]);
+			$row .= Html::closeElement('h5');
 			$row .= Html::element('p', [], $historyEntry->comment);
-			$row .= '</div>';
-			
+			$row .= Html::closeElement('div');
+
 			return $row;
 		}, $history));
-		
+
 		//actions section
-		$disp .= '<h4>Actions</h4>';
-		$disp .= '<form action="' . $this->getPageTitle()->getLocalUrl() . '" method="post" enctype="multipart/form-data">';
-		$disp .= Html::rawElement('input', ['type' => 'hidden', 'name' => 'requestid', 'value' => $requestId]);
-		$disp .= '<ul style="list-style-type: none; padding-left: 0">';
+		$disp .= Html::element(
+			'h4',
+			[],
+			wfMessage('scratch-confirmaccount-actions')->text()
+		);
+		$disp .= Html::openElement(
+			'form',
+			[
+				'action' => $this->getPageTitle()->getLocalUrl(),
+				'method' => 'post',
+				'enctype' => 'multipart/form-data'
+			]
+		);
+		$disp .= Html::rawElement(
+			'input',
+			[
+				'type' => 'hidden',
+				'name' => 'requestid',
+				'value' => $requestId
+			]
+		);
+		$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
 		$disp .= implode(array_map(function($key, $val) {
-			return '<li style="display: inline; margin-right: 10px">' . Html::rawElement('input', ['type' => 'radio', 'name' => 'action', 'id' => 'scratch-confirmaccount-action-' . $key, 'value' => $key]) . '<label for="scratch-confirmaccount-action-' . $key . '">' . $val . '</li>';
+			$row = Html::openElement('li');
+			$row .= Html::element(
+				'input',
+				[
+					'type' => 'radio',
+					'name' => 'action',
+					'id' => 'scratch-confirmaccount-action-' . $key,
+					'value' => $key
+				]
+			);
+			$row .= Html::element(
+				'label',
+				['for' => 'scratch-confirmaccount-action-' . $key],
+				$val
+			);
+			$row = Html::closeElement('li');
+			return $row;
 		}, array_keys(self::actions), array_values(self::actions)));
-		$disp .= '</ul>';
-		$disp .= '<p><label for="scratch-confirmaccount-comment">Comment</label><textarea name="comment" id="scratch-confirmaccount-comment"></textarea></p>';
-		$disp .= '<p>' . Html::rawElement('input', ['type' => 'submit', 'value' => 'Submit']) . '</p>';
-		$disp .= '</form>';
-		
+		$disp .= Html::closeElement('ul');
+		$disp .= Html::openElement('p');
+		$disp .= Html::element(
+			'label',
+			['for' => 'cratch-confirmaccount-comment'],
+			wfMessage('scratch-confirmaccount-comment')->text()
+		);
+		$disp .= Html::element(
+			'textarea',
+			[
+				'name' => 'comment',
+				'id' => 'scratch-confirmaccount-comment'
+			]
+		);
+		$disp .= Html::closeElement('p');
+		$disp .= Html::rawElement(
+			'p',
+			[],
+			Html::element('input', [
+				'type' => 'submit',
+				'value' => wfMessage('scratch-confirmaccount-submit')->parse()
+			])
+		);
+		$disp .= Html::closeElement('form');
+
 		$output->addHTML($disp);
 	}
-	
+
 	function defaultPage(&$output) {
 		return $this->listRequestsByStatus('unreviewed', $output);
 	}
-	
+
 	function handleFormSubmission(&$request, &$output) {
 		global $wgUser;
-		
+
 		$requestId = $request->getText('requestid');
 		$accountRequest = getAccountRequestById($requestId);
 		if (!$accountRequest) {
 			//request not found
-			//TODO: show an error
-			$output->addHTML('invalid request');
+			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 			return;
 		}
-		
+
 		$action = $request->getText('action');
 		if (!isset(self::actions[$action])) {
 			//invalid action
-			//TODO: show an error
-			$output->addHTML('invalid action');
+			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
 			return;
 		}
-		
+
 		if ($accountRequest->status == 'accepted') {
 			//request was already accepted, so we can't act on it
-			//TODO: show an error
-			$output->addHTML('request already accepted');
+			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
 			return;
 		}
-		
+
 		actionRequest($accountRequest, $action, $wgUser->getId(), $request->getText('comment'));
 	}
-	
+
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$this->setHeaders();
-		
+
 		//check permissions
 		$user = $this->getUser();
 
 		if (!$user->isAllowed('createaccount')) {
 			throw new PermissionsError('createaccount');
 		}
-		
+
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output);
 		} else if (isset(self::statuses[$par])) {
@@ -165,7 +316,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
 		} else {
-			//TODO: show an error message
+			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
 	}
 }
