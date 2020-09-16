@@ -69,6 +69,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 		
+		$history = getRequestHistory($accountRequest);
+		
 		$disp = '<h3>Account request</h3>';
 		
 		//the top of the request, basic metadata
@@ -83,14 +85,22 @@ class SpecialConfirmAccounts extends SpecialPage {
 		
 		//history section
 		$disp .= '<h4>History</h4>';
+		$disp .= implode(array_map(function($historyEntry) {
+			$row = '<div>';
+			$row .= '<h5>' . wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ) . ' ' . self::actions[$historyEntry->action] . '</h5>';
+			$row .= Html::element('p', [], $historyEntry->comment);
+			$row .= '</div>';
+			
+			return $row;
+		}, $history));
 		
 		//actions section
 		$disp .= '<h4>Actions</h4>';
-		$disp .= '<form>';
-		$disp .= Html::rawElement('input', ['type' => 'hidden', 'requestId' => $requestId]);
+		$disp .= '<form action="' . $this->getPageTitle()->getLocalUrl() . '" method="post" enctype="multipart/form-data">';
+		$disp .= Html::rawElement('input', ['type' => 'hidden', 'name' => 'requestid', 'value' => $requestId]);
 		$disp .= '<ul style="list-style-type: none; padding-left: 0">';
 		$disp .= implode(array_map(function($key, $val) {
-			return '<li style="display: inline">' . Html::rawElement('input', ['type' => 'radio', 'name' => 'action', 'id' => 'scratch-confirmaccount-action-' . $key, 'value' => $key]) . '<label for="scratch-confirmaccount-action-' . $key . '">' . $val . '</li>';
+			return '<li style="display: inline; margin-right: 10px">' . Html::rawElement('input', ['type' => 'radio', 'name' => 'action', 'id' => 'scratch-confirmaccount-action-' . $key, 'value' => $key]) . '<label for="scratch-confirmaccount-action-' . $key . '">' . $val . '</li>';
 		}, array_keys(self::actions), array_values(self::actions)));
 		$disp .= '</ul>';
 		$disp .= '<p><label for="scratch-confirmaccount-comment">Comment</label><textarea name="comment" id="scratch-confirmaccount-comment"></textarea></p>';
@@ -104,6 +114,36 @@ class SpecialConfirmAccounts extends SpecialPage {
 		return $this->listRequestsByStatus('unreviewed', $output);
 	}
 	
+	function handleFormSubmission(&$request, &$output) {
+		global $wgUser;
+		
+		$requestId = $request->getText('requestid');
+		$accountRequest = getAccountRequestById($requestId);
+		if (!$accountRequest) {
+			//request not found
+			//TODO: show an error
+			$output->addHTML('invalid request');
+			return;
+		}
+		
+		$action = $request->getText('action');
+		if (!isset(self::actions[$action])) {
+			//invalid action
+			//TODO: show an error
+			$output->addHTML('invalid action');
+			return;
+		}
+		
+		if ($accountRequest->status == 'accepted') {
+			//request was already accepted, so we can't act on it
+			//TODO: show an error
+			$output->addHTML('request already accepted');
+			return;
+		}
+		
+		actionRequest($accountRequest, $action, $wgUser->getId(), $request->getText('comment'));
+	}
+	
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
@@ -115,8 +155,10 @@ class SpecialConfirmAccounts extends SpecialPage {
 		if (!$user->isAllowed('createaccount')) {
 			throw new PermissionsError('createaccount');
 		}
-
-		if (isset(self::statuses[$par])) {
+		
+		if ($request->wasPosted()) {
+			return $this->handleFormSubmission($request, $output);
+		} else if (isset(self::statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
 			return $this->showIndividualRequest($par, $output);

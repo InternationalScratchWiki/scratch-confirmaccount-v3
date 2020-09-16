@@ -22,7 +22,7 @@ function createAccountRequest($username, $requestNotes, $email, $ip) {
 	return $dbw->insertID();
 }
 
-function getAccountRequests($status, $offset = 0, $limit = 10, $username = null) {
+function getAccountRequests(string $status, int $offset = 0, int $limit = 10, string $username = null) : array {
 	$dbr = wfGetDB( DB_REPLICA );
 	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_status' => $status], __METHOD__, ['order_by' => ['request_timestamp', 'DESC']]);
 	
@@ -41,10 +41,35 @@ function getAccountRequestById($id) {
 	return $result ? AccountRequest::fromRow($result) : false;
 }
 
-function addHistoryEntry($request, $history) {
+function actionRequest(AccountRequest $request, string $action, $userPerformingAction, string $comment) {
+	$dbw = wfGetDB( DB_MASTER );
+	
+	$dbw->insert('scratch_accountrequest_history', [
+		'history_request_id' => $request->id,
+		'history_action' => $action,
+		'history_comment' => $comment,
+		'history_performer' => $userPerformingAction,
+		'history_timestamp' => wfTimestampNow()
+	], __METHOD__);
+	
+	//TODO: also update the request status
 }
 
-function getRequestHistory($request) {
+function getRequestHistory(AccountRequest $request) : array {
+	$dbr = wfGetDB( DB_REPLICA );
+	
+	$result = $dbr->select('scratch_accountrequest_history', [
+		'history_timestamp',
+		'history_action',
+		'history_comment',
+	], ['history_request_id' => $request->id], __METHOD__, ['order_by' => ['history_timestamp', 'ASC']]);
+	
+	$history = array();
+	foreach ($result as $row) {
+		$history[] = AccountRequestHistoryEntry::fromRow($row);
+	}
+	
+	return $history;
 }
 
 function processRequest($request, $status, $comment) {

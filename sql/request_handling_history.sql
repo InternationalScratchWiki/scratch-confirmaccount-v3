@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest_history (
 	history_id integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	history_request_id integer unsigned NOT NULL,
 	history_action varchar(255) NOT NULL,
-	history_admin_comment text NOT NULL,
+	history_performer integer unsigned,
+	history_comment text,
 	history_timestamp varbinary(14) NOT NULL
 )/*$wgDBTableOptions*/;
 
