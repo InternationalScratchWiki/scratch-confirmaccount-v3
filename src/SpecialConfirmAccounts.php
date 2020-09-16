@@ -13,27 +13,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function getGroupName() {
 		return 'users';
 	}
-
-	function listRequestsByStatus($status, &$output) {
-		$linkRenderer = $this->getLinkRenderer();
-
-		$requests = getAccountRequests($status);
-
-		$output->addHTML(Html::element(
-			'h3',
-			[],
-			wfMessage('scratch-confirmaccount-confirm-header', $status)->text()
-		));
-
-		if (empty($requests)) {
-			$output->addHTML(Html::element(
-				'p',
-				[],
-				wfMessage('scratch-confirmaccount-norequests')->text()
-			));
-			return;
-		}
-
+	
+	function requestTable($requests, &$linkRenderer) {
 		$table = Html::openElement('table');
 
 		//table heading
@@ -80,6 +61,31 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}, $requests));
 
 		$table .= Html::closeElement('table');
+		
+		return $table;
+	}
+
+	function listRequestsByStatus($status, &$output) {
+		$linkRenderer = $this->getLinkRenderer();
+
+		$requests = getAccountRequests($status);
+
+		$output->addHTML(Html::element(
+			'h3',
+			[],
+			wfMessage('scratch-confirmaccount-confirm-header', $status)->text()
+		));
+
+		if (empty($requests)) {
+			$output->addHTML(Html::element(
+				'p',
+				[],
+				wfMessage('scratch-confirmaccount-norequests')->text()
+			));
+			return;
+		}
+
+		$table = $this->requestTable($requests, $linkRenderer);
 
 		$output->addHTML($table);
 	}
