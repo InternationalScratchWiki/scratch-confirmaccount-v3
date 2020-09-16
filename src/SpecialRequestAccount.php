@@ -258,15 +258,29 @@ class SpecialRequestAccount extends SpecialPage {
 			wfMessage('scratch-confirmaccount-success')->text()
 		));
 	}
+	
+	function isAuthorizedToViewRequest($requestId, &$session) {
+		return $session->exists('requestId') && $session->get('requestId') == $requestId;
+	}
+	
+	function handleRequestActionSubmission(&$request, &$output, &$session) {		
+		if (!$this->isAuthorizedToViewRequest($request->getText('requestId'), $session)) { 
+			return $this->findRequestPage($request, $output, $session);
+		}
+		
+		return handleRequestActionSubmission('user', $request, $output);
+	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('user', $request, $output);
+			$this->handleRequestActionSubmission($request, $output, $session);
+		} else if ($request->getText('findRequest')) {
+			$this->handleFindRequestFormSubmission($request, $output, $session);
 		} else {
 			$this->handleAccountRequestFormSubmission($request, $output, $session);
 		}
 	}
-
+	
 	function requestForm(&$request, &$output, &$session, $error = '') {
 		$form = Html::openElement('form', [ 'method' => 'post', 'name' => 'requestaccount', 'action' => $this->getPageTitle()->getLocalUrl(), 'enctype' => 'multipart/form-data' ]);
 
@@ -293,8 +307,52 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function requestPage($requestId, &$request, &$output, &$session) {
-		//TODO: the logic for showing the page to deal with an individual request
-		requestPage($requestId, 'user', $output, $this);
+		if (!$this->isAuthorizedToViewRequest($request->getText('requestId'), $session)) { 
+			return $this->findRequestPage($request, $output, $session);
+		}
+		
+		return requestPage($requestId, 'user', $output, $this);
+	}
+	
+	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
+		$linkRenderer = $this->getLinkRenderer();
+		
+		$username = $request->getText('username');
+		$password = $request->getText('password');
+		
+		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
+		
+		$requests = getAccountRequestsByUsername($username);
+		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
+		
+		if (empty($matchingRequests)) {
+			$output->addHTML('no matching requests');
+			return;
+		}
+		
+		$requestId = $matchingRequests[0]->id;
+		
+		$session->persist();
+		$session->set('requestId', $requestId);
+		$session->save();
+		
+		$output->addHTML('<p>' . $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('RequestAccount', $requestId),
+			'See your request'
+		) . '</p>');
+	}
+	
+	function findRequestPage(&$request, &$output, &$session) {
+		$form = '<form method="post">';
+		$form .= '<input type="hidden" name="findRequest" value="1" />';
+		$form .= '<table>';
+		$form .= '<tr><td>Scratch username</td><td><input type="text" name="username" /></td></tr>';
+		$form .= '<tr><td>Password for request</td><td><input type="password" name="password" /></td></tr>';
+		$form .= '</table>';
+		$form .= '<input type="submit" value="Submit" />';
+		$form .= '</form>';
+		
+		$output->addHTML($form);
 	}
 
 	function execute( $par ) {
@@ -306,8 +364,10 @@ class SpecialRequestAccount extends SpecialPage {
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output, $session);
-		} if ($par == '') {
+		} else if ($par == '') {
 			return $this->requestForm($request, $output, $session);
+		} else if ($par == 'FindRequest') {
+			return $this->findRequestPage($request, $output, $session);
 		} else if (ctype_digit($par)) {
 			return $this->requestPage($par, $request, $output, $session);
 		} else {

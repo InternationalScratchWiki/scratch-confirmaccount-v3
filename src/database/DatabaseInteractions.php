@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../objects/AccountRequest.php';
+require_once __DIR__ . '/../common.php';
 
 function getBlockReason($username) {
 	$dbr = wfGetDB( DB_REPLICA );
@@ -53,7 +54,19 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 		return $this->rowFromRequest(AccountRequest::fromRow($row));
 	}
 
-	abstract function rowFromRequest($accountRequest);
+	abstract function rowFromRequest(AccountRequest $accountRequest);
+}
+
+function getAccountRequestsByUsername(string $username) : array {
+	$dbr = wfGetDB( DB_REPLICA );
+	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_username' => $username], __METHOD__);
+	
+	$results = [];
+	foreach ($result as $row) {
+		$results[] = AccountRequest::fromRow($row);
+	}
+	
+	return $results;
 }
 
 function getAccountRequestById($id) {
