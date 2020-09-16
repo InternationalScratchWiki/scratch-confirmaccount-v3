@@ -51,12 +51,12 @@ class SpecialRequestAccount extends SpecialPage {
 			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
 			return;
 		}
-		/*
+
 		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) != $username) {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
 			return;
 		}
-		*/
+		
 
 		$blockReason = getBlockReason($username);
 		if ($blockReason) {
