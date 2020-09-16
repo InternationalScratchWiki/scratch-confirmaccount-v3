@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest (
 	-- Primary key
 	request_id integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	request_username VARCHAR(255) binary NOT NULL,
+	password_hash tinyblob NOT NULL,
 	request_email VARCHAR(255) binary,
 	request_timestamp varbinary(14) NOT NULL,
 	request_notes TEXT NOT NULL,

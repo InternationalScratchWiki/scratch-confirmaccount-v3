@@ -5,6 +5,8 @@ require_once __DIR__ . '/objects/AccountRequest.php';
 require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/RequestPage.php';
 
+use MediaWiki\MediaWikiServices;
+
 class SpecialRequestAccount extends SpecialPage {
 	function __construct() {
 		parent::__construct( 'RequestAccount' );
@@ -15,6 +17,28 @@ class SpecialRequestAccount extends SpecialPage {
 
 		if ($username == '' || !ScratchVerification::isValidScratchUsername($username)) {
 			$out_error = wfMessage('scratch-confirmaccount-invalid-username')->text();
+			return;
+		}
+
+		$password = $request->getText('password');
+		$password2 = $request->getText('password2');
+		if ($password != $password2) {
+			// It just compares two user input, no need to prevent timing attack
+			$out_error = wfMessage('scratch-confirmaccount-incorrect-password')->text();
+			return;
+		}
+
+		$passwordRequirement = passwordMinMax();
+		// Scratch requires password to be at least 6 chars
+		$passwordMin = max($passwordRequirement[0], 6);
+		$passwordMax = $passwordRequirement[1];
+		$passwordLen = strlen($password);
+		if ($passwordLen < $passwordMin) {
+			$out_error = wfMessage('scratch-confirmaccount-password-min', $passwordMin)->text();
+			return;
+		}
+		if ($passwordLen > $passwordMax) {
+			$out_error = wfMessage('scratch-confirmaccount-password-max', $passwordMax)->text();
 			return;
 		}
 
@@ -32,6 +56,7 @@ class SpecialRequestAccount extends SpecialPage {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
 			return;
 		}
+		
 
 		$blockReason = getBlockReason($username);
 		if ($blockReason) {
@@ -58,9 +83,16 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
+		// Create password hash
+		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
+		$passwordHash = $passwordFactory->newFromPlaintext($password)->toString();
 
-
-		return ['username' => $username, 'email' => $email, 'requestnotes' => $request_notes];
+		return [
+			'username' => $username,
+			'email' => $email,
+			'requestnotes' => $request_notes,
+			'passwordHash' => $passwordHash
+		];
 	}
 
 	function getGroupName() {
@@ -96,6 +128,40 @@ class SpecialRequestAccount extends SpecialPage {
 				'name' => 'scratchusername',
 				'id' => 'scratch-confirmaccount-username',
 				'value' => $request->getText('scratchusername')
+			]
+		);
+		$form .= Html::closeElement('p');
+
+        $form .= Html::openElement('p');
+		$form .= Html::element(
+			'label',
+			['for' => 'scratch-confirmaccount-password'],
+			wfMessage('scratch-confirmaccount-password')->text()
+		);
+		$form .= Html::element(
+			'input',
+			[
+				'type' => 'password',
+				'name' => 'password',
+				'id' => 'scratch-confirmaccount-password',
+				'value' => ''
+			]
+		);
+		$form .= Html::closeElement('p');
+
+        $form .= Html::openElement('p');
+		$form .= Html::element(
+			'label',
+			['for' => 'scratch-confirmaccount-password2'],
+			wfMessage('scratch-confirmaccount-password2')->text()
+		);
+		$form .= Html::element(
+			'input',
+			[
+				'type' => 'password',
+				'name' => 'password2',
+				'id' => 'scratch-confirmaccount-password2',
+				'value' => ''
 			]
 		);
 		$form .= Html::closeElement('p');
@@ -167,7 +233,7 @@ class SpecialRequestAccount extends SpecialPage {
 	function guidelinesArea() {
 		return '';
 	}
-	
+
 	function handleAccountRequestFormSubmission(&$request, &$output, &$session) {
 		//validate and sanitize the input
 		$formData = $this->sanitizedPostData($request, $session, $error);
@@ -176,7 +242,13 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 		//now actually create the request and reset the verification code
-		createAccountRequest($formData['username'], $formData['requestnotes'], $formData['email'], $request->getIP());
+		createAccountRequest(
+			$formData['username'],
+			$formData['passwordHash'],
+			$formData['requestnotes'],
+			$formData['email'],
+			$request->getIP()
+		);
 		ScratchVerification::generateNewCodeForSession($session);
 
 		//and show the output
@@ -219,7 +291,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		$output->addHTML($form);
 	}
-	
+
 	function requestPage($requestId, &$request, &$output, &$session) {
 		//TODO: the logic for showing the page to deal with an individual request
 		requestPage($requestId, 'user', $output, $this);

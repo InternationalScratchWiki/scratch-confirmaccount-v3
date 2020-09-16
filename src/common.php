@@ -15,23 +15,23 @@ const statuses = [
 ];
 const actions = [
 	'set-status-accepted' => [
-		'performers' => ['admin'], 
+		'performers' => ['admin'],
 		'message' => 'scratch-confirmaccount-set-status-accepted'
 	],
 	'set-status-rejected' => [
-		'performers' => ['admin'], 
+		'performers' => ['admin'],
 		'message' => 'scratch-confirmaccount-set-status-rejected'
 	],
 	'set-status-awaiting-admin' => [
-		'performers' => ['user'], 
+		'performers' => ['user'],
 		'message' => 'scratch-confirmaccount-set-status-awaiting-admin'
 	],
 	'set-status-awaiting-user' => [
-		'performers' => ['admin'], 
+		'performers' => ['admin'],
 		'message' => 'scratch-confirmaccount-set-status-awaiting-user'
 	],
 	'comment' => [
-		'performers' => ['user', 'admin'], 
+		'performers' => ['user', 'admin'],
 		'message' => 'scratch-confirmaccount-comment'
 	]
 ];
@@ -41,3 +41,19 @@ const actionToStatus = [
 	'set-status-awaiting-admin' => 'awaiting-admin',
 	'set-status-awaiting-user' => 'awaiting-user'
 ];
+
+function passwordMinMax() {
+	if (!isset($GLOBALS['wgScratchVerificationProjectAuthor'])) {
+		return [6, 4096];
+	}
+	$default = $GLOBALS['wgScratchVerificationProjectAuthor']['policies']['default'];
+	$min = $default['MinimalPasswordLength'];
+	if (is_array($min)) {
+		$min = $min['value'];
+	}
+	$max = $default['MaximalPasswordLength'];
+	if (is_array($max)) {
+		$max = $max['value'];
+	}
+	return [$min, $max];
+}
