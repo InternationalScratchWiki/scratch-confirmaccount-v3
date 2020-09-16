@@ -35,6 +35,10 @@ function getAccountRequests($status, $offset = 0, $limit = 10, $username = null)
 }
 
 function getAccountRequestById($id) {
+	$dbr = wfGetDB( DB_REPLICA );
+	$result = $dbr->selectRow('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__,);
+	
+	return $result ? AccountRequest::fromRow($result) : false;
 }
 
 function addHistoryEntry($request, $history) {
