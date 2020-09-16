@@ -1,7 +1,7 @@
 {
 	"name": "Scratch Account Request System",
 	"descriptionmsg": "scratch-confirmaccount-desc",
-	"author": ["Jacob G. (jvvg)"],
+	"author": ["Jacob G. (jvvg)", "Naleksuh"],
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
 	"MessagesDirs": {
