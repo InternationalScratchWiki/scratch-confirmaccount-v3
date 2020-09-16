@@ -210,6 +210,18 @@ class SpecialRequestAccount extends SpecialPage {
 
 		$output->addHTML($form);
 	}
+	
+	function basePage(&$request, &$output, &$session) {
+		if ($request->wasPosted()) {
+			return $this->handleFormSubmission($request, $output, $session);
+		} else {
+			return $this->requestForm($request, $output, $session);
+		}
+	}
+	
+	function requestPage(&$request, &$output, &$session) {
+		//TODO: the logic for showing the page to deal with an individual request
+	}
 
 	function execute( $par ) {
 		$request = $this->getRequest();
@@ -218,10 +230,12 @@ class SpecialRequestAccount extends SpecialPage {
 		$session = $this->getRequest()->getSession();
 		$this->setHeaders();
 
-		if ($request->wasPosted()) {
-			return $this->handleFormSubmission($request, $output, $session);
+		if ($par == '') {
+			return $this->basePage($request, $output, $session);
+		} else if (ctype_digit($par)) {
+			return $this->requestPage($request, $output, $session);
 		} else {
-			return $this->requestForm($request, $output, $session);
+			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
 	}
 }
