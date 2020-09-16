@@ -1,7 +1,11 @@
 <?php
 require_once __DIR__ . '/../objects/AccountRequest.php';
 
-function isUsernameBlocked($username) {
+function getBlockReason($username) {
+	$dbr = wfGetDB( DB_REPLICA );
+
+	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_reason'), ['LOWER(block_username)' => strtolower($username)], __METHOD__);
+	return $row ? $row->block_reason : false;
 }
 
 function createAccountRequest($username, $requestNotes, $email, $ip) {
@@ -18,7 +22,16 @@ function createAccountRequest($username, $requestNotes, $email, $ip) {
 	return $dbw->insertID();
 }
 
-function getAccountRequests($status) {
+function getAccountRequests($status, $offset = 0, $limit = 10, $username = null) {
+	$dbr = wfGetDB( DB_REPLICA );
+	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_status' => $status], __METHOD__, ['order_by' => ['request_timestamp', 'DESC']]);
+	
+	$requests = array();
+	foreach ($result as $row) {
+		$requests[] = AccountRequest::fromRow($row);
+	}
+	
+	return $requests;
 }
 
 function getAccountRequestById($id) {

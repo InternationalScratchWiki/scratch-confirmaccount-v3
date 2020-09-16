@@ -2,6 +2,7 @@
 require_once __DIR__ . '/verification/ScratchVerification.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/objects/AccountRequest.php';
+require_once __DIR__ . '/common.php';
 
 class SpecialRequestAccount extends SpecialPage {
 	function __construct() {
@@ -21,11 +22,6 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 		
-		if (isUsernameBlocked($username)) {
-			$out_error = 'username blocked'; // note : blocks are not publicly visible on scratch, so this will never firet
-			return;
-		}
-		
 		if (hasActiveRequest($username)) {
 			$out_error = 'user already has active request';
 			return;
@@ -33,6 +29,12 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		if (topVerifCommenter(sessionVerificationCode($session)) != $username) {
 			$out_error = 'verification code missing';
+			return;
+		}
+		
+		$blockReason = getBlockReason($username);
+		if ($blockReason) {
+			$out_error = 'username blocked with reason: ' . $blockReason; // note : blocks are not publicly visible on scratch, so this needs to run after checking the verification code
 			return;
 		}
 		
@@ -77,7 +79,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement('input', ['type' => 'email', 'name' => 'email', 'id' => 'scratch-confirmaccount-email', 'value' => $request->getText('email')]);
 		$form .= '</p>';
 		
-		$form .= '<p>' . wfMessage('scratch-confirmaccount-vercode-explanation')->params(sprintf(PROJECT_LINK, $GLOBALS['wgScratchVerificationProjectID'] ?: "10135908"))->parse() . '</p>';
+		$form .= '<p>' . wfMessage('scratch-confirmaccount-vercode-explanation')->params(sprintf(PROJECT_LINK, wgScratchVerificationProjectID()))->parse() . '</p>';
 		$form .= '<p style=\"font-weight: bold\">' . sessionVerificationCode($session) . '</p>';
 		
 		$form .= $this->formSectionFooter();
@@ -121,6 +123,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form = Xml::openElement('form', [ 'method' => 'post', 'name' => 'requestaccount', 'action' => $this->getPageTitle()->getLocalUrl(), 'enctype' => 'multipart/form-data' ]);
 		
 		//display errors if there are any relevant
+		//TODO: show this in an error box
 		if ($error != '') {
 			$form .= '<p>' . $error . '</p>';
 		}

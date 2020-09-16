@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../common.php';
+
 define('SCRATCH_COMMENT_API_URL', 'https://api.scratch.mit.edu/users/%s/projects/%s/comments?offset=0&limit=20');
 define('PROJECT_LINK', 'https://scratch.mit.edu/projects/%s/');
 
@@ -28,8 +30,8 @@ function commentsForProject($author, $project_id) {
 
 function verifComments() {
 	return commentsForProject(
-		$GLOBALS['wgScratchVerificationProjectAuthor'] ?: "ModShare",
-		$GLOBALS['wgScratchVerificationProjectID'] ?: "10135908"
+		wgScratchVerificationProjectAuthor(),
+		wgScratchVerificationProjectID()
 	);
 }
 
