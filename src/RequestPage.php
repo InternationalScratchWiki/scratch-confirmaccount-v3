@@ -177,3 +177,45 @@ function requestPage($requestId, $userContext, &$output, &$pageContext) {
 
 	$output->addHTML($disp);
 }
+
+function handleRequestActionSubmission($userContext, &$request, &$output) {
+	global $wgUser;
+
+	$requestId = $request->getText('requestid');
+	$accountRequest = getAccountRequestById($requestId);
+	if (!$accountRequest) {
+		//request not found
+		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
+		return;
+	}
+
+	$action = $request->getText('action');
+	if (!isset(actions[$action])) {
+		//invalid action
+		$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
+		return;
+	}
+
+	if ($accountRequest->status == 'accepted') {
+		//request was already accepted, so we can't act on it
+		$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
+		return;
+	}
+	
+	if (!in_array($userContext, actions[$action]['performers'])) {
+		//admin does not have permission to perform this action
+		$output->showErrorPage('error');
+		return;
+	}
+
+	actionRequest($accountRequest, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'));
+	if ($action == 'accept') {
+		// @TODO make account.
+	} else {
+		$output->addHTML(Html::element(
+			'p',
+			[],
+			wfMessage(actions[$action]['message'] . '-done')->text()
+		));
+	}
+}

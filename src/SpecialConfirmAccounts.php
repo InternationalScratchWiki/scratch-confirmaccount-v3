@@ -89,39 +89,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function handleFormSubmission(&$request, &$output) {
-		global $wgUser;
-
-		$requestId = $request->getText('requestid');
-		$accountRequest = getAccountRequestById($requestId);
-		if (!$accountRequest) {
-			//request not found
-			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
-			return;
-		}
-
-		$action = $request->getText('action');
-		if (!isset(actions[$action])) {
-			//invalid action
-			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
-			return;
-		}
-
-		if ($accountRequest->status == 'accepted') {
-			//request was already accepted, so we can't act on it
-			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
-			return;
-		}
-
-		actionRequest($accountRequest, $action, $wgUser->getId(), $request->getText('comment'));
-		if ($action == 'accept') {
-			// @TODO make account.
-		} else {
-			$output->addHTML(Html::element(
-				'p',
-				[],
-				wfMessage(actions[$action]['message'] . '-done')->text()
-			));
-		}
+		handleRequestActionSubmission('admin', $request, $output);
 	}
 
 	function execute( $par ) {

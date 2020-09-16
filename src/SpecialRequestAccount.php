@@ -167,8 +167,8 @@ class SpecialRequestAccount extends SpecialPage {
 	function guidelinesArea() {
 		return '';
 	}
-
-	function handleFormSubmission(&$request, &$output, &$session) {
+	
+	function handleAccountRequestFormSubmission(&$request, &$output, &$session) {
 		//validate and sanitize the input
 		$formData = $this->sanitizedPostData($request, $session, $error);
 		if ($error != '') {
@@ -185,6 +185,14 @@ class SpecialRequestAccount extends SpecialPage {
 			[],
 			wfMessage('scratch-confirmaccount-success')->text()
 		));
+	}
+
+	function handleFormSubmission(&$request, &$output, &$session) {
+		if ($request->getText('action')) {
+			handleRequestActionSubmission('user', $request, $output);
+		} else {
+			$this->handleAccountRequestFormSubmission($request, $output, $session);
+		}
 	}
 
 	function requestForm(&$request, &$output, &$session, $error = '') {
@@ -212,14 +220,6 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 	
-	function basePage(&$request, &$output, &$session) {
-		if ($request->wasPosted()) {
-			return $this->handleFormSubmission($request, $output, $session);
-		} else {
-			return $this->requestForm($request, $output, $session);
-		}
-	}
-	
 	function requestPage($requestId, &$request, &$output, &$session) {
 		//TODO: the logic for showing the page to deal with an individual request
 		requestPage($requestId, 'user', $output, $this);
@@ -232,8 +232,10 @@ class SpecialRequestAccount extends SpecialPage {
 		$session = $this->getRequest()->getSession();
 		$this->setHeaders();
 
-		if ($par == '') {
-			return $this->basePage($request, $output, $session);
+		if ($request->wasPosted()) {
+			return $this->handleFormSubmission($request, $output, $session);
+		} if ($par == '') {
+			return $this->requestForm($request, $output, $session);
 		} else if (ctype_digit($par)) {
 			return $this->requestPage($par, $request, $output, $session);
 		} else {
