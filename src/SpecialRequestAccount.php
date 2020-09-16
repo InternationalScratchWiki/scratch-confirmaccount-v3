@@ -164,7 +164,7 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function guidelinesArea() {
-		return wfMessage('scratch-confirmaccount-guideline')->parse();
+		return '';
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
