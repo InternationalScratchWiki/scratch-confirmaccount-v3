@@ -12,7 +12,7 @@ class SpecialRequestAccount extends SpecialPage {
 	function sanitizedPostData(&$request, &$session, &$out_error) {
 		$username = $request->getText('scratchusername');
 
-		if ($username == '' || !isValidScratchUsername($username)) {
+		if ($username == '' || !ScratchVerification::isValidScratchUsername($username)) {
 			$out_error = wfMessage('scratch-confirmaccount-invalid-username')->text();
 			return;
 		}
@@ -27,7 +27,7 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
-		if (topVerifCommenter(sessionVerificationCode($session)) != $username) {
+		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) != $username) {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
 			return;
 		}
@@ -119,12 +119,12 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement(
 			'p',
 			[],
-			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(PROJECT_LINK, wgScratchVerificationProjectID()))->parse()
+			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(ScratchVerification::PROJECT_LINK, wgScratchVerificationProjectID()))->parse()
 		);
 		$form .= Html::element(
 			'p',
 			['class' => 'mw-scratch-confirmaccount-verifcode'],
-			sessionVerificationCode($session)
+			ScratchVerification::sessionVerificationCode($session)
 		);
 
 		$form .= $this->formSectionFooter();
@@ -176,7 +176,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//now actually create the request and reset the verification code
 		createAccountRequest($formData['username'], $formData['requestnotes'], $formData['email'], $request->getIP());
-		generateNewCodeForSession($session);
+		ScratchVerification::generateNewCodeForSession($session);
 
 		//and show the output
 		$output->addHTML(Html::element(
