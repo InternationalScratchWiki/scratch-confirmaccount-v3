@@ -60,6 +60,7 @@
 	"scratch-confirmaccount-accepted-requests": "Accepted requests",
 	"scratch-confirmaccount-rejected-requests": "Rejected requests",
 	"scratch-confirmaccount-requests-awaiting-user-comment": "Requests awaiting user comment",
+	"scratch-confirmaccount-confirm-search-results": "Search results for '$1'",
 	"scratch-confirmaccount-set-status-accepted": "Accept",
 	"scratch-confirmaccount-set-status-rejected": "Reject",
 	"scratch-confirmaccount-set-status-awaiting-user": "Request user comment",

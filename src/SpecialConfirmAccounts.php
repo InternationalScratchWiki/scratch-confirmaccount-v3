@@ -121,7 +121,28 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 	
 	function searchByUsername($username, &$request, &$output) {
-		//TODO: implement this
+		$linkRenderer = $this->getLinkRenderer();
+		
+		$requests = getAccountRequests(null, $username);
+		
+		$output->addHTML(Html::element(
+			'h3',
+			[],
+			wfMessage('scratch-confirmaccount-confirm-search-results', $username)->text()
+		));
+		
+		if (empty($requests)) {
+			$output->addHTML(Html::element(
+				'p',
+				[],
+				wfMessage('scratch-confirmaccount-norequests')->text()
+			));
+			return;
+		}
+		
+		$table = $this->requestTable($requests, $linkRenderer);
+		
+		$output->addHTML($table);
 	}
 
 	function execute( $par ) {

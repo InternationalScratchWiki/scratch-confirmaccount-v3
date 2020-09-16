@@ -22,9 +22,17 @@ function createAccountRequest($username, $requestNotes, $email, $ip) {
 	return $dbw->insertID();
 }
 
-function getAccountRequests(string $status, int $offset = 0, int $limit = 10, string $username = null) : array {
+function getAccountRequests(string $status = null, string $username = null, int $offset = 0, int $limit = 10) : array {
+	$criteria = [];
+	if ($status != null) {
+		$criteria['request_status'] = $status;
+	}
+	if ($username != null) {
+		$criteria['request_username'] = $username;
+	}
+	
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_status' => $status], __METHOD__, ['order_by' => ['request_timestamp', 'DESC']]);
+	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), $criteria, __METHOD__, ['order_by' => ['request_timestamp', 'DESC']]);
 	
 	$requests = array();
 	foreach ($result as $row) {
