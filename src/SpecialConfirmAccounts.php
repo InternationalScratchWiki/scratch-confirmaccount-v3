@@ -1,16 +1,9 @@
 <?php
+require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
 class SpecialConfirmAccounts extends SpecialPage {
-	const statuses = [
-		'unreviewed' => 'scratch-confirmaccount-unreviewed'
-	];
-	const actions = [
-		'comment' => 'scratch-confirmaccount-comment',
-		'accept' => 'scratch-confirmaccount-accept',
-		'reject' => 'scratch-confirmaccount-reject',
-		'reqfeedback' => 'scratch-confirmaccount-reqfeedback'
-	];
+	
 
 	function __construct() {
 		parent::__construct( 'ConfirmAccounts' );
@@ -121,7 +114,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$disp .= Html::element(
 			'td',
 			[],
-			wfMessage(self::statuses[$accountRequest->status])->text()
+			wfMessage(statuses[$accountRequest->status])->text()
 		);
 		$disp .= Html::closeElement('tr');
 		$disp .= Html::openElement('tr');
@@ -185,7 +178,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$row = Html::openElement('div');
 			$row .= Html::openElement('h5');
 			$row .= Html::element('span', [], wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ));
-			$row .= Html::element('span', [], wfMessage(self::actions[$historyEntry->action])->text());
+			$row .= Html::element('span', [], wfMessage(actions[$historyEntry->action])->text());
 			$row .= Html::closeElement('h5');
 			$row .= Html::element('p', [], $historyEntry->comment);
 			$row .= Html::closeElement('div');
@@ -234,7 +227,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			);
 			$row .= Html::closeElement('li');
 			return $row;
-		}, array_keys(self::actions), array_values(self::actions)));
+		}, array_keys(actions), array_values(actions)));
 		$disp .= Html::closeElement('ul');
 		$disp .= Html::openElement('p');
 		$disp .= Html::element(
@@ -264,7 +257,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function defaultPage(&$output) {
-		return $this->listRequestsByStatus('unreviewed', $output);
+		return $this->listRequestsByStatus('new', $output);
 	}
 
 	function handleFormSubmission(&$request, &$output) {
@@ -279,7 +272,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}
 
 		$action = $request->getText('action');
-		if (!isset(self::actions[$action])) {
+		if (!isset(actions[$action])) {
 			//invalid action
 			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
 			return;
@@ -298,7 +291,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$output->addHTML(Html::element(
 				'p',
 				[],
-				wfMessage(self::actions[$action] . '-done')->text()
+				wfMessage(actions[$action] . '-done')->text()
 			));
 		}
 	}
@@ -318,7 +311,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output);
-		} else if (isset(self::statuses[$par])) {
+		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
 			return $this->showIndividualRequest($par, $output);

@@ -50,5 +50,10 @@
 	"scratch-confirmaccount-invalid-email": "The email address is invalid.",
 	"scratch-confirmaccount-disagree-tos": "You have to agree to the Terms of Service to request an account.",
 	"scratch-confirmaccount-no-request-notes": "Request notes cannot be empty.",
-	"scratch-confirmaccount-success": "Account request has been received. Administrators will handle it and send response."
+	"scratch-confirmaccount-success": "Account request has been received. Administrators will handle it and send response.",
+	"scratch-confirmaccount-new": "New",
+	"scratch-confirmaccount-awaiting-admin": "Awaiting admin",
+	"scratch-confirmaccount-awaiting-user": "Awaiting user",
+	"scratch-confirmaccount-rejected": "Rejected",
+	"scratch-confirmaccount-accepted": "Accepted"
 }

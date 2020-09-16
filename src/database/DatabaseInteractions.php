@@ -16,7 +16,7 @@ function createAccountRequest($username, $requestNotes, $email, $ip) {
 		'request_timestamp' => wfTimestampNow(),
 		'request_notes' => $requestNotes,
 		'request_ip' => $ip,
-		'request_status' => 'unreviewed'
+		'request_status' => 'new'
 	], __METHOD__);
 	
 	return $dbw->insertID();
