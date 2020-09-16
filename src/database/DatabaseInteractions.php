@@ -28,7 +28,7 @@ function getAccountRequests(string $status = null, string $username = null, int 
 		$criteria['request_status'] = $status;
 	}
 	if ($username != null) {
-		$criteria['request_username'] = $username;
+		$criteria['LOWER(request_username)'] = strtolower($username);
 	}
 	
 	$dbr = wfGetDB( DB_REPLICA );
