@@ -292,6 +292,15 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}
 
 		actionRequest($accountRequest, $action, $wgUser->getId(), $request->getText('comment'));
+		if ($action == 'accept') {
+			// @TODO make account.
+		} else {
+			$output->addHTML(Html::element(
+				'p',
+				[],
+				wfMessage(self::actions[$action] . '-done')->text()
+			));
+		}
 	}
 
 	function execute( $par ) {
