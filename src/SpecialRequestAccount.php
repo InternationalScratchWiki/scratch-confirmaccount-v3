@@ -46,6 +46,11 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		$request_notes = $request->getText('requestnotes');
 		
+		if($request_notes == ""){
+			$out_error = "no request notes";
+			return;
+		}
+		
 		return ['username' => $username, 'email' => $email, 'requestnotes' => $request_notes];
 	}
 	
