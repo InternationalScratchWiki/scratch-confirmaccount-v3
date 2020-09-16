@@ -19,7 +19,8 @@
 		"ConfirmAccounts": "SpecialConfirmAccounts"
 	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates"
+		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates",
+		"BeforePageDisplay": "ScratchConfirmAccountHooks::pendingRequestNotice"
 	},
 	"ResourceModules": {
 		"ext.scratchConfirmAccount": {

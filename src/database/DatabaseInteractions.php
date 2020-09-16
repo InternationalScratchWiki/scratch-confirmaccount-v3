@@ -69,6 +69,21 @@ function getAccountRequestsByUsername(string $username) : array {
 	return $results;
 }
 
+function getNumberOfRequestsByStatus(array $statuses) : array {
+	$dbr = wfGetDb( DB_REPLICA ); //TODO: have a way to cache this
+	$result = $dbr->select('scratch_accountrequest', ['request_status', 'count' => 'COUNT(request_id)'], ['request_status' => $statuses], __METHOD__, ['GROUP BY' => 'request_status']);
+		
+	$statusCounts = [];
+	foreach ($statuses as $status) {
+		$statusCounts[$status] = 0;
+	}
+	foreach ($result as $row) {
+		$statusCounts[$row->request_status] = $row->count;
+	}
+	
+	return $statusCounts;
+}
+
 function getAccountRequestById($id) {
 	$dbr = wfGetDB( DB_REPLICA );
 	$result = $dbr->selectRow('scratch_accountrequest', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__);
