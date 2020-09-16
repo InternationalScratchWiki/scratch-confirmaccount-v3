@@ -13,5 +13,6 @@ CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest (
 
 
 CREATE INDEX /*i*/request_username ON /*_*/scratch_accountrequest (request_username);
+CREATE INDEX /*i*/request_status ON /*_*/scratch_accountrequest (request_status);
 
 COMMIT;
