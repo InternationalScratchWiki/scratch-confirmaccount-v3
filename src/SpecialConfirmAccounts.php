@@ -232,7 +232,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 				['for' => 'scratch-confirmaccount-action-' . $key],
 				wfMessage($val)->text()
 			);
-			$row = Html::closeElement('li');
+			$row .= Html::closeElement('li');
 			return $row;
 		}, array_keys(self::actions), array_values(self::actions)));
 		$disp .= Html::closeElement('ul');
@@ -297,6 +297,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
+		$output->addModules('ext.scratchConfirmAccount');
 		$this->setHeaders();
 
 		//check permissions

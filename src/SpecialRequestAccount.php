@@ -214,6 +214,7 @@ class SpecialRequestAccount extends SpecialPage {
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
+        $output->addModules('ext.scratchConfirmAccount');
 		$session = $this->getRequest()->getSession();
 		$this->setHeaders();
 
