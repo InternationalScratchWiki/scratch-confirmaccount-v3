@@ -312,7 +312,7 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		$requestId = $matchingRequests[0]->id;
 		
-		authenticateForViewingRequest($requestId);
+		authenticateForViewingRequest($requestId, $session);
 		
 		$output->addHTML('<p>' . $linkRenderer->makeKnownLink(
 			SpecialPage::getTitleFor('RequestAccount', $requestId),
