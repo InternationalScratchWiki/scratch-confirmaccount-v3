@@ -44,12 +44,19 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 		
+		if($request->getText('agree') != "true"){
+			$out_error = "did not agree to checkbox";
+			return;
+		}
+		
 		$request_notes = $request->getText('requestnotes');
 		
 		if($request_notes == ""){
 			$out_error = "no request notes";
 			return;
 		}
+		
+
 		
 		return ['username' => $username, 'email' => $email, 'requestnotes' => $request_notes];
 	}
@@ -99,6 +106,12 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		$form .= '<label for="scratch-confirmaccount-requestnotes">' . wfMessage('scratch-confirmaccount-requestnotes') . '</label>';
 		$form .= Html::element('textarea', ['id' => 'scratch-confirmaccount-requestnotes', 'name' => 'requestnotes'], $request->getText('requestnotes'));
+		
+		$form .= '<br>';
+
+		$form .= Html::element('input', ['type' => 'checkbox', 'name' => 'agree', 'value' => 'true']);
+
+		$form .= ' ' . wfMessage('scratch-confirmaccount-checkbox-agree') . '<br>';
 		
 		$form .= $this->formSectionFooter();
 		
