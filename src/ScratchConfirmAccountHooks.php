@@ -15,6 +15,10 @@ class ScratchConfirmAccountHooks {
 			return true;
 		}
 		
+		if($skin->getTitle()->getNamespace() != -1){
+			return true;
+		}
+		
 		if (!$wg_scratch_confirmaccount_reqCountText) {
 			$reqCounts = getNumberOfRequestsByStatus(['new', 'awaiting-admin']);
 			$nonZeroReqCounts = array_filter($reqCounts, function ($x) { return $x > 0; });
