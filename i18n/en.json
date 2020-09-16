@@ -39,8 +39,8 @@
 	"scratch-confirmaccount-invalid-action": "The action is invalid.",
 	"scratch-confirmaccount-already-accepted": "You cannot handle requests that are already accepted.",
 	"scratch-confirmaccount-comment-done": "Comment submitted.",
-	"scratch-confirmaccount-reject-done": "Request rejected.",
-	"scratch-confirmaccount-reqfeedback-done": "Request marked as request further feedback.",
+	"scratch-confirmaccount-set-status-rejected-done": "Request rejected.",
+	"scratch-confirmaccount-set-status-awaiting-user-done": "Request marked as awaiting user.",
 
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which include underscore are not allowed.",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
