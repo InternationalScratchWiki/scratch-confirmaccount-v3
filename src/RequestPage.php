@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/database/DatabaseInteractions.php';
+
 function requestPage($requestId, $userContext, &$output, &$pageContext) {
 	$accountRequest = getAccountRequestById($requestId);
 	if (!$accountRequest) {
@@ -103,7 +105,7 @@ function requestPage($requestId, $userContext, &$output, &$pageContext) {
 	}, $history));
 
 	//actions section
-	if (!in_array($accountRequest->status, ['accepted'])) {
+	if ($accountRequest->status !='accepted' && !($accountRequest->status == 'rejected' && $userContext == 'user')) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp .= Html::element(
 			'h4',
 			[],
@@ -214,8 +216,9 @@ function handleRequestActionSubmission($userContext, &$request, &$output) {
 	}
 
 	actionRequest($accountRequest, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'));
-	if ($action == 'accept') {
-		// @TODO make account.
+	if ($action == 'set-status-accepted') {
+		$output->addHTML('ACCEPTING');
+		createAccount($accountRequest);
 	} else {
 		$output->addHTML(Html::element(
 			'p',

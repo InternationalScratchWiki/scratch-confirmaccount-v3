@@ -77,14 +77,18 @@ function getRequestHistory(AccountRequest $request) : array {
 	return $history;
 }
 
-function processRequest($request, $status, $comment) {
+function createAccount(AccountRequest $request) {
+	User::newFromName($request->username)->addToDatabase();
 }
 
-function userExists($username) {
-}
-
-function hasActiveRequest($username) {
+function userExists(string $username) : bool {
 	$dbr = wfGetDB( DB_REPLICA );
 	
-	return $dbr->selectRowCount('scratch_accountrequest', array('1'), ['LOWER(request_username)' => strtolower($username), 'request_status' => ['unreviewed']], __METHOD__) > 0;
+	return User::newFromName($username)->getId() != 0; //TODO: make this case-insensitive
+}
+
+function hasActiveRequest(string $username) : bool {
+	$dbr = wfGetDB( DB_REPLICA );
+	
+	return $dbr->selectRowCount('scratch_accountrequest', array('1'), ['LOWER(request_username)' => strtolower($username), 'request_status' => ['new', 'awaiting-admin', 'awaiting-user']], __METHOD__) > 0;
 }
