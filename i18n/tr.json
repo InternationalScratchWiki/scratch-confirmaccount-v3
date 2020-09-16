@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"ahmetlii"
+		]
+	},
+	"scratch-confirmaccount": "Scratch Account Request System",
+	"scratch-confirmaccount-desc": "Request and confirm accounts linked to Scratch",
+	"requestaccount": "Bir hesap iste",
+	"confirmaccounts": "Confirm account requests",
+	"scratch-confirmaccount-usernameverification": "Kullanıcı adı ve doğrulama",
+	"scratch-confirmaccount-requestnotes": "İstek notları",
+	"scratch-confirmaccount-requestnotes-explanation": "İstek notlarınızı buraya yazın",
+	"scratch-confirmaccount-scratchusername": "Scratch kullanıcı adı",
+	"scratch-confirmaccount-email": "E-posta (isteğe bağlı)",
+	"scratch-confirmaccount-request-submit": "Hesap iste",
+	"scratch-confirmaccount-vercode-explanation": "Lütfen  <span class=\"plainlinks\">[$1 kullanıcı doğrulama projesine gidin]</span> ve aşağıdaki kodu yorum olarak gönderin",
+	"scratch-confirmaccount-checkbox-agree": "Kullanım koşullarını kabul ediyorum"
+}
