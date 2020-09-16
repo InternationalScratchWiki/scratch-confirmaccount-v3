@@ -63,11 +63,14 @@ function actionRequest(AccountRequest $request, string $action, $userPerformingA
 function getRequestHistory(AccountRequest $request) : array {
 	$dbr = wfGetDB( DB_REPLICA );
 	
-	$result = $dbr->select('scratch_accountrequest_history', [
+	$result = $dbr->select(['scratch_accountrequest_history', 'user'], [
 		'history_timestamp',
 		'history_action',
 		'history_comment',
-	], ['history_request_id' => $request->id], __METHOD__, ['order_by' => ['history_timestamp', 'ASC']]);
+		'user_name'
+	], ['history_request_id' => $request->id], __METHOD__, ['order_by' => ['history_timestamp', 'ASC']], [
+		'user' => ['LEFT JOIN', ['user_id=history_performer']]
+	]);
 	
 	$history = array();
 	foreach ($result as $row) {

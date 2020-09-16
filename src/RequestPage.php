@@ -92,9 +92,10 @@ function requestPage($requestId, $userContext, &$output, &$pageContext) {
 		[],
 		wfMessage('scratch-confirmaccount-history')->text()
 	);
-	$disp .= implode(array_map(function($historyEntry) {
+	$disp .= implode(array_map(function($historyEntry) use($accountRequest) {
 		$row = Html::openElement('div');
 		$row .= Html::openElement('h5');
+		$row .= Html::element('span', [], $historyEntry->performer ?: $accountRequest->username);
 		$row .= Html::element('span', [], wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ));
 		$row .= Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text());
 		$row .= Html::closeElement('h5');

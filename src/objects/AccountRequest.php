@@ -25,13 +25,14 @@ class AccountRequestHistoryEntry {
 	var $comment;
 	var $performer;
 	
-	function __construct($timestamp, $action, $comment) {
+	function __construct($timestamp, $action, $comment, $performer) {
 		$this->timestamp = $timestamp;
 		$this->action = $action;
 		$this->comment = $comment;
+		$this->performer = $performer;
 	}
 	
 	static function fromRow($row) {
-		return new AccountRequestHistoryEntry($row->history_timestamp, $row->history_action, $row->history_comment);
+		return new AccountRequestHistoryEntry($row->history_timestamp, $row->history_action, $row->history_comment, $row->user_name);
 	}
 }
