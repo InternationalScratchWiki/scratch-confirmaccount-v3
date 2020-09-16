@@ -125,30 +125,19 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function handleFormSubmission(&$request, &$output) {
-		handleRequestActionSubmission('admin', $request, $output);
+		handleRequestActionSubmission('admin', $request, $output, $session);
 	}
 	
 	function searchByUsername($username, &$request, &$output) {
 		$linkRenderer = $this->getLinkRenderer();
-		
-		$requests = getAccountRequests(null, $username);
-		
+				
 		$output->addHTML(Html::element(
 			'h3',
 			[],
 			wfMessage('scratch-confirmaccount-confirm-search-results', $username)->text()
 		));
 		
-		if (empty($requests)) {
-			$output->addHTML(Html::element(
-				'p',
-				[],
-				wfMessage('scratch-confirmaccount-norequests')->text()
-			));
-			return;
-		}
-		
-		$table = $this->requestTable($requests, $linkRenderer);
+		$table = $this->requestTable($username, null, $linkRenderer);
 		
 		$output->addHTML($table);
 	}
@@ -157,6 +146,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$output->addModules('ext.scratchConfirmAccount');
+		$session = $request->getSession();
 		$this->setHeaders();
 
 		//check permissions
@@ -173,7 +163,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $output, $this);
+			return requestPage($par, 'admin', $output, $this, $session);
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
 		} else {

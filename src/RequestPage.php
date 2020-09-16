@@ -1,7 +1,29 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
-function requestPage($requestId, $userContext, &$output, &$pageContext) {
+function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
+	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
+}
+	
+function findRequestPage(&$request, &$output, &$session) {
+	$form = '<form method="post">';
+	$form .= '<input type="hidden" name="findRequest" value="1" />';
+	$form .= '<table>';
+	$form .= '<tr><td>Scratch username</td><td><input type="text" name="username" /></td></tr>';
+	$form .= '<tr><td>Password for request</td><td><input type="password" name="password" /></td></tr>';
+	$form .= '</table>';
+	$form .= '<input type="submit" value="Submit" />';
+	$form .= '</form>';
+	
+	$output->addHTML($form);
+}
+
+function requestPage($requestId, $userContext, &$output, &$pageContext, &$session) {
+	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
+		$output->addHTML('no permission');
+		return;
+	}
+	
 	$accountRequest = getAccountRequestById($requestId);
 	if (!$accountRequest) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
@@ -191,10 +213,22 @@ function handleAccountCreation($accountRequest, &$output) {
 	$output->addHTML('account created');
 }
 
-function handleRequestActionSubmission($userContext, &$request, &$output) {
+function authenticateForViewingRequest($requestId, &$session) {
+	$session->persist();
+	$session->set('requestId', $requestId);
+	$session->save();
+}
+
+function handleRequestActionSubmission($userContext, &$request, &$output, &$session) {
 	global $wgUser;
 
 	$requestId = $request->getText('requestid');
+	
+	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
+		$output->addHTML('no permission');
+		return;
+	}
+	
 	$accountRequest = getAccountRequestById($requestId);
 	if (!$accountRequest) {
 		//request not found

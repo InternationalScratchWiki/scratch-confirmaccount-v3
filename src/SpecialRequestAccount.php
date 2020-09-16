@@ -258,22 +258,10 @@ class SpecialRequestAccount extends SpecialPage {
 			wfMessage('scratch-confirmaccount-success')->text()
 		));
 	}
-	
-	function isAuthorizedToViewRequest($requestId, &$session) {
-		return $session->exists('requestId') && $session->get('requestId') == $requestId;
-	}
-	
-	function handleRequestActionSubmission(&$request, &$output, &$session) {		
-		if (!$this->isAuthorizedToViewRequest($request->getText('requestId'), $session)) { 
-			return $this->findRequestPage($request, $output, $session);
-		}
-		
-		return handleRequestActionSubmission('user', $request, $output);
-	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
 		if ($request->getText('action')) {
-			$this->handleRequestActionSubmission($request, $output, $session);
+			handleRequestActionSubmission('user', $request, $output, $session);
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission($request, $output, $session);
 		} else {
@@ -306,14 +294,6 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 
-	function requestPage($requestId, &$request, &$output, &$session) {
-		if (!$this->isAuthorizedToViewRequest($requestId, $session)) { 
-			return $this->findRequestPage($request, $output, $session);
-		}
-		
-		return requestPage($requestId, 'user', $output, $this);
-	}
-	
 	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
 		$linkRenderer = $this->getLinkRenderer();
 		
@@ -332,34 +312,19 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		$requestId = $matchingRequests[0]->id;
 		
-		$session->persist();
-		$session->set('requestId', $requestId);
-		$session->save();
+		authenticateForViewingRequest($requestId);
 		
 		$output->addHTML('<p>' . $linkRenderer->makeKnownLink(
 			SpecialPage::getTitleFor('RequestAccount', $requestId),
 			'See your request'
 		) . '</p>');
 	}
-	
-	function findRequestPage(&$request, &$output, &$session) {
-		$form = '<form method="post">';
-		$form .= '<input type="hidden" name="findRequest" value="1" />';
-		$form .= '<table>';
-		$form .= '<tr><td>Scratch username</td><td><input type="text" name="username" /></td></tr>';
-		$form .= '<tr><td>Password for request</td><td><input type="password" name="password" /></td></tr>';
-		$form .= '</table>';
-		$form .= '<input type="submit" value="Submit" />';
-		$form .= '</form>';
-		
-		$output->addHTML($form);
-	}
 
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
         $output->addModules('ext.scratchConfirmAccount');
-		$session = $this->getRequest()->getSession();
+		$session = $request->getSession();
 		$this->setHeaders();
 
 		if ($request->wasPosted()) {
@@ -367,9 +332,9 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if ($par == '') {
 			return $this->requestForm($request, $output, $session);
 		} else if ($par == 'FindRequest') {
-			return $this->findRequestPage($request, $output, $session);
+			return findRequestPage($request, $output, $session);
 		} else if (ctype_digit($par)) {
-			return $this->requestPage($par, $request, $output, $session);
+			return requestPage($par, 'user', $output, $this, $session);
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
