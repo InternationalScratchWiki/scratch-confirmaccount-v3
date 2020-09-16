@@ -21,6 +21,7 @@ function findRequestPage(&$request, &$output, &$session) {
 function requestPage($requestId, $userContext, &$output, &$pageContext, &$session) {
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
 		$output->addHTML(Html::rawElement('p', [], wfMessage('scratch-confirmaccount-findrequest-nopermission')->parse()));
+		header("Location: FindRequest");
 		return;
 	}
 	
