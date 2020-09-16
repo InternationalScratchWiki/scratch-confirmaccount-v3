@@ -1,7 +1,7 @@
 {
 	"name": "Scratch Account Request System",
 	"descriptionmsg": "scratch-confirmaccount-desc",
-	"author": ["Jacob G. (jvvg)", "Naleksuh"],
+	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j"],
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
 	"MessagesDirs": {
@@ -20,5 +20,12 @@
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates"
+	},
+	"ResourceModules": {
+		"ext.scratchConfirmAccount": {
+			"styles": "main.css",
+			"localBasePath": "resources",
+			"remoteExtPath": "Scratch-ConfirmAccount/resources"
+		}
 	}
 }

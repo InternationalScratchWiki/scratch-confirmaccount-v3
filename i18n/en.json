@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"jvvg"
+			"jvvg",
+			"apple502j"
 		]
 	},
 	"scratch-confirmaccount": "Scratch Account Request System",
@@ -15,5 +16,39 @@
 	"scratch-confirmaccount-email": "Email (optional)",
 	"scratch-confirmaccount-request-submit": "Request account",
 	"scratch-confirmaccount-vercode-explanation": "Please go to the <span class=\"plainlinks\">[$1 user verification project]</span> and comment the code below",
-	"scratch-confirmaccount-checkbox-agree": "I agree to the Terms of Service"
+	"scratch-confirmaccount-checkbox-agree": "I agree to the Terms of Service",
+
+	"scratch-confirmaccount-unreviewed": "Unreviewed",
+	"scratch-confirmaccount-comment": "Comment",
+	"scratch-confirmaccount-accept": "Accept",
+	"scratch-confirmaccount-reject": "Reject",
+	"scratch-confirmaccount-reqfeedback": "Request further feedback",
+	"scratch-confirmaccount-confirm-header": "Request with status $1",
+	"scratch-confirmaccount-norequests": "There are no requests to view.",
+	"scratch-confirmaccount-date": "Date",
+	"scratch-confirmaccount-username": "Username",
+	"scratch-confirmaccount-actions": "Actions",
+	"scratch-confirmaccount-view": "View",
+	"scratch-confirmaccount-nosuchrequest": "The request does not exist.",
+	"scratch-confirmaccount-accountrequest": "Account request",
+	"scratch-confirmaccount-details": "Details",
+	"scratch-confirmaccount-status": "Status",
+	"scratch-confirmaccount-request-timestamp": "Request timestamp",
+	"scratch-confirmaccount-history": "History",
+	"scratch-confirmaccount-submit": "Submit",
+	"scratch-confirmaccount-invalid-action": "The action is invalid.",
+	"scratch-confirmaccount-already-accepted": "You cannot handle requests that are already accepted.",
+	"scratch-confirmaccount-comment-done": "Comment submitted.",
+	"scratch-confirmaccount-reject-done": "Request rejected.",
+	"scratch-confirmaccount-reqfeedback-done": "Request marked as request further feedback.",
+
+	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which include underscore are not allowed.",
+	"scratch-confirmaccount-user-exists": "The user is already registered.",
+	"scratch-confirmaccount-request-exists": "The request is already received. Please wait for the administrators to handle it.",
+	"scratch-confirmaccount-verif-missing": "Please comment the verification code while logged into Scratch account '$1'.",
+	"scratch-confirmaccount-user-blocked": "You are not allowed to request an account. Reason: $1",
+	"scratch-confirmaccount-invalid-email": "The email address is invalid.",
+	"scratch-confirmaccount-disagree-tos": "You have to agree to the Terms of Service to request an account.",
+	"scratch-confirmaccount-no-request-notes": "Request notes cannot be empty.",
+	"scratch-confirmaccount-success": "Account request has been received. Administrators will handle it and send response."
 }
