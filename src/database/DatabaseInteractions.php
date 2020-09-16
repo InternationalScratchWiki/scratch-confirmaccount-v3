@@ -52,7 +52,12 @@ function actionRequest(AccountRequest $request, string $action, $userPerformingA
 		'history_timestamp' => wfTimestampNow()
 	], __METHOD__);
 	
-	//TODO: also update the request status
+	//if the action also updates the status, then set the status appropriately
+	if (isset(actionToStatus[$action])) {
+		$dbw->update('scratch_accountrequest', [
+			'request_status' => actionToStatus[$action]
+		], ['request_id' => $request->id], __METHOD__);
+	}
 }
 
 function getRequestHistory(AccountRequest $request) : array {

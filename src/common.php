@@ -35,3 +35,9 @@ const actions = [
 		'message' => 'scratch-confirmaccount-comment'
 	]
 ];
+const actionToStatus = [
+	'set-status-accepted' => 'accepted',
+	'set-status-rejected' => 'rejected',
+	'set-status-awaiting-admin' => 'awaiting-admin',
+	'set-status-awaiting-user' => 'awaiting-user'
+];
