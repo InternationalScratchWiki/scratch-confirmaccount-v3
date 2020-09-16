@@ -28,8 +28,8 @@ function commentsForProject($author, $project_id) {
 
 function verifComments() {
 	return commentsForProject(
-		wfMessage('scratchlogin-project-author')->text(),
-		wfMessage('scratchlogin-project-id')->text()
+		$GLOBALS['wgScratchVerificationProjectAuthor'] ?: "ModShare",
+		$GLOBALS['wgScratchVerificationProjectID'] ?: "10135908"
 	);
 }
 
