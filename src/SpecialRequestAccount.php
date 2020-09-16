@@ -3,6 +3,7 @@ require_once __DIR__ . '/verification/ScratchVerification.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/objects/AccountRequest.php';
 require_once __DIR__ . '/common.php';
+require_once __DIR__ . '/RequestPage.php';
 
 class SpecialRequestAccount extends SpecialPage {
 	function __construct() {
@@ -219,8 +220,9 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 	}
 	
-	function requestPage(&$request, &$output, &$session) {
+	function requestPage($requestId, &$request, &$output, &$session) {
 		//TODO: the logic for showing the page to deal with an individual request
+		requestPage($requestId, 'user', $output, $this);
 	}
 
 	function execute( $par ) {
@@ -233,7 +235,7 @@ class SpecialRequestAccount extends SpecialPage {
 		if ($par == '') {
 			return $this->basePage($request, $output, $session);
 		} else if (ctype_digit($par)) {
-			return $this->requestPage($request, $output, $session);
+			return $this->requestPage($par, $request, $output, $session);
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
