@@ -318,6 +318,7 @@ class SpecialRequestAccount extends SpecialPage {
 			SpecialPage::getTitleFor('RequestAccount', $requestId),
 			'See your request'
 		) . '</p>');
+		header("Location: " . $requestId);
 	}
 
 	function execute( $par ) {
