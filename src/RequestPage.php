@@ -181,6 +181,16 @@ function requestPage($requestId, $userContext, &$output, &$pageContext) {
 	$output->addHTML($disp);
 }
 
+function handleAccountCreation($accountRequest, &$output) {	
+	if (userExists($accountRequest->username)) {
+		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
+		return;
+	}
+	
+	createAccount($accountRequest);
+	$output->addHTML('account created');
+}
+
 function handleRequestActionSubmission($userContext, &$request, &$output) {
 	global $wgUser;
 
@@ -218,8 +228,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output) {
 
 	actionRequest($accountRequest, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'));
 	if ($action == 'set-status-accepted') {
-		$output->addHTML('ACCEPTING');
-		createAccount($accountRequest);
+		handleAccountCreation($accountRequest, $output);
 	} else {
 		$output->addHTML(Html::element(
 			'p',
