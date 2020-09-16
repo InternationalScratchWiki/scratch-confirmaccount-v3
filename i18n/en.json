@@ -64,5 +64,10 @@
 	"scratch-confirmaccount-set-status-accepted": "Accept",
 	"scratch-confirmaccount-set-status-rejected": "Reject",
 	"scratch-confirmaccount-set-status-awaiting-user": "Request user comment",
-	"scratch-confirmaccount-set-status-awaiting-admin": "Comment for admin"
+	"scratch-confirmaccount-set-status-awaiting-admin": "Comment for admin",
+	"scratch-confirmaccount-password": "Password",
+	"scratch-confirmaccount-password2": "Password (confirm)",
+	"scratch-confirmaccount-incorrect-password": "Passwords don't match.",
+	"scratch-confirmaccount-password-min": "Password needs to be at least $1 letters long.",
+	"scratch-confirmaccount-password-max": "Password cannot be longer than $1 letters."
 }
