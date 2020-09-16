@@ -38,6 +38,7 @@
 	"scratch-confirmaccount-submit": "Submit",
 	"scratch-confirmaccount-invalid-action": "The action is invalid.",
 	"scratch-confirmaccount-already-accepted": "You cannot handle requests that are already accepted.",
+	"scratch-confirmaccount-already-rejected": "You cannot comment on requests that have been rejected.",
 	"scratch-confirmaccount-comment-done": "Comment submitted.",
 	"scratch-confirmaccount-set-status-rejected-done": "Request rejected.",
 	"scratch-confirmaccount-set-status-awaiting-user-done": "Request marked as awaiting user.",

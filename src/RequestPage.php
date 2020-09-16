@@ -202,6 +202,11 @@ function handleRequestActionSubmission($userContext, &$request, &$output) {
 		return;
 	}
 	
+	if ($userContext == 'user' && $accountRequest->status == 'rejected') {
+		$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
+		return;
+	}
+	
 	if (!in_array($userContext, actions[$action]['performers'])) {
 		//admin does not have permission to perform this action
 		$output->showErrorPage('error');
