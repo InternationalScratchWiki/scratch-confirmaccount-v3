@@ -85,11 +85,37 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function defaultPage(&$output) {
-		return $this->listRequestsByStatus('new', $output);
+		$linkRenderer = $this->getLinkRenderer();
+		
+		$disp = '';
+		$disp .= '<h3>Request options</h3>';
+		$disp .= '<ul>';
+		$disp .= '<li>' . $linkRenderer->makeKnownLink(
+					SpecialPage::getTitleFor('ConfirmAccounts', 'awaiting-user'), //TODO: make this display how many such requests there are
+					wfMessage('scratch-confirmaccount-requests-awaiting-user-comment')->text()
+				) . '</li>';
+		$disp .= '<li>' . $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', 'accepted'),
+			wfMessage('scratch-confirmaccount-accepted-requests')->text()
+		) . '</li>';
+		$disp .= '<li>' . $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', 'rejected'),
+			wfMessage('scratch-confirmaccount-rejected-requests')->text()
+		) . '</li>';
+		$disp .= '</ul>';
+		$disp .= '<form action="" method="get"><label for="scratch-confirmaccount-usernamesearch">Search by username</label><br /><input type="text" id="scratch-confirmaccount-usernamesearch" name="username" /><input type="submit" value="Search" /></form>';
+		$output->addHTML($disp);
+		
+		$this->listRequestsByStatus('new', $output);
+		$this->listRequestsByStatus('awaiting-admin', $output);
 	}
 
 	function handleFormSubmission(&$request, &$output) {
 		handleRequestActionSubmission('admin', $request, $output);
+	}
+	
+	function searchByUsername($username, &$request, &$output) {
+		//TODO: implement this
 	}
 
 	function execute( $par ) {
@@ -107,6 +133,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output);
+		} else if ($request->getText('username')) {
+			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
