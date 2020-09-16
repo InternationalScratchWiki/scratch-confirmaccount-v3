@@ -31,7 +31,7 @@ const actions = [
 		'message' => 'scratch-confirmaccount-set-status-awaiting-user'
 	],
 	'comment' => [
-		'performers' => ['user', 'admin'],
+		'performers' => ['admin'],
 		'message' => 'scratch-confirmaccount-comment'
 	]
 ];
