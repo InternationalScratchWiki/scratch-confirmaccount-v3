@@ -15,4 +15,5 @@
 	"scratch-confirmaccount-email": "Email (optional)",
 	"scratch-confirmaccount-request-submit": "Request account",
 	"scratch-confirmaccount-vercode-explanation": "Please go to the <span class=\"plainlinks\">[$1 user verification project]</span> and comment the code below"
+	"scratch-confirmaccount-checkbox-agree": "I agree to the Terms of Service"
 }
