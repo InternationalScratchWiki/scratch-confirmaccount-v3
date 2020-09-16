@@ -14,8 +14,24 @@ const statuses = [
 	'accepted' => 'scratch-confirmaccount-accepted'
 ];
 const actions = [
-	'comment' => 'scratch-confirmaccount-comment',
-	'accept' => 'scratch-confirmaccount-accept',
-	'reject' => 'scratch-confirmaccount-reject',
-	'reqfeedback' => 'scratch-confirmaccount-reqfeedback'
+	'set-status-accepted' => [
+		'performers' => ['admin'], 
+		'message' => 'scratch-confirmaccount-set-status-accepted'
+	],
+	'set-status-rejected' => [
+		'performers' => ['admin'], 
+		'message' => 'scratch-confirmaccount-set-status-rejected'
+	],
+	'set-status-awaiting-admin' => [
+		'performers' => ['user'], 
+		'message' => 'scratch-confirmaccount-set-status-awaiting-admin'
+	],
+	'set-status-awaiting-user' => [
+		'performers' => ['admin'], 
+		'message' => 'scratch-confirmaccount-set-status-awaiting-user'
+	],
+	'comment' => [
+		'performers' => ['user', 'admin'], 
+		'message' => 'scratch-confirmaccount-comment'
+	]
 ];

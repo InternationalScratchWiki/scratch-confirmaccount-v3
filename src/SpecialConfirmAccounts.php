@@ -178,7 +178,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$row = Html::openElement('div');
 			$row .= Html::openElement('h5');
 			$row .= Html::element('span', [], wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ));
-			$row .= Html::element('span', [], wfMessage(actions[$historyEntry->action])->text());
+			$row .= Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text());
 			$row .= Html::closeElement('h5');
 			$row .= Html::element('p', [], $historyEntry->comment);
 			$row .= Html::closeElement('div');
@@ -209,6 +209,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 			]
 		);
 		$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
+		
+		$usable_actions = array_filter(actions, function($action) { return in_array('admin', $action['performers']); });
+		
 		$disp .= implode(array_map(function($key, $val) {
 			$row = Html::openElement('li');
 			$row .= Html::element(
@@ -223,11 +226,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$row .= Html::element(
 				'label',
 				['for' => 'scratch-confirmaccount-action-' . $key],
-				wfMessage($val)->text()
+				wfMessage($val['message'])->text()
 			);
 			$row .= Html::closeElement('li');
 			return $row;
-		}, array_keys(actions), array_values(actions)));
+		}, array_keys($usable_actions), array_values($usable_actions)));
 		$disp .= Html::closeElement('ul');
 		$disp .= Html::openElement('p');
 		$disp .= Html::element(
@@ -291,7 +294,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$output->addHTML(Html::element(
 				'p',
 				[],
-				wfMessage(actions[$action] . '-done')->text()
+				wfMessage(actions[$action]['message'] . '-done')->text()
 			));
 		}
 	}

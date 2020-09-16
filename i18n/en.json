@@ -55,5 +55,9 @@
 	"scratch-confirmaccount-awaiting-admin": "Awaiting admin",
 	"scratch-confirmaccount-awaiting-user": "Awaiting user",
 	"scratch-confirmaccount-rejected": "Rejected",
-	"scratch-confirmaccount-accepted": "Accepted"
+	"scratch-confirmaccount-accepted": "Accepted",
+	"scratch-confirmaccount-set-status-accepted": "Accept",
+	"scratch-confirmaccount-set-status-rejected": "Reject",
+	"scratch-confirmaccount-set-status-awaiting-user": "Request user comment",
+	"scratch-confirmaccount-set-status-awaiting-admin": "Comment for admin"
 }
