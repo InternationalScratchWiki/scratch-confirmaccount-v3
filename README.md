@@ -7,4 +7,5 @@ $wgScratchVerificationProjectAuthor - Author of the verification project (defaul
 $wgScratchVerificationProjectID - ID of the verification project (default: `10135908`)
 ## Previous Versions
 [Version 1](https://github.com/jacob-g/scratch-confirmaccount)
+
 [Version 2](https://github.com/InternationalScratchWiki/scratch-confirmaccount-v2)
