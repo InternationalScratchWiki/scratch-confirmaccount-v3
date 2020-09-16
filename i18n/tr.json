@@ -4,10 +4,10 @@
 			"ahmetlii"
 		]
 	},
-	"scratch-confirmaccount": "Scratch Account Request System",
-	"scratch-confirmaccount-desc": "Request and confirm accounts linked to Scratch",
+	"scratch-confirmaccount": "Scratch Hesap İsteme Sistemi",
+	"scratch-confirmaccount-desc": "Scratch'e bağlı hesapları isteme ve doğrulama",
 	"requestaccount": "Bir hesap iste",
-	"confirmaccounts": "Confirm account requests",
+	"confirmaccounts": "Hesap isteklerini onayla",
 	"scratch-confirmaccount-usernameverification": "Kullanıcı adı ve doğrulama",
 	"scratch-confirmaccount-requestnotes": "İstek notları",
 	"scratch-confirmaccount-requestnotes-explanation": "İstek notlarınızı buraya yazın",
