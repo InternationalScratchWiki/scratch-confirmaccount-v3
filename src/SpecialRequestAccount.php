@@ -56,7 +56,7 @@ class SpecialRequestAccount extends SpecialPage {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
 			return;
 		}
-		
+
 
 		$blockReason = getBlockReason($username);
 		if ($blockReason) {
@@ -268,7 +268,7 @@ class SpecialRequestAccount extends SpecialPage {
 			$this->handleAccountRequestFormSubmission($request, $output, $session);
 		}
 	}
-	
+
 	function requestForm(&$request, &$output, &$session, $error = '') {
 		$form = Html::openElement('form', [ 'method' => 'post', 'name' => 'requestaccount', 'action' => $this->getPageTitle()->getLocalUrl(), 'enctype' => 'multipart/form-data' ]);
 
@@ -296,34 +296,34 @@ class SpecialRequestAccount extends SpecialPage {
 
 	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
 		$linkRenderer = $this->getLinkRenderer();
-		
+
 		$username = $request->getText('username');
 		$password = $request->getText('password');
-		
+
 		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
-		
+
 		$requests = getAccountRequestsByUsername($username);
 		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
-		
+
 		if (empty($matchingRequests)) {
-			$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-findrequest-nomatch')));
+			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nomatch');
 			return;
 		}
-		
+
 		$requestId = $matchingRequests[0]->id;
-		
+
 		authenticateForViewingRequest($requestId, $session);
-		
-		$output->addHTML('<p>' . $linkRenderer->makeKnownLink(
+
+		$output->addHTML(Html::rawElement('p', [], $linkRenderer->makeKnownLink(
 			SpecialPage::getTitleFor('RequestAccount', $requestId),
-			'See your request'
-		) . '</p>');
+			wfMessage('scratch-confirmaccount-see-request')->text()
+		)));
 	}
 
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
-        $output->addModules('ext.scratchConfirmAccount');
+		$output->addModules('ext.scratchConfirmAccount');
 		$session = $request->getSession();
 		$this->setHeaders();
 

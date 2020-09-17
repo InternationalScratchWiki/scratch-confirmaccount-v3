@@ -7,10 +7,10 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 	private $linkRenderer;
 	function __construct($username, $status, $linkRenderer) {
 		parent::__construct($username, $status);
-		
+
 		$this->linkRenderer = $linkRenderer;
 	}
-	
+
 	function rowFromRequest($accountRequest) {
 		$row = Html::openElement('tr');
 		$row .= Html::element('td', [], wfTimestamp( TS_ISO_8601, $accountRequest->timestamp ));
@@ -38,16 +38,16 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function getGroupName() {
 		return 'users';
 	}
-	
+
 	function requestTable($status, $username, &$linkRenderer) {
 		$pager = new AccountRequestPager($status, $username, $linkRenderer);
-		
+
 		if ($pager->getNumRows() == 0) {
 			return Html::element('p', [], wfMessage('scratch-confirmaccount-norequests')->text());
 		}
-		
+
 		$table = $pager->getNavigationBar();
-		
+
 		$table .= Html::openElement('table');
 
 		//table heading
@@ -78,9 +78,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$table .= $pager->getBody();
 
 		$table .= Html::closeElement('table');
-		
+
 		$table .= $pager->getNavigationBar();
-		
+
 		return $table;
 	}
 
@@ -100,26 +100,43 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 	function defaultPage(&$output) {
 		$linkRenderer = $this->getLinkRenderer();
-		
-		$disp = '';
-		$disp .= '<h3>Request options</h3>';
-		$disp .= '<ul>';
-		$disp .= '<li>' . $linkRenderer->makeKnownLink(
-					SpecialPage::getTitleFor('ConfirmAccounts', 'awaiting-user'), //TODO: make this display how many such requests there are
-					wfMessage('scratch-confirmaccount-requests-awaiting-user-comment')->text()
-				) . '</li>';
-		$disp .= '<li>' . $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('ConfirmAccounts', 'accepted'),
+
+		$disp = Html::element('h3', [], wfMessage('scratch-confirmaccount-request-options')->text());
+		$disp .= Html::openElement('ul');
+		$disp .= Html::rawElement('li', [], $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', 'awaiting-user'), //TODO: make this display how many such requests there are
+			wfMessage('scratch-confirmaccount-requests-awaiting-user-comment')->text()
+		));
+		$disp .= Html::rawElement('li', [], $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', 'accepted'), //TODO: make this display how many such requests there are
 			wfMessage('scratch-confirmaccount-accepted-requests')->text()
-		) . '</li>';
-		$disp .= '<li>' . $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('ConfirmAccounts', 'rejected'),
+		));
+		$disp .= Html::rawElement('li', [], $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', 'rejected'), //TODO: make this display how many such requests there are
 			wfMessage('scratch-confirmaccount-rejected-requests')->text()
-		) . '</li>';
-		$disp .= '</ul>';
-		$disp .= '<form action="" method="get"><label for="scratch-confirmaccount-usernamesearch">Search by username</label><br /><input type="text" id="scratch-confirmaccount-usernamesearch" name="username" /><input type="submit" value="Search" /></form>';
+		));
+		$disp .= Html::closeElement('ul');
+		$disp .= Html::openElement('form', [
+			'action' => '',
+			'method' => 'get'
+		]);
+		$disp .= Html::element(
+			'label',
+			['for' => 'scratch-confirmaccount-usernamesearch'],
+			wfMessage('scratch-confirmaccount-search-label')->text()
+		);
+		$disp .= Html::element('input', [
+			'type' => 'search',
+			'id' => 'scratch-confirmaccount-usernamesearch',
+			'name' => 'username'
+		]);
+		$disp .= Html::element('input', [
+			'type' => 'submit',
+			'value' => wfMessage('scratch-confirmaccount-search')->parse()
+		]);
+		$disp .= Html::closeElement('form');
 		$output->addHTML($disp);
-		
+
 		$this->listRequestsByStatus('new', $output);
 		$this->listRequestsByStatus('awaiting-admin', $output);
 	}
@@ -127,18 +144,18 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function handleFormSubmission(&$request, &$output) {
 		handleRequestActionSubmission('admin', $request, $output, $session);
 	}
-	
+
 	function searchByUsername($username, &$request, &$output) {
 		$linkRenderer = $this->getLinkRenderer();
-				
+
 		$output->addHTML(Html::element(
 			'h3',
 			[],
 			wfMessage('scratch-confirmaccount-confirm-search-results', $username)->text()
 		));
-		
+
 		$table = $this->requestTable($username, null, $linkRenderer);
-		
+
 		$output->addHTML($table);
 	}
 
