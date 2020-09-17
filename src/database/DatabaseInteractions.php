@@ -60,19 +60,19 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 function getAccountRequestsByUsername(string $username) : array {
 	$dbr = wfGetDB( DB_REPLICA );
 	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_username' => $username], __METHOD__);
-	
+
 	$results = [];
 	foreach ($result as $row) {
 		$results[] = AccountRequest::fromRow($row);
 	}
-	
+
 	return $results;
 }
 
 function getNumberOfRequestsByStatus(array $statuses) : array {
 	$dbr = wfGetDb( DB_REPLICA ); //TODO: have a way to cache this
 	$result = $dbr->select('scratch_accountrequest', ['request_status', 'count' => 'COUNT(request_id)'], ['request_status' => $statuses], __METHOD__, ['GROUP BY' => 'request_status']);
-		
+
 	$statusCounts = [];
 	foreach ($statuses as $status) {
 		$statusCounts[$status] = 0;
@@ -80,7 +80,37 @@ function getNumberOfRequestsByStatus(array $statuses) : array {
 	foreach ($result as $row) {
 		$statusCounts[$row->request_status] = $row->count;
 	}
-	
+
+	return $statusCounts;
+}
+
+function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id) : array {
+	$dbr = wfGetDb( DB_REPLICA );
+	$statusCounts = [];
+	foreach ($statuses as $status) {
+		$statusCounts[$status] = 0;
+	}
+	$user_req = $dbr->selectFieldValues(
+		'scratch_accountrequest_history',
+		'history_request_id',
+		['history_performer' => $user_id]
+	);
+	if (count($user_req) == 0) {
+		return $statusCounts;
+	}
+	$result = $dbr->select('scratch_accountrequest', [
+			'request_status',
+			'count' => 'COUNT(request_id)'
+		], [
+			'request_status' => $statuses,
+			'request_id' => $user_req
+		], __METHOD__, ['GROUP BY' => 'request_status']
+	);
+
+	foreach ($result as $row) {
+		$statusCounts[$row->request_status] = $row->count;
+	}
+
 	return $statusCounts;
 }
 
