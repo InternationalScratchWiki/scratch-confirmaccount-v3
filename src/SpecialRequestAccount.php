@@ -300,8 +300,8 @@ class SpecialRequestAccount extends SpecialPage {
 		$username = $request->getText('username');
 		$password = $request->getText('password');
 
+		//see if there are any requests with the given password
 		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
-
 		$requests = getAccountRequestsByUsername($username);
 		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
 
@@ -312,12 +312,9 @@ class SpecialRequestAccount extends SpecialPage {
 
 		$requestId = $matchingRequests[0]->id;
 
+		//mark that the user can view the request attached to their username and redirect them to it
 		authenticateForViewingRequest($requestId, $session);
-
-		$output->addHTML(Html::rawElement('p', [], $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('RequestAccount', $requestId),
-			wfMessage('scratch-confirmaccount-see-request')->text()
-		)));
+		$output->redirect(SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL());
 	}
 
 	function execute( $par ) {
