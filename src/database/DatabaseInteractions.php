@@ -16,6 +16,7 @@ function createAccountRequest($username, $passwordHash, $requestNotes, $email, $
 		'password_hash' => $passwordHash,
 		'request_email' => $email,
 		'request_timestamp' => wfTimestampNow(),
+		'request_last_updated' => wfTimestampNow(),
 		'request_notes' => $requestNotes,
 		'request_ip' => $ip,
 		'request_status' => 'new'
@@ -41,13 +42,13 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 	function getQueryInfo() {
 		return [
 			'tables' => 'scratch_accountrequest_request',
-			'fields' => ['request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'],
+			'fields' => ['request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status'],
 			'conds' => $this->criteria
 		];
 	}
 
 	function getIndexField() {
-		return 'request_timestamp';
+		return 'request_last_updated';
 	}
 
 	function formatRow($row) {
@@ -116,7 +117,7 @@ function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id) : array {
 
 function getAccountRequestById($id) {
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->selectRow('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__);
+	$result = $dbr->selectRow('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__);
 
 	return $result ? AccountRequest::fromRow($result) : false;
 }
@@ -132,12 +133,13 @@ function actionRequest(AccountRequest $request, string $action, $userPerformingA
 		'history_timestamp' => wfTimestampNow()
 	], __METHOD__);
 
-	//if the action also updates the status, then set the status appropriately
+
+	//set the timestamp for when the request was last updated and if the action also updates the status, then set the status appropriately
+	$request_update_fields = ['request_last_updated' => wfTimestampNow()];
 	if (isset(actionToStatus[$action])) {
-		$dbw->update('scratch_accountrequest_request', [
-			'request_status' => actionToStatus[$action]
-		], ['request_id' => $request->id], __METHOD__);
+		$request_update_fields['request_status'] = actionToStatus[$action];
 	}
+	$dbw->update('scratch_accountrequest_request', $request_update_fields, ['request_id' => $request->id], __METHOD__);
 }
 
 function getRequestHistory(AccountRequest $request) : array {

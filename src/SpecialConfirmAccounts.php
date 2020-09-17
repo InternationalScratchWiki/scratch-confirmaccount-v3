@@ -13,7 +13,7 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 
 	function rowFromRequest($accountRequest) {
 		$row = Html::openElement('tr');
-		$row .= Html::element('td', [], wfTimestamp( TS_ISO_8601, $accountRequest->timestamp ));
+		$row .= Html::element('td', [], wfTimestamp( TS_ISO_8601, $accountRequest->lastUpdated ));
 		$row .= Html::element('td', [], $accountRequest->username);
 		$row .= Html::element('td', [], $accountRequest->requestNotes);
 		$row .= Html::rawElement(
@@ -55,7 +55,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$table .= Html::element(
 			'th',
 			[],
-			wfMessage('scratch-confirmaccount-date')->text()
+			wfMessage('scratch-confirmaccount-lastupdated')->text()
 		);
 		$table .= Html::element(
 			'th',
