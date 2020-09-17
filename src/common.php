@@ -5,6 +5,9 @@ function wgScratchVerificationProjectID() {
 function wgScratchVerificationProjectAuthor() {
 	return isset($GLOBALS['wgScratchVerificationProjectAuthor']) ? $GLOBALS['wgScratchVerificationProjectAuthor'] : "ModShare";
 }
+function wgScratchAccountRequestRejectCooldownDays() {
+	return isset($GLOBALS['wgScratchAccountRequestRejectCooldownDays']) ? $GLOBALS['wgScratchAccountRequestRejectCooldownDays'] : 7;
+}
 
 const statuses = [
 	'new' => 'scratch-confirmaccount-new',
@@ -35,12 +38,15 @@ const actions = [
 		'message' => 'scratch-confirmaccount-comment'
 	]
 ];
+
 const actionToStatus = [
 	'set-status-accepted' => 'accepted',
 	'set-status-rejected' => 'rejected',
 	'set-status-awaiting-admin' => 'awaiting-admin',
 	'set-status-awaiting-user' => 'awaiting-user'
 ];
+
+const expirationActions = ['set-status-rejected'];
 
 function passwordMinMax() {
 	if (!isset($GLOBALS['wgScratchVerificationProjectAuthor'])) {

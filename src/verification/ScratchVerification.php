@@ -49,6 +49,6 @@ class ScratchVerification {
 		if (empty($matching_comments)) {
 			return null;
 		}
-		return $matching_comments[0]['author']['username'];
+		return array_values($matching_comments)[0]['author']['username'];
 	}
 }

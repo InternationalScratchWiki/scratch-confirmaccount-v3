@@ -15,8 +15,8 @@ function createAccountRequest($username, $passwordHash, $requestNotes, $email, $
 		'request_username' => $username,
 		'password_hash' => $passwordHash,
 		'request_email' => $email,
-		'request_timestamp' => wfTimestampNow(),
-		'request_last_updated' => wfTimestampNow(),
+		'request_timestamp' => $dbw->timestamp(),
+		'request_last_updated' => $dbw->timestamp(),
 		'request_notes' => $requestNotes,
 		'request_ip' => $ip,
 		'request_status' => 'new'
@@ -130,14 +130,17 @@ function actionRequest(AccountRequest $request, string $action, $userPerformingA
 		'history_action' => $action,
 		'history_comment' => $comment,
 		'history_performer' => $userPerformingAction,
-		'history_timestamp' => wfTimestampNow()
+		'history_timestamp' => $dbw->timestamp()
 	], __METHOD__);
 
 
-	//set the timestamp for when the request was last updated and if the action also updates the status, then set the status appropriately
-	$request_update_fields = ['request_last_updated' => wfTimestampNow()];
-	if (isset(actionToStatus[$action])) {
+	//set the timestamp for when the request was last updated
+	$request_update_fields = ['request_last_updated' => $dbw->timestamp()];
+	if (isset(actionToStatus[$action])) { //if the action also updates the status, then set the status appropriately
 		$request_update_fields['request_status'] = actionToStatus[$action];
+	}
+	if (in_array($action, expirationActions)) { //and if the action makes the request expire, make the request expire
+		$request_update_fields['request_expiry'] = $dbw->timestamp(time() + 86400 * wgScratchAccountRequestRejectCooldownDays());
 	}
 	$dbw->update('scratch_accountrequest_request', $request_update_fields, ['request_id' => $request->id], __METHOD__);
 }
@@ -201,5 +204,16 @@ function userExists(string $username) : bool {
 function hasActiveRequest(string $username) : bool {
 	$dbr = wfGetDB( DB_REPLICA );
 
-	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'), ['LOWER(request_username)' => strtolower($username), 'request_status' => ['new', 'awaiting-admin', 'awaiting-user']], __METHOD__) > 0;
+	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'), 
+		$dbr->makeList([
+			'LOWER(request_username)' => strtolower($username),
+			$dbr->makeList([
+				'request_status' => ['new', 'awaiting-admin', 'awaiting-user'],
+				$dbr->makeList([
+					'request_status' => 'rejected',
+					'request_expiry > ' . $dbr->timestamp()
+				], $dbr::LIST_AND)
+			], $dbr::LIST_OR)
+		], $dbr::LIST_AND)
+	, __METHOD__) > 0;
 }
