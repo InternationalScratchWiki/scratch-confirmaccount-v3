@@ -130,10 +130,13 @@ function getRequestHistory(AccountRequest $request) : array {
 	return $history;
 }
 
-function createAccount(AccountRequest $request) {
+function createAccount(AccountRequest $request, $creator) {	
+	//first create the user and add it to the database
 	$user = User::newFromName($request->username);
 	$user->addToDatabase();
 	$dbw = wfGetDB( DB_MASTER );
+	
+	//then set the user's password to match
 	$dbw->update(
 		'user',
 		[
@@ -142,6 +145,19 @@ function createAccount(AccountRequest $request) {
 		[ 'user_id' => $user->getId() ],
 		__METHOD__
 	);
+	
+	//now log that the user was created
+	$logEntry = new ManualLogEntry('newusers', 'create2');
+	$logEntry->setPerformer($creator);
+	$logEntry->setComment('');
+	$logEntry->setParameters( [
+		'4::user_id' => $user->getId()
+	]);
+	$logEntry->setTarget($user->getUserPage());
+	
+	$logId = $logEntry->insert();
+	
+	$logEntry->publish($logId);
 }
 
 function userExists(string $username) : bool {

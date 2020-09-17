@@ -239,12 +239,14 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 }
 
 function handleAccountCreation($accountRequest, &$output) {
+	global $wgUser;
+	
 	if (userExists($accountRequest->username)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
 		return;
 	}
 
-	createAccount($accountRequest);
+	createAccount($accountRequest, $wgUser);
 	$output->addHTML('account created');
 }
 
