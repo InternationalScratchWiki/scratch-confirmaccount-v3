@@ -1,6 +1,6 @@
 BEGIN;
 
-CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest (
+CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest_request (
 	-- Primary key
 	request_id integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	request_username VARCHAR(255) binary NOT NULL,

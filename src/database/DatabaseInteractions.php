@@ -11,7 +11,7 @@ function getBlockReason($username) {
 
 function createAccountRequest($username, $passwordHash, $requestNotes, $email, $ip) {
 	$dbw = wfGetDB( DB_MASTER );
-	$dbw->insert('scratch_accountrequest', [
+	$dbw->insert('scratch_accountrequest_request', [
 		'request_username' => $username,
 		'password_hash' => $passwordHash,
 		'request_email' => $email,
@@ -40,7 +40,7 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 
 	function getQueryInfo() {
 		return [
-			'tables' => 'scratch_accountrequest',
+			'tables' => 'scratch_accountrequest_request',
 			'fields' => ['request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'],
 			'conds' => $this->criteria
 		];
@@ -59,7 +59,7 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 
 function getAccountRequestsByUsername(string $username) : array {
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->select('scratch_accountrequest', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_username' => $username], __METHOD__);
+	$result = $dbr->select('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_username' => $username], __METHOD__);
 
 	$results = [];
 	foreach ($result as $row) {
@@ -71,7 +71,7 @@ function getAccountRequestsByUsername(string $username) : array {
 
 function getNumberOfRequestsByStatus(array $statuses) : array {
 	$dbr = wfGetDb( DB_REPLICA ); //TODO: have a way to cache this
-	$result = $dbr->select('scratch_accountrequest', ['request_status', 'count' => 'COUNT(request_id)'], ['request_status' => $statuses], __METHOD__, ['GROUP BY' => 'request_status']);
+	$result = $dbr->select('scratch_accountrequest_request', ['request_status', 'count' => 'COUNT(request_id)'], ['request_status' => $statuses], __METHOD__, ['GROUP BY' => 'request_status']);
 
 	$statusCounts = [];
 	foreach ($statuses as $status) {
@@ -98,7 +98,7 @@ function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id) : array {
 	if (count($user_req) == 0) {
 		return $statusCounts;
 	}
-	$result = $dbr->select('scratch_accountrequest', [
+	$result = $dbr->select('scratch_accountrequest_request', [
 			'request_status',
 			'count' => 'COUNT(request_id)'
 		], [
@@ -116,7 +116,7 @@ function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id) : array {
 
 function getAccountRequestById($id) {
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->selectRow('scratch_accountrequest', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__);
+	$result = $dbr->selectRow('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__);
 
 	return $result ? AccountRequest::fromRow($result) : false;
 }
@@ -134,7 +134,7 @@ function actionRequest(AccountRequest $request, string $action, $userPerformingA
 
 	//if the action also updates the status, then set the status appropriately
 	if (isset(actionToStatus[$action])) {
-		$dbw->update('scratch_accountrequest', [
+		$dbw->update('scratch_accountrequest_request', [
 			'request_status' => actionToStatus[$action]
 		], ['request_id' => $request->id], __METHOD__);
 	}
@@ -199,5 +199,5 @@ function userExists(string $username) : bool {
 function hasActiveRequest(string $username) : bool {
 	$dbr = wfGetDB( DB_REPLICA );
 
-	return $dbr->selectRowCount('scratch_accountrequest', array('1'), ['LOWER(request_username)' => strtolower($username), 'request_status' => ['new', 'awaiting-admin', 'awaiting-user']], __METHOD__) > 0;
+	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'), ['LOWER(request_username)' => strtolower($username), 'request_status' => ['new', 'awaiting-admin', 'awaiting-user']], __METHOD__) > 0;
 }
