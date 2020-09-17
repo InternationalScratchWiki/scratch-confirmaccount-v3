@@ -44,6 +44,9 @@
 	"scratch-confirmaccount-comment-done": "Comment submitted.",
 	"scratch-confirmaccount-set-status-rejected-done": "Request rejected.",
 	"scratch-confirmaccount-set-status-awaiting-user-done": "Request marked as awaiting user.",
+	"scratch-confirmaccount-request-options": "Request options",
+	"scratch-confirmaccount-search-label": "Search by username",
+	"scratch-confirmaccount-search": "Search",
 
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which include underscore are not allowed.",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
@@ -72,5 +75,8 @@
 	"scratch-confirmaccount-password2": "Password (confirm)",
 	"scratch-confirmaccount-incorrect-password": "Passwords don't match.",
 	"scratch-confirmaccount-password-min": "Password needs to be at least $1 letters long.",
-	"scratch-confirmaccount-password-max": "Password cannot be longer than $1 letters."
+	"scratch-confirmaccount-password-max": "Password cannot be longer than $1 letters.",
+	"scratch-confirmaccount-see-request": "See your request",
+	"scratch-confirmaccount-action-unauthorized": "You cannot perform this action.",
+    "scratch-confirmaccount-set-status-awaiting-admin-done": "Your comment has been sent. Administrators will handle it and send response."
 }

@@ -4,26 +4,61 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
 }
-	
+
 function findRequestPage(&$request, &$output, &$session) {
-	$form = '<form method="post">'; //TODO: give this a URL to actually go to
-	$form .= '<input type="hidden" name="findRequest" value="1" />';
-	$form .= '<table>';
-	$form .= '<tr><td>' . wfMessage('scratch-confirmaccount-scratchusername') . '</td><td><input type="text" name="username" /></td></tr>';
-	$form .= '<tr><td>' . wfMessage('scratch-confirmaccount-findrequest-password-prompt') . '</td><td><input type="password" name="password" /></td></tr>';
-	$form .= '</table>';
-	$form .= '<input type="submit" value="' . wfMessage('scratch-confirmaccount-submit') . '" />';
-	$form .= '</form>';
-	
+	$form = Html::openElement('form', ['method' => 'post']); //TODO: give this a URL to actually go to
+	$form .= Html::element('input', [
+		'type' => 'hidden',
+		'name' => 'findRequest',
+		'value' => '1'
+	]);
+	$form .= Html::openElement('table');
+	$form .= Html::openElement('tr');
+	$form .= Html::rawElement('td', [], Html::element(
+		'label',
+		['for' => 'scratch-confirmaccount-findrequest-username'],
+		wfMessage('scratch-confirmaccount-scratchusername')->text()
+	));
+	$form .= Html::rawElement('td', [], Html::element(
+		'input',
+		[
+			'type' => 'text',
+			'name' => 'username',
+			'id' => 'scratch-confirmaccount-findrequest-username'
+		]
+	));
+	$form .= Html::closeElement('tr');
+	$form .= Html::openElement('tr');
+	$form .= Html::rawElement('td', [], Html::element(
+		'label',
+		['for' => 'scratch-confirmaccount-findrequest-password'],
+		wfMessage('scratch-confirmaccount-findrequest-password-prompt')->text()
+	));
+	$form .= Html::rawElement('td', [], Html::element(
+		'input',
+		[
+			'type' => 'password',
+			'name' => 'password',
+			'id' => 'scratch-confirmaccount-findrequest-password'
+		]
+	));
+	$form .= Html::closeElement('tr');
+	$form .= Html::closeElement('table');
+	$form .= Html::element('input', [
+		'type' => 'submit',
+		'value' => wfMessage('scratch-confirmaccount-submit')->parse()
+	]);
+	$form .= Html::closeElement('table');
+
 	$output->addHTML($form);
 }
 
 function requestPage($requestId, $userContext, &$output, &$pageContext, &$session) {
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
-		$output->addHTML(Html::rawElement('p', [], wfMessage('scratch-confirmaccount-findrequest-nopermission')->parse()));
+		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 		return;
 	}
-	
+
 	$accountRequest = getAccountRequestById($requestId);
 	if (!$accountRequest) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
@@ -151,9 +186,9 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 			]
 		);
 		$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
-		
+
 		$usable_actions = array_filter(actions, function($action) use($userContext) { return in_array($userContext, $action['performers']); });
-		
+
 		$disp .= implode(array_map(function($key, $val) {
 			$row = Html::openElement('li');
 			$row .= Html::element(
@@ -203,12 +238,12 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 	$output->addHTML($disp);
 }
 
-function handleAccountCreation($accountRequest, &$output) {	
+function handleAccountCreation($accountRequest, &$output) {
 	if (userExists($accountRequest->username)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
 		return;
 	}
-	
+
 	createAccount($accountRequest);
 	$output->addHTML('account created');
 }
@@ -223,12 +258,12 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	global $wgUser;
 
 	$requestId = $request->getText('requestid');
-	
+
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
-		$output->addHTML(Html::rawElement('p', [], wfMessage('scratch-confirmaccount-findrequest-nopermission')->parse()));
+		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 		return;
 	}
-	
+
 	$accountRequest = getAccountRequestById($requestId);
 	if (!$accountRequest) {
 		//request not found
@@ -248,15 +283,15 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
 		return;
 	}
-	
+
 	if ($userContext == 'user' && $accountRequest->status == 'rejected') {
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
 		return;
 	}
-	
+
 	if (!in_array($userContext, actions[$action]['performers'])) {
 		//admin does not have permission to perform this action
-		$output->showErrorPage('error');
+		$output->showErrorPage('error', 'scratch-confirmaccount-action-unauthorized');
 		return;
 	}
 
