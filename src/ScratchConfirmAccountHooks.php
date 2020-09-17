@@ -44,7 +44,7 @@ class ScratchConfirmAccountHooks {
 					'scratch-confirmaccount-requests-awaiting-isare',
 					$reqCounts
 				)->parse()
-			)->plain();
+			)->parse();
 			$reqCountText .= Html::closeElement('div');
 			$out->prependHTML($reqCountText);
 		}
