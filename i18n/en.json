@@ -78,5 +78,9 @@
 	"scratch-confirmaccount-password-max": "Password cannot be longer than $1 letters.",
 	"scratch-confirmaccount-see-request": "See your request",
 	"scratch-confirmaccount-action-unauthorized": "You cannot perform this action.",
-    "scratch-confirmaccount-set-status-awaiting-admin-done": "Your comment has been sent. Administrators will handle it and send response."
+	"scratch-confirmaccount-set-status-awaiting-admin-done": "Your comment has been sent. Administrators will handle it and send response.",
+
+	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 awaiting. <b>Your attention is needed!</b>",
+	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|request|requests}}",
+	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1|is|are}}"
 }

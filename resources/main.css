@@ -11,3 +11,10 @@
 .mw-scratch-confirmaccount-verifcode {
     font-weight: bold;
 }
+
+.mw-scratch-confirmaccount-rc-awaiting {
+	padding: 3px;
+	margin: 5px;
+	border: 1px solid #990000;
+	background-color: #f9f9f9;
+}

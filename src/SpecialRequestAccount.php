@@ -132,7 +132,7 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		$form .= Html::closeElement('p');
 
-        $form .= Html::openElement('p');
+		$form .= Html::openElement('p');
 		$form .= Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-password'],
@@ -149,7 +149,7 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		$form .= Html::closeElement('p');
 
-        $form .= Html::openElement('p');
+		$form .= Html::openElement('p');
 		$form .= Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-password2'],
