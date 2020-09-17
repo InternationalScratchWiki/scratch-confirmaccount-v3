@@ -58,9 +58,9 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 
-		$blockReason = getBlockReason($username);
-		if ($blockReason) {
-			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $blockReason)->text();
+		$block = getSingleBlock($username);
+		if ($block) {
+			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $block->reason)->text();
 			// note : blocks are not publicly visible on scratch, so this needs to run after checking the verification code
 			return;
 		}

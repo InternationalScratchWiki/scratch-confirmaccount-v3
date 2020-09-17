@@ -40,3 +40,17 @@ class AccountRequestHistoryEntry {
 		return new AccountRequestHistoryEntry($row->history_timestamp, $row->history_action, $row->history_comment, $row->user_name);
 	}
 }
+
+class AccountRequestUsernameBlock {
+	var $blockedUsername;
+	var $reason;
+	
+	function __construct($blockedUsername, $reason) {
+		$this->blockedUsername = $blockedUsername;
+		$this->reason = $reason;
+	}
+	
+	static function fromRow($row) {
+		return new AccountRequestUsernameBlock($row->block_username, $row->block_reason);
+	}
+}

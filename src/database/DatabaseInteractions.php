@@ -2,11 +2,11 @@
 require_once __DIR__ . '/../objects/AccountRequest.php';
 require_once __DIR__ . '/../common.php';
 
-function getBlockReason($username) {
+function getSingleBlock($username) {
 	$dbr = wfGetDB( DB_REPLICA );
 
-	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_reason'), ['LOWER(block_username)' => strtolower($username)], __METHOD__);
-	return $row ? $row->block_reason : false;
+	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_username', 'block_reason'), ['LOWER(block_username)' => strtolower($username)], __METHOD__);
+	return $row ? AccountRequestUsernameBlock::fromRow($row) : false;
 }
 
 function createAccountRequest($username, $passwordHash, $requestNotes, $email, $ip) {
@@ -216,4 +216,17 @@ function hasActiveRequest(string $username) : bool {
 			], $dbr::LIST_OR)
 		], $dbr::LIST_AND)
 	, __METHOD__) > 0;
+}
+
+function getBlocks() : array {
+	$dbr = wfGetDB( DB_REPLICA );
+	
+	$result = $dbr->select('scratch_accountrequest_block', ['block_username', 'block_reason'], [], __METHOD__, ['order_by' => ['block_timestamp', 'ASC']]);
+	
+	$blocks = [];
+	foreach ($result as $row) {
+		$blocks[] = AccountRequestUsernameBlock::fromRow($row);
+	}
+	
+	return $blocks;
 }
