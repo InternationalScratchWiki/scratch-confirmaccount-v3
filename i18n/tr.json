@@ -65,7 +65,7 @@
 	"scratch-confirmaccount-confirm-search-results": "'$1' için arama sonuçları",
 	"scratch-confirmaccount-set-status-accepted": "Kabul et",
 	"scratch-confirmaccount-set-status-rejected": "Reddet",
-	"scratch-confirmaccount-set-status-awaiting-user": "Kulanıcı yorumu isteRequest user comment",
+	"scratch-confirmaccount-set-status-awaiting-user": "Kulanıcı yorumu iste",
 	"scratch-confirmaccount-set-status-awaiting-admin": "Hizmetli için not",
 	"scratch-confirmaccount-password": "Şifre",
 	"scratch-confirmaccount-password2": "Şifre (onayla)",
