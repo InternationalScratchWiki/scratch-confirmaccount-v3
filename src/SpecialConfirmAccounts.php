@@ -96,7 +96,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		
 		$output->addHTML(Html::element('h3', [], wfMessage('scratch-confirmaccount-vieweditblock')));
 		
-		$output->addHTML(Html::openElement('form', ['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => SpecialPage::getTitleFor('ConfirmAccounts')]));
+		$output->addHTML(Html::openElement('form', ['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => SpecialPage::getTitleFor('ConfirmAccounts')->getFullURL()]));
 		
 		$output->addHTML(Html::element('input', ['type' => 'hidden', 'name' => 'blockAction', 'value' => $block ? 'update' : 'create']));
 		
@@ -104,12 +104,12 @@ class SpecialConfirmAccounts extends SpecialPage {
 		
 		$table .= Html::openElement('tr');
 		$table .= Html::element('td', [], wfMessage('scratch-confirmaccount-scratchusername')->text());
-		$table .= Html::rawElement('td', [], Html::element('input', ['type' => 'text', 'name' => 'block-reason', 'value' => $blockedUsername, 'readonly' => (bool)$block]));
+		$table .= Html::rawElement('td', [], Html::element('input', ['type' => 'text', 'name' => 'username', 'value' => $blockedUsername, 'readonly' => (bool)$block]));
 		$table .= Html::closeElement('tr');
 		
 		$table .= Html::openElement('tr');
 		$table .= Html::element('td', [], wfMessage('scratch-confirmaccount-blockreason')->text());
-		$table .= Html::rawElement('td', [], Html::element('textarea', [], $block ? $block->reason : ''));
+		$table .= Html::rawElement('td', [], Html::element('textarea', ['name' => 'reason'], $block ? $block->reason : ''));
 		$table .= Html::closeElement('tr');
 		
 		$table .= Html::closeElement('table');
@@ -236,9 +236,37 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$this->listRequestsByStatus('new', $output);
 		$this->listRequestsByStatus('awaiting-admin', $output);
 	}
+	
+	function handleBlockFormSubmission(&$request, &$output) {
+		global $wgUser;
+		
+		//TODO: show error message
+		$username = $request->getText('username');
+		$reason = $request->getText('reason');
+		
+		if (!$username) {
+			$this->showErrorPage();
+		}
+		if (!$reason) {
+			$this->showErrorPage();
+		}
+		
+		$block = getSingleBlock($username);
+		if ($block) {
+			updateBlock($username, $reason, $wgUser);
+		} else {
+			addBlock($username, $reason, $wgUser);
+		}
+		
+		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
+	}
 
 	function handleFormSubmission(&$request, &$output) {
-		handleRequestActionSubmission('admin', $request, $output, $session);
+		if ($request->getText('action')) {
+			handleRequestActionSubmission('admin', $request, $output, $session);
+		} else if ($request->getText('blockSubmit')) {
+			$this->handleBlockFormSubmission($request, $output);
+		}
 	}
 
 	function searchByUsername($username, &$request, &$output) {

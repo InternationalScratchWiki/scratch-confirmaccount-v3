@@ -9,6 +9,25 @@ function getSingleBlock($username) {
 	return $row ? AccountRequestUsernameBlock::fromRow($row) : false;
 }
 
+function addBlock($username, $reason, $blocker) {
+	$dbw = wfGetDB( DB_MASTER );
+	$dbw->insert('scratch_accountrequest_block', [
+		'block_username' => $username,
+		'block_reason' => $reason,
+		'block_blocker_user_id' => $blocker->getId(),
+		'block_timestamp' => $dbw->timestamp()
+	], __METHOD__);
+}
+
+function updateBlock($username, $reason, $blocker) {
+	$dbw = wfGetDB( DB_MASTER );
+	$dbw->update('scratch_accountrequest_block', [
+		'block_reason' => $reason,
+		'block_blocker_user_id' => $blocker->getId(),
+		'block_timestamp' => $dbw->timestamp()
+	], ['block_username' => $username], __METHOD__);
+}
+
 function createAccountRequest($username, $passwordHash, $requestNotes, $email, $ip) {
 	$dbw = wfGetDB( DB_MASTER );
 	$dbw->insert('scratch_accountrequest_request', [
