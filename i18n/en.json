@@ -77,5 +77,6 @@
 	"scratch-confirmaccount-password-min": "Password needs to be at least $1 letters long.",
 	"scratch-confirmaccount-password-max": "Password cannot be longer than $1 letters.",
 	"scratch-confirmaccount-see-request": "See your request",
-	"scratch-confirmaccount-action-unauthorized": "You cannot perform this action."
+	"scratch-confirmaccount-action-unauthorized": "You cannot perform this action.",
+    "scratch-confirmaccount-set-status-awaiting-admin-done": "Your comment has been received. Administrators will handle it and send response."
 }
