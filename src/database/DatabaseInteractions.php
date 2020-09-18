@@ -28,6 +28,11 @@ function updateBlock($username, $reason, $blocker) {
 	], ['block_username' => $username], __METHOD__);
 }
 
+function deleteBlock($username) {
+	$dbw = wfGetDB( DB_MASTER );
+	$dbw->delete('scratch_accountrequest_block', ['block_username' => $username], __METHOD__);
+}
+
 function createAccountRequest($username, $passwordHash, $requestNotes, $email, $ip) {
 	$dbw = wfGetDB( DB_MASTER );
 	$dbw->insert('scratch_accountrequest_request', [
