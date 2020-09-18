@@ -208,24 +208,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$linkRenderer = $this->getLinkRenderer();
 
 		$disp = Html::element('h3', [], wfMessage('scratch-confirmaccount-request-options')->text());
-		$disp .= Html::openElement('ul');
-		$disp .= Html::rawElement('li', [], $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('ConfirmAccounts', 'awaiting-user'), //TODO: make this display how many such requests there are
-			wfMessage('scratch-confirmaccount-requests-awaiting-user-comment')->text()
-		));
-		$disp .= Html::rawElement('li', [], $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('ConfirmAccounts', 'accepted'), //TODO: make this display how many such requests there are
-			wfMessage('scratch-confirmaccount-accepted-requests')->text()
-		));
-		$disp .= Html::rawElement('li', [], $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('ConfirmAccounts', 'rejected'), //TODO: make this display how many such requests there are
-			wfMessage('scratch-confirmaccount-rejected-requests')->text()
-		));
-		$disp .= Html::rawElement('li', [], $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')),
-			wfMessage('scratch-confirmaccount-blocks')->text()
-		));
-		$disp .= Html::closeElement('ul');
 		$disp .= Html::openElement('form', [
 			'action' => '',
 			'method' => 'get'
@@ -312,13 +294,40 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		$output->addHTML($table);
 	}
+	
+	function showTopLinks() {
+		$linkRenderer = $this->getLinkRenderer();
+		
+		$links = [];
+		
+		$links[] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts'),
+			wfMessage('confirmaccounts')->text()
+		);
+		
+		$links = array_merge($links, array_map(function ($status, $statusmsg) use($linkRenderer) {
+			return $linkRenderer->makeKnownLink(
+				SpecialPage::getTitleFor('ConfirmAccounts', $status),
+				wfMessage('scratch-confirmaccount-' . $status)->text()
+			);
+		}, array_keys(statuses), array_values(statuses)));
+		
+		$links[] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')),
+			wfMessage('scratch-confirmaccount-blocks')->text()
+		);
+		
+		$this->getOutput()->setSubtitle($this->getLanguage()->pipeList($links));
+	}
 
-	function execute( $par ) {
+	function execute( $par ) {		
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$output->addModules('ext.scratchConfirmAccount');
 		$session = $request->getSession();
 		$this->setHeaders();
+		
+		$this->showTopLinks();
 
 		//check permissions
 		$user = $this->getUser();
