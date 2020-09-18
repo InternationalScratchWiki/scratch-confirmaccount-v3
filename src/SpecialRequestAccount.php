@@ -116,13 +116,15 @@ class SpecialRequestAccount extends SpecialPage {
 	function usernameAndVerificationArea(&$session, $request) {
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-usernameverification')->text());
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('table');
+		
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-username'],
 			wfMessage('scratch-confirmaccount-scratchusername')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'text',
@@ -130,16 +132,16 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-username',
 				'value' => $request->getText('scratchusername')
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-password'],
 			wfMessage('scratch-confirmaccount-password')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'password',
@@ -147,16 +149,16 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-password',
 				'value' => ''
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-password2'],
 			wfMessage('scratch-confirmaccount-password2')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'password',
@@ -164,16 +166,16 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-password2',
 				'value' => ''
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-email'],
 			wfMessage('scratch-confirmaccount-email')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'email',
@@ -181,8 +183,9 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-email',
 				'value' => $request->getText('email')
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
+		$form .= Html::closeElement('table');
 
 		$form .= Html::rawElement(
 			'p',
