@@ -39,7 +39,7 @@ class AccountRequest {
             $row->request_expiry,
             $row->request_email_confirmed,
             $row->request_email_token,
-            $row->request_email_token_expiry,
+            $row->request_email_token_expiry
         );
 	}
 }
