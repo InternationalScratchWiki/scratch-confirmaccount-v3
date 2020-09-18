@@ -2,24 +2,45 @@
 class AccountRequest {
 	var $id;
 	var $username;
+    var $email;
 	var $requestNotes;
 	var $status;
 	var $timestamp;
 	var $lastUpdated;
 	var $expiry;
 	var $passwordHash;
+    var $emailConfirmed;
+    var $emailToken;
+    var $emailExpiry;
 
-	function __construct($id, $username, $passwordHash, $requestNotes, $status, $timestamp, $lastUpdated, $expiry) {
+	function __construct($id, $username, $email, $passwordHash, $requestNotes, $status, $timestamp, $lastUpdated, $expiry, $emailConfirmed, $emailToken, $emailExpiry) {
 		$this->id = $id;
 		$this->username = $username;
+        $this->email = $email;
 		$this->requestNotes = $requestNotes;
 		$this->status = $status;
 		$this->timestamp = $timestamp;
 		$this->passwordHash = $passwordHash;
+        $this->emailConfirmed = $emailConfirmed;
+        $this->emailToken = $emailToken;
+        $this->emailExpiry = $emailExpiry;
 	}
 
 	static function fromRow($row) {
-		return new AccountRequest($row->request_id, $row->request_username, $row->password_hash, $row->request_notes, $row->request_status, $row->request_timestamp, $row->request_last_updated, $row->request_expiry);
+		return new AccountRequest(
+            $row->request_id,
+            $row->request_username,
+            $row->request_email,
+            $row->password_hash,
+            $row->request_notes,
+            $row->request_status,
+            $row->request_timestamp,
+            $row->request_last_updated,
+            $row->request_expiry,
+            $row->request_email_confirmed,
+            $row->request_email_token,
+            $row->request_email_token_expiry,
+        );
 	}
 }
 
@@ -44,12 +65,12 @@ class AccountRequestHistoryEntry {
 class AccountRequestUsernameBlock {
 	var $blockedUsername;
 	var $reason;
-	
+
 	function __construct($blockedUsername, $reason) {
 		$this->blockedUsername = $blockedUsername;
 		$this->reason = $reason;
 	}
-	
+
 	static function fromRow($row) {
 		return new AccountRequestUsernameBlock($row->block_username, $row->block_reason);
 	}

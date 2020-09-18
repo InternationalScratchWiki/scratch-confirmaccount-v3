@@ -11,7 +11,10 @@ CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest_request (
 	request_expiry varbinary(14),
 	request_notes TEXT NOT NULL,
 	request_ip VARCHAR(255) NOT NULL,
-	request_status VARCHAR(255) binary NOT NULL DEFAULT 'new'
+	request_status VARCHAR(255) binary NOT NULL DEFAULT 'new',
+	request_email_token varbinary(32),
+	request_email_token_expiry varbinary(14),
+	request_email_confirmed TINYINT(1) NOT NULL DEFAULT 0
 )/*$wgDBTableOptions*/;
 
 

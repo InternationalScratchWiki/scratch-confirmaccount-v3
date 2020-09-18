@@ -5,13 +5,25 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
 }
 
-function findRequestPage(&$request, &$output, &$session) {
-	$form = Html::openElement('form', ['method' => 'post']); //TODO: give this a URL to actually go to
+function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
+	$form = Html::openElement('form', [
+		'method' => 'post',
+		'action' => SpecialPage::getTitleFor('RequestAccount')->getFullURL()
+	]);
 	$form .= Html::element('input', [
 		'type' => 'hidden',
-		'name' => 'findRequest',
+		'name' => $loginType,
 		'value' => '1'
 	]);
+	if ($extra) {
+		foreach ($extra as $extraInputName => $extraInputValue) {
+			$form .= Html::element('input', [
+				'type' => 'hidden',
+				'name' => $extraInputName,
+				'value' => $extraInputValue
+			]);
+		}
+	}
 	$form .= Html::openElement('table');
 	$form .= Html::openElement('tr');
 	$form .= Html::rawElement('td', [], Html::element(
@@ -52,6 +64,17 @@ function findRequestPage(&$request, &$output, &$session) {
 
 	$output->addHTML($form);
 }
+
+function findRequestPage(&$request, &$output, &$session) {
+	loginPage('findRequest', $request, $output, $session);
+}
+
+function confirmEmailPage($token, &$request, &$output, &$session) {
+	loginPage('confirmEmail', $request, $output, $session, [
+		'emailToken' => $token
+	]);
+}
+
 
 function requestPage($requestId, $userContext, &$output, &$pageContext, &$session) {
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
@@ -235,19 +258,44 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		$disp .= Html::closeElement('form');
 	}
 
+    if ($userContext == 'user' && $accountRequest->status !='accepted' && $accountRequest->status !='rejected') {
+        if (!empty($accountRequest->email) && !$accountRequest->emailConfirmed) {
+			$disp .= Html::openElement('form', [
+				'action' => $pageContext->getPageTitle()->getLocalUrl(),
+				'method' => 'post',
+				'enctype' => 'multipart/form-data'
+			]);
+			$disp .= Html::element('input', [
+				'type' => 'hidden',
+				'name' => 'sendConfirmationEmail',
+				'value' => '1'
+			]);
+			$disp .= Html::element('input', [
+				'type' => 'hidden',
+				'name' => 'requestid',
+				'value' => $requestId
+			]);
+			$disp .= Html::element('input', [
+				'type' => 'submit',
+				'value' => wfMessage('scratch-confirmaccount-resend')->parse()
+			]);
+			$disp .= Html::closeElement('form');
+		}
+    }
+
 	$output->addHTML($disp);
 }
 
 function handleAccountCreation($accountRequest, &$output) {
 	global $wgUser;
-	
+
 	if (userExists($accountRequest->username)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
 		return;
 	}
 
 	createAccount($accountRequest, $wgUser);
-	$output->addHTML('account created');
+	$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-account-created')->text()));
 }
 
 function authenticateForViewingRequest($requestId, &$session) {

@@ -61,7 +61,7 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 	function getQueryInfo() {
 		return [
 			'tables' => 'scratch_accountrequest_request',
-			'fields' => ['request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status'],
+			'fields' => ['request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status', 'request_email_token', 'request_email_confirmed', 'request_email_token_expiry'],
 			'conds' => $this->criteria
 		];
 	}
@@ -79,7 +79,7 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 
 function getAccountRequestsByUsername(string $username) : array {
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->select('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status'), ['request_username' => $username], __METHOD__);
+	$result = $dbr->select('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated'), ['request_username' => $username], __METHOD__, ['order_by' => ['request_timestamp', 'DESC']]);
 
 	$results = [];
 	foreach ($result as $row) {
@@ -136,7 +136,7 @@ function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id) : array {
 
 function getAccountRequestById($id) {
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->selectRow('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status'), ['request_id' => $id], __METHOD__);
+	$result = $dbr->selectRow('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status', 'request_email_token', 'request_email_confirmed', 'request_email_token_expiry'), ['request_id' => $id], __METHOD__);
 
 	return $result ? AccountRequest::fromRow($result) : false;
 }
@@ -184,22 +184,31 @@ function getRequestHistory(AccountRequest $request) : array {
 	return $history;
 }
 
-function createAccount(AccountRequest $request, $creator) {	
+function createAccount(AccountRequest $request, $creator) {
 	//first create the user and add it to the database
 	$user = User::newFromName($request->username);
 	$user->addToDatabase();
+
+	$updater = [
+		'user_password' => $request->passwordHash
+	];
+
 	$dbw = wfGetDB( DB_MASTER );
-	
+
+	// If email is confirmed, set it
+	if ($request->emailConfirmed) {
+		$updater['user_email'] = $request->email;
+		$updater['user_email_authenticated'] = $dbw->timestamp();
+	}
+
 	//then set the user's password to match
 	$dbw->update(
 		'user',
-		[
-			'user_password' => $request->passwordHash
-		],
+		$updater,
 		[ 'user_id' => $user->getId() ],
 		__METHOD__
 	);
-	
+
 	//now log that the user was created
 	$logEntry = new ManualLogEntry('newusers', 'create2');
 	$logEntry->setPerformer($creator);
@@ -208,9 +217,9 @@ function createAccount(AccountRequest $request, $creator) {
 		'4::user_id' => $user->getId()
 	]);
 	$logEntry->setTarget($user->getUserPage());
-	
+
 	$logId = $logEntry->insert();
-	
+
 	$logEntry->publish($logId);
 }
 
@@ -223,7 +232,7 @@ function userExists(string $username) : bool {
 function hasActiveRequest(string $username) : bool {
 	$dbr = wfGetDB( DB_REPLICA );
 
-	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'), 
+	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'),
 		$dbr->makeList([
 			'LOWER(request_username)' => strtolower($username),
 			$dbr->makeList([
@@ -239,13 +248,43 @@ function hasActiveRequest(string $username) : bool {
 
 function getBlocks() : array {
 	$dbr = wfGetDB( DB_REPLICA );
-	
+
 	$result = $dbr->select('scratch_accountrequest_block', ['block_username', 'block_reason'], [], __METHOD__, ['order_by' => ['block_timestamp', 'ASC']]);
-	
+
 	$blocks = [];
 	foreach ($result as $row) {
 		$blocks[] = AccountRequestUsernameBlock::fromRow($row);
 	}
-	
+
 	return $blocks;
+}
+
+function setRequestEmailToken($request_id, $hash, $expiry) {
+    $dbw = wfGetDB( DB_MASTER );
+
+	$dbw->update(
+		'scratch_accountrequest_request',
+		[
+			'request_email_token' => $hash,
+			'request_email_token_expiry' => $expiry,
+			'request_email_confirmed' => 0
+		],
+		[ 'request_id' => $request_id ],
+		__METHOD__
+	);
+}
+
+function setRequestEmailConfirmed($request_id) {
+	$dbw = wfGetDB( DB_MASTER );
+
+	$dbw->update(
+		'scratch_accountrequest_request',
+		[
+			'request_email_token' => null,
+			'request_email_token_expiry' => null,
+			'request_email_confirmed' => 1
+		],
+		[ 'request_id' => $request_id ],
+		__METHOD__
+	);
 }
