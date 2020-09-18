@@ -3,6 +3,7 @@ require_once __DIR__ . '/verification/ScratchVerification.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/objects/AccountRequest.php';
 require_once __DIR__ . '/common.php';
+require_once __DIR__ . '/email.php';
 require_once __DIR__ . '/RequestPage.php';
 
 use MediaWiki\MediaWikiServices;
@@ -242,20 +243,29 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 		//now actually create the request and reset the verification code
-		createAccountRequest(
+		$requestId = createAccountRequest(
 			$formData['username'],
 			$formData['passwordHash'],
 			$formData['requestnotes'],
 			$formData['email'],
 			$request->getIP()
 		);
+		$sentEmail = false;
+		if ($formData['email']) {
+			$sentEmail = sendConfirmationEmail($requestId);
+		}
 		ScratchVerification::generateNewCodeForSession($session);
+
+		$message = 'scratch-confirmaccount-success';
+		if ($sentEmail) {
+			$message = 'scratch-confirmaccount-success-email';
+		}
 
 		//and show the output
 		$output->addHTML(Html::element(
 			'p',
 			[],
-			wfMessage('scratch-confirmaccount-success')->text()
+			wfMessage($message)->text()
 		));
 	}
 
@@ -264,6 +274,10 @@ class SpecialRequestAccount extends SpecialPage {
 			handleRequestActionSubmission('user', $request, $output, $session);
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission($request, $output, $session);
+		} else if ($request->getText('confirmEmail')) {
+			$this->handleConfirmEmailFormSubmission($request, $output, $session);
+		} else if ($request->getText('sendConfirmationEmail')) {
+			$this->handleSendConfirmEmailSubmission($request, $output, $session);
 		} else {
 			$this->handleAccountRequestFormSubmission($request, $output, $session);
 		}
@@ -294,7 +308,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 
-	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
+	function handleAuthenticationFormSubmission(&$request, &$output, &$session) {
 		$linkRenderer = $this->getLinkRenderer();
 
 		$username = $request->getText('username');
@@ -309,12 +323,63 @@ class SpecialRequestAccount extends SpecialPage {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nomatch');
 			return;
 		}
+		return $matchingRequests;
+	}
+
+	function handleConfirmEmailFormSubmission(&$request, &$output, &$session) {
+		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session);
+		if ($matchingRequests === null) return;
+		//mark that the user can view the request attached to their username and redirect them to it
+		$accountRequest = $matchingRequests[0];
+		$requestId = $accountRequest->id;
+		authenticateForViewingRequest($requestId, $session);
+		$emailToken = md5($request->getText('emailToken'));
+		$requestURL = SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL();
+		if (empty($emailToken)) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
+			return;
+		}
+
+		if ($accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
+			return;
+		}
+		if ($accountRequest->status == 'accepted') {
+			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
+			return;
+		}
+		setRequestEmailConfirmed($requestId);
+		$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-email-confirmed')->parse()));
+	}
+
+	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
+		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session);
+		if ($matchingRequests === null) return;
 
 		$requestId = $matchingRequests[0]->id;
 
 		//mark that the user can view the request attached to their username and redirect them to it
 		authenticateForViewingRequest($requestId, $session);
 		$output->redirect(SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL());
+	}
+
+	function handleSendConfirmEmailSubmission(&$request, &$output, &$session) {
+		$requestId = $request->getText('requestid');
+		if (!$session->exists('requestId') || $session->get('requestId') != $requestId) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
+			return;
+		}
+		$accountRequest = getAccountRequestById($requestId);
+		if ($accountRequest->status == 'accepted') {
+			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
+			return;
+		}
+		$sentEmail = sendConfirmationEmail($requestId);
+		if (!$sentEmail) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-email-unregistered');
+			return;
+		}
+		$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-email-resent')->text()));
 	}
 
 	function execute( $par ) {
@@ -328,6 +393,10 @@ class SpecialRequestAccount extends SpecialPage {
 			return $this->handleFormSubmission($request, $output, $session);
 		} else if ($par == '') {
 			return $this->requestForm($request, $output, $session);
+		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
+			return confirmEmailPage(
+				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
+				$request, $output, $session);
 		} else if ($par == 'FindRequest') {
 			return findRequestPage($request, $output, $session);
 		} else if (ctype_digit($par)) {

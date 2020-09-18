@@ -52,6 +52,7 @@
 	"scratch-confirmaccount-request-options": "Request options",
 	"scratch-confirmaccount-search-label": "Search by username",
 	"scratch-confirmaccount-search": "Search",
+	"scratch-confirmaccount-account-created": "Account created.",
 
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which start or end with underscore are not allowed. Please contact an administrator if this is the case for you",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
@@ -84,8 +85,18 @@
 	"scratch-confirmaccount-see-request": "See your request",
 	"scratch-confirmaccount-action-unauthorized": "You cannot perform this action.",
 	"scratch-confirmaccount-set-status-awaiting-admin-done": "Your comment has been sent. The administrators will handle it and send a response.",
+	"scratch-confirmaccount-invalid-email-token": "Could not confirm your email. Try re-sending your email at [$1 the request page].",
+	"scratch-confirmaccount-email-confirmed": "Your email has been confirmed",
+	"scratch-confirmaccount-success-email": "Account request has been received. We sent you an email to confirm the email address. The administrators will handle it and send a response.",
+	"scratch-confirmaccount-resend": "Resend Confirmation Email",
+	"scratch-confirmaccount-already-accepted-email": "Account request is already accepted; you must log in and change the email from the [[Special:Preferences|preferences]].",
+	"scratch-confirmaccount-email-unregistered": "There is no unconfirmed email address associated with this request.",
+	"scratch-confirmaccount-email-resent": "Confirmation email has been re-sent.",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 awaiting. <b>Your attention is needed!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|request|requests}}",
-	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1|is|are}}"
+	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1|is|are}}",
+
+	"scratch-confirmaccount-email-subject": "Please confirm the email for $1",
+	"scratch-confirmaccount-email-body": "Hello $1,\n\nSomeone requested an account on $2. To confirm the email, please open this address in your browser:\n\n$3\n\nThis link will expire at $4. Note that you will be asked to enter your username and password during the process.\nConfirming your email address is optional, but it will allow you to reset your password via email. If you did not request the account on $2, please ignore this email."
 }
