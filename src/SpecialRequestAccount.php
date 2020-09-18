@@ -388,6 +388,7 @@ class SpecialRequestAccount extends SpecialPage {
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
+		$language = $this->getLanguage();
 		$output->addModules('ext.scratchConfirmAccount');
 		$session = $request->getSession();
 		$this->setHeaders();
@@ -403,7 +404,7 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if ($par == 'FindRequest') {
 			return findRequestPage($request, $output, $session);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'user', $output, $this, $session);
+			return requestPage($par, 'user', $output, $this, $session, $language);
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}

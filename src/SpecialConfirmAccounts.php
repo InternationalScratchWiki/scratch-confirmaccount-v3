@@ -324,6 +324,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function execute( $par ) {		
 		$request = $this->getRequest();
 		$output = $this->getOutput();
+		$language = $this->getLanguage();
 		$output->addModules('ext.scratchConfirmAccount');
 		$session = $request->getSession();
 		$this->setHeaders();
@@ -346,7 +347,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $output, $this, $session, $this->getLanguage());
+			return requestPage($par, 'admin', $output, $this, $session, $language);
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
 		} else {
