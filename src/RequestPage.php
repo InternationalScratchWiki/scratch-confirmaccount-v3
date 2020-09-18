@@ -349,10 +349,10 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	if ($action == 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output);
 	} else {
-		$output->addHTML(Html::element(
+		$output->addHTML(Html::rawElement(
 			'p',
 			[],
-			wfMessage(actions[$action]['message'] . '-done')->text()
+			wfMessage(actions[$action]['message'] . '-done', $accountRequest->id)->parse()
 		));
 	}
 }
