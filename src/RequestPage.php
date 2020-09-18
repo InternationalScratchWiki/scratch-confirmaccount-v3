@@ -76,7 +76,7 @@ function confirmEmailPage($token, &$request, &$output, &$session) {
 }
 
 
-function requestPage($requestId, $userContext, &$output, &$pageContext, &$session) {
+function requestPage($requestId, $userContext, &$output, &$pageContext, &$session, &$language) {
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 		return;
@@ -124,7 +124,7 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 	$disp .= Html::element(
 		'td',
 		[],
-		wfTimestamp( TS_ISO_8601, $accountRequest->timestamp )
+		humanTimestamp($accountRequest->timestamp, $language)
 	);
 	$disp .= Html::closeElement('tr');
 	$disp .= Html::openElement('tr');
@@ -172,12 +172,18 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		[],
 		wfMessage('scratch-confirmaccount-history')->text()
 	);
-	$disp .= implode(array_map(function($historyEntry) use($accountRequest) {
-		$row = Html::openElement('div');
-		$row .= Html::openElement('h5');
-		$row .= Html::element('span', [], $historyEntry->performer ?: $accountRequest->username);
-		$row .= Html::element('span', [], wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ));
-		$row .= Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text());
+	$disp .= implode(array_map(function($historyEntry) use($accountRequest, $language) {
+		global $wgUser;
+		
+		$row = Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry']);
+		$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
+		
+		$row .= $language->pipeList([
+			Html::element('span', [], $historyEntry->performer ?: $accountRequest->username),
+			Html::element('span', [], humanTimestamp($historyEntry->timestamp, $language)),
+			Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text())
+		]);
+		
 		$row .= Html::closeElement('h5');
 		$row .= Html::element('p', [], $historyEntry->comment);
 		$row .= Html::closeElement('div');

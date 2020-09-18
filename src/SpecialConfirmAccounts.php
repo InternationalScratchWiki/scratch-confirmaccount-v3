@@ -4,16 +4,17 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/RequestPage.php';
 
 class AccountRequestPager extends AbstractAccountRequestPager {
-	private $linkRenderer;
-	function __construct($username, $status, $linkRenderer) {
+	private $linkRenderer, $language;
+	function __construct($username, $status, $linkRenderer, $language) {
 		parent::__construct($username, $status);
 
 		$this->linkRenderer = $linkRenderer;
+		$this->language = $language;
 	}
 
 	function rowFromRequest($accountRequest) {
 		$row = Html::openElement('tr');
-		$row .= Html::element('td', [], wfTimestamp( TS_ISO_8601, $accountRequest->lastUpdated ));
+		$row .= Html::element('td', [], humanTimestamp( $accountRequest->lastUpdated, $this->language ));
 		$row .= Html::element('td', [], $accountRequest->username);
 		$row .= Html::element('td', [], $accountRequest->requestNotes);
 		$row .= Html::rawElement(
@@ -146,7 +147,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function requestTable($status, $username, &$linkRenderer) {
-		$pager = new AccountRequestPager($status, $username, $linkRenderer);
+		$pager = new AccountRequestPager($status, $username, $linkRenderer, $this->getLanguage());
 
 		if ($pager->getNumRows() == 0) {
 			return Html::element('p', [], wfMessage('scratch-confirmaccount-norequests')->text());
@@ -345,7 +346,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $output, $this, $session);
+			return requestPage($par, 'admin', $output, $this, $session, $this->getLanguage());
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
 		} else {

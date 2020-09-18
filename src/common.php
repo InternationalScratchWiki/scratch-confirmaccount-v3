@@ -63,3 +63,7 @@ function passwordMinMax() {
 	}
 	return [$min, $max];
 }
+
+function humanTimestamp($dbTimestamp, $language) {
+	return $language->getHumanTimestamp(new MWTimestamp($dbTimestamp ));
+}
