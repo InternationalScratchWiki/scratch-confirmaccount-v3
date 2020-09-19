@@ -121,7 +121,7 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		[],
 		wfMessage('scratch-confirmaccount-request-timestamp')->text()
 	);
-	$disp .= Html::element(
+	$disp .= Html::rawElement(
 		'td',
 		[],
 		humanTimestamp($accountRequest->timestamp, $language)
@@ -175,7 +175,7 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 
 		$row .= $language->pipeList([
 			Html::element('span', [], $historyEntry->performer ?: $accountRequest->username),
-			Html::element('span', [], humanTimestamp($historyEntry->timestamp, $language)),
+			humanTimestamp($historyEntry->timestamp, $language),
 			Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text())
 		]);
 

@@ -14,7 +14,7 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 
 	function rowFromRequest($accountRequest) {
 		$row = Html::openElement('tr');
-		$row .= Html::element('td', [], humanTimestamp( $accountRequest->lastUpdated, $this->language ));
+		$row .= Html::rawElement('td', [], humanTimestamp( $accountRequest->lastUpdated, $this->language ));
 		$row .= Html::element('td', [], $accountRequest->username);
 		$row .= Html::element('td', [], $accountRequest->requestNotes);
 		$row .= Html::rawElement(
