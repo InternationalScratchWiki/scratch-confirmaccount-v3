@@ -275,6 +275,7 @@ class SpecialRequestAccount extends SpecialPage {
 			$sentEmail = sendConfirmationEmail($requestId);
 		}
 		ScratchVerification::generateNewCodeForSession($session);
+		authenticateForViewingRequest($requestId, $session);
 
 		$message = 'scratch-confirmaccount-success';
 		if ($sentEmail) {
@@ -282,10 +283,13 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 		//and show the output
-		$output->addHTML(Html::element(
+		$output->addHTML(Html::rawElement(
 			'p',
 			[],
-			wfMessage($message)->text()
+			wfMessage(
+				$message,
+				$requestId
+			)->parse()
 		));
 	}
 
