@@ -86,7 +86,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}
 
 		//also show a form to add a new block
-		$output->addHTML(Html::element('h3', [], 'Add new block')); //TODO: i18n this
+		$output->addHTML(Html::element('h3', [], wfMessage('scratch-confirmaccount-add-block')->text()));
 		$this->singleBlockForm('', $request, $output);
 	}
 
@@ -96,7 +96,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		if ($blockedUsername) {
 			$block = getSingleBlock($blockedUsername);
 			if (!$block) {
-				//TODO: show an error
+				$output->showErrorPage('error', 'scratch-confirmaccount-not-blocked');
 				return;
 			}
 		} else {
@@ -237,15 +237,14 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function handleBlockFormSubmission(&$request, &$output) {
 		global $wgUser;
 
-		//TODO: show error message
 		$username = $request->getText('username');
 		$reason = $request->getText('reason');
 
 		if (!$username) {
-			$this->showErrorPage();
+			$this->showErrorPage('error', 'scratch-confirmaccount-block-invalid-username');
 		}
 		if (!$reason) {
-			$this->showErrorPage();
+			$this->showErrorPage('error', 'scratch-confirmaccount-block-invalid-reason');
 		}
 
 		$block = getSingleBlock($username);
@@ -263,7 +262,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		$block = getSingleBlock($username);
 		if (!$block) {
-			//TODO: show an error page for how this user was never blocked
+			$output->showErrorPage('error', 'scratch-confirmaccount-not-blocked');
 			return;
 		}
 

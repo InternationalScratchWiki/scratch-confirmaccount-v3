@@ -55,6 +55,10 @@
 	"scratch-confirmaccount-search-label": "Search by username",
 	"scratch-confirmaccount-search": "Search",
 	"scratch-confirmaccount-account-created": "Account created.",
+	"scratch-confirmaccount-add-block": "Add new block",
+	"scratch-confirmaccount-not-blocked": "The username is not blocked.",
+	"scratch-confirmaccount-block-invalid-username": "You must enter the username to block.",
+	"scratch-confirmaccount-block-invalid-reason": "You must enter the reason.",
 
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which start or end with underscore are not allowed. Please contact an administrator if this is the case for you",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
