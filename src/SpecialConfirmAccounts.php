@@ -33,7 +33,7 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 
 class SpecialConfirmAccounts extends SpecialPage {
 	function __construct() {
-		parent::__construct( 'ConfirmAccounts' );
+		parent::__construct( 'ConfirmAccounts', 'createaccount' );
 	}
 
 	function getGroupName() {
