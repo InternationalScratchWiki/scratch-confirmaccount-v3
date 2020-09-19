@@ -5,7 +5,7 @@ class ScratchUserCheck {
     const PROFILE_URL = 'https://scratch.mit.edu/users/%s/';
     const API_URL = 'https://api.scratch.mit.edu/users/%s/';
     const STATUS_REGEX = '/<span class=\"group\">[\s]*([\w]{3})/';
-    const JOINED_REGEX = '/<span title=\"([\d]{4})-([\d]{2})-([\d]{2})\">/';
+    const JOINED_REGEX = '/<span title=\"([\d]{4}-[\d]{2}-[\d]{2})\">/';
 
     private static function fetchProfile($username, &$isScratcher, &$joinedAt) {
         $url = sprintf(self::PROFILE_URL, $username);
@@ -22,12 +22,10 @@ class ScratchUserCheck {
         if (empty($joined_matches)) {
             $joinedAt = wfTimestamp(TS_UNIX); // assume they joined now
         } else {
-            $joinedAt = wfTimestamp(TS_UNIX,
+            $joinedAt = wfTimestamp(TS_ISO_8601,
                 $joined_matches[1] .
-                $joined_matches[2] .
-                $joined_matches[3] .
-                '000000'
-            ); // YYYYMMDD000000
+                'T00:00:00Z'
+            ); // $joined_matches[1] is YYYY-MM-DD
         }
     }
 
