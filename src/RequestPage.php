@@ -241,26 +241,26 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 			$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
 			
 			$disp .= implode(array_map(function($key, $val) {
-			$row = Html::openElement('li');
-			$row .= Html::element(
-				'input',
-				[
-					'type' => 'radio',
-					'name' => 'action',
-					'id' => 'scratch-confirmaccount-action-' . $key,
-					'value' => $key,
-					'required' => true
-				]
-			);
-			$row .= Html::element(
-				'label',
-				['for' => 'scratch-confirmaccount-action-' . $key],
-				wfMessage($val['message'])->text()
-			);
-			$row .= Html::closeElement('li');
-			return $row;
-		}, array_keys($usable_actions), array_values($usable_actions)));
-		$disp .= Html::closeElement('ul');
+				$row = Html::openElement('li');
+				$row .= Html::element(
+					'input',
+					[
+						'type' => 'radio',
+						'name' => 'action',
+						'id' => 'scratch-confirmaccount-action-' . $key,
+						'value' => $key,
+						'required' => true
+					]
+				);
+				$row .= Html::element(
+					'label',
+					['for' => 'scratch-confirmaccount-action-' . $key],
+					wfMessage($val['message'])->text()
+				);
+				$row .= Html::closeElement('li');
+				return $row;
+			}, array_keys($usable_actions), array_values($usable_actions)));
+			$disp .= Html::closeElement('ul');
 		}
 		
 		$disp .= Html::openElement('p');
