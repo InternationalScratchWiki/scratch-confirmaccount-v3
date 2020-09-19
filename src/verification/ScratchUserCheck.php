@@ -32,8 +32,9 @@ class ScratchUserCheck {
     }
 
     public static function check($username) {
-        $disallowNewScratcher = wgScratchAccountCheckDisallowNewScratcher();
-        $joinedAtRequirement = wgScratchAccountJoinedRequirement();
+		global $wgScratchAccountCheckDisallowNewScratcher, $wgScratchAccountJoinedRequirement;
+        $disallowNewScratcher = $wgScratchAccountCheckDisallowNewScratcher;
+        $joinedAtRequirement = $wgScratchAccountJoinedRequirement;
         if (!$disallowNewScratcher && $joinedAtRequirement == 0) {
             return; // no need to check, both disabled
         }
