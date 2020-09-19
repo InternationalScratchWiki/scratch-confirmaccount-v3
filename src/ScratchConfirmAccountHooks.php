@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
+use MediaWiki\MediaWikiServices;
+
 class ScratchConfirmAccountHooks {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$updater->addExtensionTable('scratch_accountrequest', __DIR__ . '/../sql/requests.sql');
@@ -62,6 +64,36 @@ class ScratchConfirmAccountHooks {
 			'type' => 'toggle',
 			'label-message' => 'scratch-confirmaccount-open-scratch',
 			'section' => 'rendering/advancedrendering'
+		];
+		return true;
+	}
+	
+	public static function onPersonalUrls(&$personal_urls, $title, $skin) {
+		# Add a link to Special:RequestAccount if a link exists for login
+		if (isset($personal_urls['login'])) {
+			$personal_urls['createaccount'] = [
+				'text' => wfMessage('requestaccount')->text(),
+				'href' => SpecialPage::getTitleFor('RequestAccount')->getLocalUrl()
+			];
+		}
+		return true;
+	}
+	
+	public static function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
+		if ($action != 'login') return;
+		$formDescriptor['requestAccount'] = [
+			'type' => 'info',
+			'raw' => true,
+			'cssclass' => 'mw-form-related-link-container',
+			'default' => wfMessage('scratch-confirmaccount-request-account-login-notice')->parse(),
+			'weight' => -90
+		];
+		$formDescriptor['viewRequest'] = [
+			'type' => 'info',
+			'raw' => true,
+			'cssclass' => 'mw-form-related-link-container',
+			'default' => wfMessage('scratch-confirmaccount-view-request')->parse(),
+			'weight' => 180
 		];
 		return true;
 	}
