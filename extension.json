@@ -21,13 +21,15 @@
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates",
-		"BeforePageDisplay": "ScratchConfirmAccountHooks::pendingRequestNotice"
+		"BeforePageDisplay": "ScratchConfirmAccountHooks::pendingRequestNotice",
+		"GetPreferences": "ScratchConfirmAccountHooks::onGetPreferences"
 	},
 	"ResourceModules": {
 		"ext.scratchConfirmAccount": {
 			"styles": "main.css",
 			"localBasePath": "resources",
-			"remoteExtPath": "scratch-confirmaccount-v3/resources"
+			"remoteExtPath": "scratch-confirmaccount-v3/resources",
+			"packageFiles": ["main.js"]
 		}
 	},
 	"config": {
@@ -36,5 +38,8 @@
 		"ScratchAccountRequestRejectCooldownDays": 7,
 		"ScratchAccountCheckDisallowNewScratcher": false,
 		"ScratchAccountJoinedRequirement": 0
+	},
+	"DefaultUserOptions": {
+		"scratch-confirmaccount-open-scratch": true
 	}
 }

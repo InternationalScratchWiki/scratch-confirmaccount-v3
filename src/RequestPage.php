@@ -77,6 +77,7 @@ function confirmEmailPage($token, &$request, &$output, &$session) {
 
 
 function requestPage($requestId, $userContext, &$output, &$pageContext, &$session, &$language) {
+	global $wgUser;
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 		return;
@@ -140,7 +141,8 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 			'a',
 			[
 				'href' => 'https://scratch.mit.edu/users/' . $accountRequest->username,
-				'target' => '_blank'
+				'target' => '_blank',
+				'id' => 'mw-scratch-confirmaccount-profile-link'
 			],
 			$accountRequest->username
 		)
@@ -167,8 +169,11 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		[],
 		wfMessage('scratch-confirmaccount-history')->text()
 	);
-	$disp .= implode(array_map(function($historyEntry) use($accountRequest, $language) {
-		global $wgUser;
+	$hasHandledBefore = false;
+	$disp .= implode(array_map(function($historyEntry) use($accountRequest, $language, &$hasHandledBefore) {
+		if (isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers'])) {
+			$hasHandledBefore = true;
+		}
 
 		$row = Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry']);
 		$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
@@ -198,7 +203,16 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 			[
 				'action' => $pageContext->getPageTitle()->getLocalUrl(),
 				'method' => 'post',
-				'enctype' => 'multipart/form-data'
+				'enctype' => 'multipart/form-data',
+				'class' => 'mw-scratch-confirmaccount-request-form'
+			]
+		);
+		$disp .= Html::rawElement(
+			'input',
+			[
+				'type' => 'hidden',
+				'name' => 'shouldOpenScratchPage',
+				'value' => $userContext == 'admin' && !$hasHandledBefore && $wgUser->getOption('scratch-confirmaccount-open-scratch')
 			]
 		);
 		$disp .= Html::rawElement(

@@ -5,7 +5,7 @@ require_once __DIR__ . '/../common.php';
 function getSingleBlock($username) {
 	$dbr = wfGetDB( DB_REPLICA );
 
-	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_username', 'block_reason'), ['LOWER(block_username)' => strtolower($username)], __METHOD__);
+	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_username', 'block_reason'), ['LOWER(CONVERT(block_username using utf8))' => strtolower($username)], __METHOD__);
 	return $row ? AccountRequestUsernameBlock::fromRow($row) : false;
 }
 
@@ -57,7 +57,7 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 			$this->criteria['request_status'] = $status;
 		}
 		if ($username != null) {
-			$this->criteria['LOWER(request_username)'] = strtolower($username);
+			$this->criteria['LOWER(CONVERT(request_username using utf8))'] = strtolower($username);
 		}
 
 		parent::__construct();
@@ -232,7 +232,13 @@ function createAccount(AccountRequest $request, $creator) {
 function userExists(string $username) : bool {
 	$dbr = wfGetDB( DB_REPLICA );
 
-	return User::newFromName($username)->getId() != 0; //TODO: make this case-insensitive
+	// Use db directly to make it case insensitive
+	return $dbr->selectRowCount(
+		'user',
+		'*',
+		['LOWER(CONVERT(user_name using utf8))' => strtolower($username)],
+		__METHOD__
+	) > 0;
 }
 
 function hasActiveRequest(string $username) : bool {
@@ -240,7 +246,7 @@ function hasActiveRequest(string $username) : bool {
 
 	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'),
 		$dbr->makeList([
-			'LOWER(request_username)' => strtolower($username),
+			'LOWER(CONVERT(request_username using utf8))' => strtolower($username),
 			$dbr->makeList([
 				'request_status' => ['new', 'awaiting-admin', 'awaiting-user'],
 				$dbr->makeList([

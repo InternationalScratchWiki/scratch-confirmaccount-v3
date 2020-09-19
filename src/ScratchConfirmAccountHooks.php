@@ -51,4 +51,18 @@ class ScratchConfirmAccountHooks {
 
 		return true;
 	}
+	
+	public static function onGetPreferences($user, &$preferences) {
+		//don't show if the user doesn't have permission to create accounts
+		if (!$user->isAllowed('createaccount')) {
+			return true;
+		}
+		
+		$preferences['scratch-confirmaccount-open-scratch'] = [
+			'type' => 'toggle',
+			'label-message' => 'scratch-confirmaccount-open-scratch',
+			'section' => 'rendering/advancedrendering'
+		];
+		return true;
+	}
 }
