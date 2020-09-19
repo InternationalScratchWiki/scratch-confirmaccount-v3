@@ -76,7 +76,7 @@ function confirmEmailPage($token, &$request, &$output, &$session) {
 }
 
 
-function requestPage($requestId, $userContext, &$output, &$pageContext, &$session) {
+function requestPage($requestId, $userContext, &$output, &$pageContext, &$session, &$language) {
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 		return;
@@ -102,10 +102,10 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		[],
 		wfMessage('scratch-confirmaccount-details')->text()
 	);
-	$disp .= Html::openElement('table');
+	$disp .= Html::openElement('table', [ 'class' => 'wikitable' ]);
 	$disp .= Html::openElement('tr');
 	$disp .= Html::element(
-		'td',
+		'th',
 		[],
 		wfMessage('scratch-confirmaccount-status')->text()
 	);
@@ -117,19 +117,19 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 	$disp .= Html::closeElement('tr');
 	$disp .= Html::openElement('tr');
 	$disp .= Html::element(
-		'td',
+		'th',
 		[],
 		wfMessage('scratch-confirmaccount-request-timestamp')->text()
 	);
 	$disp .= Html::element(
 		'td',
 		[],
-		wfTimestamp( TS_ISO_8601, $accountRequest->timestamp )
+		humanTimestamp($accountRequest->timestamp, $language)
 	);
 	$disp .= Html::closeElement('tr');
 	$disp .= Html::openElement('tr');
 	$disp .= Html::element(
-		'td',
+		'th',
 		[],
 		wfMessage('scratch-confirmaccount-scratchusername')->text()
 	);
@@ -146,25 +146,20 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		)
 	);
 	$disp .= Html::closeElement('tr');
-	$disp .= Html::openElement('tr');
+	$disp .= Html::closeElement('table');
+
 	$disp .= Html::element(
-		'td',
-		[],
+		'h4', [],
 		wfMessage('scratch-confirmaccount-requestnotes')->text()
 	);
-	$disp .= Html::rawElement(
-		'td',
-		[],
-		Html::element(
-			'textarea',
-			[
-				'readonly' => true
-			],
-			$accountRequest->requestNotes
-		)
+	$disp .= Html::element(
+		'textarea',
+		[
+			'class' => 'mw-scratch-confirmaccount-textarea',
+			'readonly' => true
+		],
+		htmlspecialchars($accountRequest->requestNotes)
 	);
-	$disp .= Html::closeElement('tr');
-	$disp .= Html::closeElement('table');
 
 	//history section
 	$disp .= Html::element(
@@ -172,12 +167,18 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		[],
 		wfMessage('scratch-confirmaccount-history')->text()
 	);
-	$disp .= implode(array_map(function($historyEntry) use($accountRequest) {
-		$row = Html::openElement('div');
-		$row .= Html::openElement('h5');
-		$row .= Html::element('span', [], $historyEntry->performer ?: $accountRequest->username);
-		$row .= Html::element('span', [], wfTimestamp( TS_ISO_8601, $historyEntry->timestamp ));
-		$row .= Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text());
+	$disp .= implode(array_map(function($historyEntry) use($accountRequest, $language) {
+		global $wgUser;
+
+		$row = Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry']);
+		$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
+
+		$row .= $language->pipeList([
+			Html::element('span', [], $historyEntry->performer ?: $accountRequest->username),
+			Html::element('span', [], humanTimestamp($historyEntry->timestamp, $language)),
+			Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text())
+		]);
+
 		$row .= Html::closeElement('h5');
 		$row .= Html::element('p', [], $historyEntry->comment);
 		$row .= Html::closeElement('div');
@@ -186,7 +187,7 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 	}, $history));
 
 	//actions section
-	if ($accountRequest->status !='accepted' && !($accountRequest->status == 'rejected' && $userContext == 'user')) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
+	if ($accountRequest->status != 'accepted' && !($accountRequest->status == 'rejected' && $userContext == 'user')) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp .= Html::element(
 			'h4',
 			[],
@@ -242,6 +243,7 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		$disp .= Html::element(
 			'textarea',
 			[
+				'class' => 'mw-scratch-confirmaccount-textarea',
 				'name' => 'comment',
 				'id' => 'scratch-confirmaccount-comment'
 			]
@@ -349,10 +351,10 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	if ($action == 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output);
 	} else {
-		$output->addHTML(Html::element(
+		$output->addHTML(Html::rawElement(
 			'p',
 			[],
-			wfMessage(actions[$action]['message'] . '-done')->text()
+			wfMessage(actions[$action]['message'] . '-done', $accountRequest->id)->parse()
 		));
 	}
 }

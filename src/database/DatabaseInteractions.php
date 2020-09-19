@@ -28,6 +28,11 @@ function updateBlock($username, $reason, $blocker) {
 	], ['block_username' => $username], __METHOD__);
 }
 
+function deleteBlock($username) {
+	$dbw = wfGetDB( DB_MASTER );
+	$dbw->delete('scratch_accountrequest_block', ['block_username' => $username], __METHOD__);
+}
+
 function createAccountRequest($username, $passwordHash, $requestNotes, $email, $ip) {
 	$dbw = wfGetDB( DB_MASTER );
 	$dbw->insert('scratch_accountrequest_request', [
@@ -142,6 +147,7 @@ function getAccountRequestById($id) {
 }
 
 function actionRequest(AccountRequest $request, string $action, $userPerformingAction, string $comment) {
+	global $wgScratchAccountRequestRejectCooldownDays;
 	$dbw = wfGetDB( DB_MASTER );
 
 	$dbw->insert('scratch_accountrequest_history', [
@@ -159,7 +165,7 @@ function actionRequest(AccountRequest $request, string $action, $userPerformingA
 		$request_update_fields['request_status'] = actionToStatus[$action];
 	}
 	if (in_array($action, expirationActions)) { //and if the action makes the request expire, make the request expire
-		$request_update_fields['request_expiry'] = $dbw->timestamp(time() + 86400 * wgScratchAccountRequestRejectCooldownDays());
+		$request_update_fields['request_expiry'] = $dbw->timestamp(time() + 86400 * $wgScratchAccountRequestRejectCooldownDays);
 	}
 	$dbw->update('scratch_accountrequest_request', $request_update_fields, ['request_id' => $request->id], __METHOD__);
 }

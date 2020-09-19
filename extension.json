@@ -1,7 +1,8 @@
 {
 	"name": "Scratch Account Request System",
 	"descriptionmsg": "scratch-confirmaccount-desc",
-	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j"],
+	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j", "Kenny2scratch"],
+	"url": "https://github.com/InternationalScratchWiki/scratch-confirmaccount-v3",
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
 	"MessagesDirs": {
@@ -26,7 +27,12 @@
 		"ext.scratchConfirmAccount": {
 			"styles": "main.css",
 			"localBasePath": "resources",
-			"remoteExtPath": "Scratch-ConfirmAccount/resources"
+			"remoteExtPath": "scratch-confirmaccount-v3/resources"
 		}
+	},
+	"config": {
+		"ScratchVerificationProjectID": "10135908",
+		"ScratchVerificationProjectAuthor": "ModShare",
+		"ScratchAccountRequestRejectCooldownDays": 7
 	}
 }

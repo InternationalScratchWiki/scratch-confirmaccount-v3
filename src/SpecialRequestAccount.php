@@ -114,15 +114,18 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function usernameAndVerificationArea(&$session, $request) {
+		global $wgScratchVerificationProjectID;
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-usernameverification')->text());
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('table');
+
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-username'],
 			wfMessage('scratch-confirmaccount-scratchusername')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'text',
@@ -130,16 +133,16 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-username',
 				'value' => $request->getText('scratchusername')
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-password'],
 			wfMessage('scratch-confirmaccount-password')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'password',
@@ -147,16 +150,16 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-password',
 				'value' => ''
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-password2'],
 			wfMessage('scratch-confirmaccount-password2')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'password',
@@ -164,16 +167,16 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-password2',
 				'value' => ''
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
 
-		$form .= Html::openElement('p');
-		$form .= Html::element(
+		$form .= Html::openElement('tr');
+		$form .= Html::rawElement('td', [], Html::element(
 			'label',
 			['for' => 'scratch-confirmaccount-email'],
 			wfMessage('scratch-confirmaccount-email')->text()
-		);
-		$form .= Html::element(
+		));
+		$form .= Html::rawElement('td', [], Html::element(
 			'input',
 			[
 				'type' => 'email',
@@ -181,13 +184,14 @@ class SpecialRequestAccount extends SpecialPage {
 				'id' => 'scratch-confirmaccount-email',
 				'value' => $request->getText('email')
 			]
-		);
-		$form .= Html::closeElement('p');
+		));
+		$form .= Html::closeElement('tr');
+		$form .= Html::closeElement('table');
 
 		$form .= Html::rawElement(
 			'p',
 			[],
-			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(ScratchVerification::PROJECT_LINK, wgScratchVerificationProjectID()))->parse()
+			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID))->parse()
 		);
 		$form .= Html::element(
 			'p',
@@ -209,7 +213,11 @@ class SpecialRequestAccount extends SpecialPage {
 			['for' => 'scratch-confirmaccount-requestnotes'],
 			wfMessage('scratch-confirmaccount-requestnotes')->text()
 		);
-		$form .= Html::element('textarea', ['id' => 'scratch-confirmaccount-requestnotes', 'name' => 'requestnotes'], $request->getText('requestnotes'));
+		$form .= Html::element(
+			'textarea',
+			['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'requestnotes'],
+			$request->getText('requestnotes')
+		);
 
 		$form .= Html::openElement('br');
 
@@ -385,6 +393,7 @@ class SpecialRequestAccount extends SpecialPage {
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
+		$language = $this->getLanguage();
 		$output->addModules('ext.scratchConfirmAccount');
 		$session = $request->getSession();
 		$this->setHeaders();
@@ -400,7 +409,7 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if ($par == 'FindRequest') {
 			return findRequestPage($request, $output, $session);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'user', $output, $this, $session);
+			return requestPage($par, 'user', $output, $this, $session, $language);
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}

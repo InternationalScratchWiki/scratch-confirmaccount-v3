@@ -1,20 +1,4 @@
 <?php
-function wgScratchVerificationProjectID() {
-	return isset($GLOBALS['wgScratchVerificationProjectID']) ? $GLOBALS['wgScratchVerificationProjectID'] : "10135908";
-}
-function wgScratchVerificationProjectAuthor() {
-	return isset($GLOBALS['wgScratchVerificationProjectAuthor']) ? $GLOBALS['wgScratchVerificationProjectAuthor'] : "ModShare";
-}
-function wgScratchAccountRequestRejectCooldownDays() {
-	return isset($GLOBALS['wgScratchAccountRequestRejectCooldownDays']) ? $GLOBALS['wgScratchAccountRequestRejectCooldownDays'] : 7;
-}
-function wgScratchAccountCheckDisallowNewScratcher() {
-	return isset($GLOBALS['wgScratchAccountCheckDisallowNewScratcher']) ? $GLOBALS['wgScratchAccountCheckDisallowNewScratcher'] : false;
-}
-function wgScratchAccountJoinedRequirement() {
-	return isset($GLOBALS['wgScratchAccountJoinedRequirement']) ? $GLOBALS['wgScratchAccountJoinedRequirement'] : 0;
-}
-
 const statuses = [
 	'new' => 'scratch-confirmaccount-new',
 	'awaiting-admin' => 'scratch-confirmaccount-awaiting-admin',
@@ -55,17 +39,19 @@ const actionToStatus = [
 const expirationActions = ['set-status-rejected'];
 
 function passwordMinMax() {
-	if (!isset($GLOBALS['wgScratchVerificationProjectAuthor'])) {
-		return [6, 4096];
-	}
-	$default = $GLOBALS['wgScratchVerificationProjectAuthor']['policies']['default'];
-	$min = $default['MinimalPasswordLength'];
+	global $wgPasswordPolicy;
+	$policy = $wgPasswordPolicy['policies']['default'];
+	$min = $policy['MinimalPasswordLength'];
 	if (is_array($min)) {
 		$min = $min['value'];
 	}
-	$max = $default['MaximalPasswordLength'];
+	$max = $policy['MaximalPasswordLength'];
 	if (is_array($max)) {
 		$max = $max['value'];
 	}
 	return [$min, $max];
+}
+
+function humanTimestamp($dbTimestamp, $language) {
+	return $language->getHumanTimestamp(new MWTimestamp($dbTimestamp ));
 }
