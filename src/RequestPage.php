@@ -223,11 +223,24 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 				'value' => $requestId
 			]
 		);
-		$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
+		
 
 		$usable_actions = array_filter(actions, function($action) use($userContext) { return in_array($userContext, $action['performers']); });
 
-		$disp .= implode(array_map(function($key, $val) {
+		if (sizeof($usable_actions) == 1) {
+			$disp .= Html::element(
+				'input',
+				[
+					'type' => 'hidden',
+					'name' => 'action',
+					'value' => array_keys($usable_actions)[0],
+					'required' => true
+				]
+			);
+		} else {
+			$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
+			
+			$disp .= implode(array_map(function($key, $val) {
 			$row = Html::openElement('li');
 			$row .= Html::element(
 				'input',
@@ -248,6 +261,8 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 			return $row;
 		}, array_keys($usable_actions), array_values($usable_actions)));
 		$disp .= Html::closeElement('ul');
+		}
+		
 		$disp .= Html::openElement('p');
 		$disp .= Html::element(
 			'label',
