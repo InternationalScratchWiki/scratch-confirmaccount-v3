@@ -242,9 +242,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		if (!$username) {
 			$this->showErrorPage('error', 'scratch-confirmaccount-block-invalid-username');
+			return;
 		}
 		if (!$reason) {
 			$this->showErrorPage('error', 'scratch-confirmaccount-block-invalid-reason');
+			return;
 		}
 
 		$block = getSingleBlock($username);
