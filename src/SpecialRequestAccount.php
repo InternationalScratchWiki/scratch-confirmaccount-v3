@@ -114,10 +114,11 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function usernameAndVerificationArea(&$session, $request) {
+		global $wgScratchVerificationProjectID;
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-usernameverification')->text());
 
 		$form .= Html::openElement('table');
-		
+
 		$form .= Html::openElement('tr');
 		$form .= Html::rawElement('td', [], Html::element(
 			'label',
@@ -190,7 +191,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement(
 			'p',
 			[],
-			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(ScratchVerification::PROJECT_LINK, wgScratchVerificationProjectID()))->parse()
+			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID))->parse()
 		);
 		$form .= Html::element(
 			'p',
@@ -212,7 +213,11 @@ class SpecialRequestAccount extends SpecialPage {
 			['for' => 'scratch-confirmaccount-requestnotes'],
 			wfMessage('scratch-confirmaccount-requestnotes')->text()
 		);
-		$form .= Html::element('textarea', ['id' => 'scratch-confirmaccount-requestnotes', 'name' => 'requestnotes'], $request->getText('requestnotes'));
+		$form .= Html::element(
+			'textarea',
+			['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'requestnotes'],
+			$request->getText('requestnotes')
+		);
 
 		$form .= Html::openElement('br');
 

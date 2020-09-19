@@ -30,9 +30,11 @@ class ScratchVerification {
 	}
 
 	private static function verifComments() {
+		global $wgScratchVerificationProjectAuthor;
+		global $wgScratchVerificationProjectID;
 		return self::commentsForProject(
-			wgScratchVerificationProjectAuthor(),
-			wgScratchVerificationProjectID()
+			$wgScratchVerificationProjectAuthor,
+			$wgScratchVerificationProjectID
 		);
 	}
 

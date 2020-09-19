@@ -29,3 +29,7 @@
 .mw-scratch-confirmaccount-actionentry h5, .mw-scratch-confirmaccount-actionentry p {
 	margin-bottom: 0 !important;
 }
+
+.mw-scratch-confirmaccount-textarea {
+	resize: vertical;
+}

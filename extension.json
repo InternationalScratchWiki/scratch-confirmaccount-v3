@@ -26,7 +26,12 @@
 		"ext.scratchConfirmAccount": {
 			"styles": "main.css",
 			"localBasePath": "resources",
-			"remoteExtPath": "Scratch-ConfirmAccount/resources"
+			"remoteExtPath": "scratch-confirmaccount-v3/resources"
 		}
+	},
+	"config": {
+		"ScratchVerificationProjectID": "10135908",
+		"ScratchVerificationProjectAuthor": "ModShare",
+		"ScratchAccountRequestRejectCooldownDays": 7
 	}
 }
