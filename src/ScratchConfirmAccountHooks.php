@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
+use MediaWiki\MediaWikiServices;
+
 class ScratchConfirmAccountHooks {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$updater->addExtensionTable('scratch_accountrequest', __DIR__ . '/../sql/requests.sql');
@@ -74,6 +76,25 @@ class ScratchConfirmAccountHooks {
 				'href' => SpecialPage::getTitleFor('RequestAccount')->getLocalUrl()
 			];
 		}
+		return true;
+	}
+	
+	public static function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
+		if ($action != 'login') return;
+		$formDescriptor['requestAccount'] = [
+			'type' => 'info',
+			'raw' => true,
+			'cssclass' => 'mw-form-related-link-container',
+			'default' => wfMessage('scratch-confirmaccount-request-account-login-notice')->parse(),
+			'weight' => -90
+		];
+		$formDescriptor['viewRequest'] = [
+			'type' => 'info',
+			'raw' => true,
+			'cssclass' => 'mw-form-related-link-container',
+			'default' => wfMessage('scratch-confirmaccount-view-request')->parse(),
+			'weight' => 180
+		];
 		return true;
 	}
 }
