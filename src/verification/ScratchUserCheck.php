@@ -3,7 +3,6 @@ require_once __DIR__ . '/../common.php';
 
 class ScratchUserCheck {
     const PROFILE_URL = 'https://scratch.mit.edu/users/%s/';
-    const API_URL = 'https://api.scratch.mit.edu/users/%s/';
     const STATUS_REGEX = '/<span class=\"group\">[\s]*([\w]{3})/';
     const JOINED_REGEX = '/<span title=\"([\d]{4}-[\d]{2}-[\d]{2})\">/';
 
