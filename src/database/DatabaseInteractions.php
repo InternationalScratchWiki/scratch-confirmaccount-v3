@@ -266,7 +266,7 @@ function getBlocks() : array {
 }
 
 function setRequestEmailToken($request_id, $hash, $expiry) {
-    $dbw = wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 
 	$dbw->update(
 		'scratch_accountrequest_request',

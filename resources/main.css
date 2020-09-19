@@ -1,15 +1,15 @@
 .mw-scratch-confirmaccount-actions-list {
-    list-style-type: none;
-    padding-left: 0;
+	list-style-type: none;
+	padding-left: 0;
 }
 
 .mw-scratch-confirmaccount-actions-list li {
-    display: inline;
-    margin-right: 10px;
+	display: inline;
+	margin-right: 10px;
 }
 
 .mw-scratch-confirmaccount-verifcode {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 .mw-scratch-confirmaccount-rc-awaiting {

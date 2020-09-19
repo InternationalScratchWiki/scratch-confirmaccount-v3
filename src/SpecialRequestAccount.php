@@ -66,8 +66,8 @@ class SpecialRequestAccount extends SpecialPage {
 				$out_error = wfMessage($user_check_error)->text();
 				return;
 			case 'scratch-confirmaccount-joinedat':
-				$months = ceil($wgScratchAccountJoinedRequirement / (30 * 24 * 60 * 60));
-				$out_error = wfMessage($user_check_error, $months)->text();
+				$days = ceil($wgScratchAccountJoinedRequirement / (24 * 60 * 60));
+				$out_error = wfMessage($user_check_error, $days)->text();
 				return;
 		}
 

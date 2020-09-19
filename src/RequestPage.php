@@ -260,8 +260,8 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 		$disp .= Html::closeElement('form');
 	}
 
-    if ($userContext == 'user' && $accountRequest->status !='accepted' && $accountRequest->status !='rejected') {
-        if (!empty($accountRequest->email) && !$accountRequest->emailConfirmed) {
+	if ($userContext == 'user' && $accountRequest->status !='accepted' && $accountRequest->status !='rejected') {
+		if (!empty($accountRequest->email) && !$accountRequest->emailConfirmed) {
 			$disp .= Html::openElement('form', [
 				'action' => $pageContext->getPageTitle()->getLocalUrl(),
 				'method' => 'post',
@@ -283,7 +283,7 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 			]);
 			$disp .= Html::closeElement('form');
 		}
-    }
+	}
 
 	$output->addHTML($disp);
 }

@@ -95,7 +95,7 @@
 	"scratch-confirmaccount-email-unregistered": "There is no unconfirmed email address associated with this request.",
 	"scratch-confirmaccount-email-resent": "Confirmation email has been re-sent.",
 	"scratch-confirmaccount-new-scratcher": "New Scratchers cannot submit account requests.",
-	"scratch-confirmaccount-joinedat": "You must have been registered on Scratch for at least $1 months to request an account.",
+	"scratch-confirmaccount-joinedat": "You must have been registered on Scratch for at least $1 days to request an account.",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 awaiting. <b>Your attention is needed!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|request|requests}}",
