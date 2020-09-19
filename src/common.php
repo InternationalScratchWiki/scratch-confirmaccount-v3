@@ -8,6 +8,12 @@ function wgScratchVerificationProjectAuthor() {
 function wgScratchAccountRequestRejectCooldownDays() {
 	return isset($GLOBALS['wgScratchAccountRequestRejectCooldownDays']) ? $GLOBALS['wgScratchAccountRequestRejectCooldownDays'] : 7;
 }
+function wgScratchAccountCheckDisallowNewScratcher() {
+	return isset($GLOBALS['wgScratchAccountCheckDisallowNewScratcher']) ? $GLOBALS['wgScratchAccountCheckDisallowNewScratcher'] : false;
+}
+function wgScratchAccountJoinedRequirement() {
+	return isset($GLOBALS['wgScratchAccountJoinedRequirement']) ? $GLOBALS['wgScratchAccountJoinedRequirement'] : 0;
+}
 
 const statuses = [
 	'new' => 'scratch-confirmaccount-new',
