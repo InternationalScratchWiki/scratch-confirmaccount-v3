@@ -33,6 +33,8 @@
 	"config": {
 		"ScratchVerificationProjectID": "10135908",
 		"ScratchVerificationProjectAuthor": "ModShare",
-		"ScratchAccountRequestRejectCooldownDays": 7
+		"ScratchAccountRequestRejectCooldownDays": 7,
+		"ScratchAccountCheckDisallowNewScratcher": false,
+		"ScratchAccountJoinedRequirement": 0
 	}
 }
