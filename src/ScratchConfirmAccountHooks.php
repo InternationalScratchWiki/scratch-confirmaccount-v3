@@ -65,4 +65,15 @@ class ScratchConfirmAccountHooks {
 		];
 		return true;
 	}
+	
+	public static function onPersonalUrls(&$personal_urls, $title, $skin) {
+		# Add a link to Special:RequestAccount if a link exists for login
+		if (isset($personal_urls['login'])) {
+			$personal_urls['createaccount'] = [
+				'text' => wfMessage('requestaccount')->text(),
+				'href' => SpecialPage::getTitleFor('RequestAccount')->getLocalUrl()
+			];
+		}
+		return true;
+	}
 }

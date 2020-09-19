@@ -22,7 +22,8 @@
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates",
 		"BeforePageDisplay": "ScratchConfirmAccountHooks::pendingRequestNotice",
-		"GetPreferences": "ScratchConfirmAccountHooks::onGetPreferences"
+		"GetPreferences": "ScratchConfirmAccountHooks::onGetPreferences",
+		"PersonalUrls": "ScratchConfirmAccountHooks::onPersonalUrls"
 	},
 	"ResourceModules": {
 		"ext.scratchConfirmAccount": {
