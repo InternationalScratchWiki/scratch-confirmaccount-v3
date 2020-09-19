@@ -2,6 +2,7 @@
 	"name": "Scratch Account Request System",
 	"descriptionmsg": "scratch-confirmaccount-desc",
 	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j", "Kenny2scratch"],
+	"url": "https://github.com/InternationalScratchWiki/scratch-confirmaccount-v3",
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
 	"MessagesDirs": {
