@@ -93,7 +93,7 @@
 	"scratch-confirmaccount-set-status-awaiting-admin-done": "Your comment has been sent. The administrators will handle it and send a response. [[Special:RequestAccount/$1|Return to request]]",
 	"scratch-confirmaccount-invalid-email-token": "Could not confirm your email. Try re-sending your email at [[Special:RequestAccount/$1|request page]].",
 	"scratch-confirmaccount-email-confirmed": "Your email has been confirmed",
-	"scratch-confirmaccount-success-email": "Account request has been received. We sent you an email to confirm the email address. The administrators will handle it and send a response on the [$1 request page].",
+	"scratch-confirmaccount-success-email": "Account request has been received. We sent you an email to confirm the email address. The administrators will handle it and send a response on the [[Special:RequestAccount/$1|request page]].",
 	"scratch-confirmaccount-resend": "Resend Confirmation Email",
 	"scratch-confirmaccount-already-accepted-email": "Account request is already accepted; you must log in and change the email from the [[Special:Preferences|preferences]].",
 	"scratch-confirmaccount-email-unregistered": "There is no unconfirmed email address associated with this request.",
