@@ -314,6 +314,8 @@ class SpecialRequestAccount extends SpecialPage {
 		if ($error != '') {
 			$form .= Html::element('p', ['class' => 'error'], $error);
 		}
+		
+		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-view-request')->parse());
 
 		//form body
 		$form .= $this->usernameAndVerificationArea($session, $request);
