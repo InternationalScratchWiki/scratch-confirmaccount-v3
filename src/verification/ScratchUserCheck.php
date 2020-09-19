@@ -22,7 +22,7 @@ class ScratchUserCheck {
         if (empty($joined_matches)) {
             $joinedAt = wfTimestamp(TS_UNIX); // assume they joined now
         } else {
-            $joinedAt = wfTimestamp(TS_ISO_8601,
+            $joinedAt = wfTimestamp(TS_UNIX,
                 $joined_matches[1] .
                 'T00:00:00Z'
             ); // $joined_matches[1] is YYYY-MM-DD

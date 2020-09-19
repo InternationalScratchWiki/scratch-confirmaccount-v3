@@ -35,6 +35,6 @@
 		"ScratchVerificationProjectAuthor": "ModShare",
 		"ScratchAccountRequestRejectCooldownDays": 7,
 		"ScratchAccountCheckDisallowNewScratcher": false,
-		"wgScratchAccountJoinedRequirement": 0
+		"ScratchAccountJoinedRequirement": 0
 	}
 }

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/verification/ScratchVerification.php';
+require_once __DIR__ . '/verification/ScratchUserCheck.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/objects/AccountRequest.php';
 require_once __DIR__ . '/common.php';
@@ -14,6 +15,7 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function sanitizedPostData(&$request, &$session, &$out_error) {
+		global $wgScratchAccountJoinedRequirement;
 		$username = $request->getText('scratchusername');
 
 		if ($username == '' || !ScratchVerification::isValidScratchUsername($username)) {
@@ -58,6 +60,16 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
+		$user_check_error = ScratchUserCheck::check($username);
+		switch ($user_check_error) {
+			case 'scratch-confirmaccount-new-scratcher':
+				$out_error = wfMessage($user_check_error)->text();
+				return;
+			case 'scratch-confirmaccount-joinedat':
+				$months = ceil($wgScratchAccountJoinedRequirement / (30 * 24 * 60 * 60));
+				$out_error = wfMessage($user_check_error, $months)->text();
+				return;
+		}
 
 		$block = getSingleBlock($username);
 		if ($block) {
