@@ -84,13 +84,12 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 
 function getAccountRequestsByUsername(string $username) : array {
 	$dbr = wfGetDB( DB_REPLICA );
-	$result = $dbr->select('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated'), ['request_username' => $username], __METHOD__, ['order_by' => ['request_timestamp', 'DESC']]);
+	$result = $dbr->select('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated'), ['LOWER(CONVERT(request_username using utf8))' => strtolower($username)], __METHOD__, ['ORDER BY' => 'request_timestamp DESC']);
 
 	$results = [];
 	foreach ($result as $row) {
 		$results[] = AccountRequest::fromRow($row);
 	}
-
 	return $results;
 }
 
@@ -178,7 +177,7 @@ function getRequestHistory(AccountRequest $request) : array {
 		'history_action',
 		'history_comment',
 		'user_name'
-	], ['history_request_id' => $request->id], __METHOD__, ['order_by' => ['history_timestamp', 'ASC']], [
+	], ['history_request_id' => $request->id], __METHOD__, ['ORDER BY' => 'history_timestamp ASC'], [
 		'user' => ['LEFT JOIN', ['user_id=history_performer']]
 	]);
 
@@ -261,7 +260,7 @@ function hasActiveRequest(string $username) : bool {
 function getBlocks() : array {
 	$dbr = wfGetDB( DB_REPLICA );
 
-	$result = $dbr->select('scratch_accountrequest_block', ['block_username', 'block_reason'], [], __METHOD__, ['order_by' => ['block_timestamp', 'ASC']]);
+	$result = $dbr->select('scratch_accountrequest_block', ['block_username', 'block_reason'], [], __METHOD__, ['ORDER BY' => 'block_timestamp ASC']);
 
 	$blocks = [];
 	foreach ($result as $row) {
