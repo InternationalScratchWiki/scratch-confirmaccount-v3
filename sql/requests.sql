@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest_request (
 )/*$wgDBTableOptions*/;
 
 
-CREATE INDEX IF NOT EXISTS /*i*/request_username ON /*_*/scratch_accountrequest_request (request_username);
-CREATE INDEX IF NOT EXISTS /*i*/request_status ON /*_*/scratch_accountrequest_request (request_status);
-CREATE INDEX IF NOT EXISTS /*i*/request_last_updated ON /*_*/scratch_accountrequest_request (request_last_updated);
-CREATE INDEX IF NOT EXISTS /*i*/request_expiry ON /*_*/scratch_accountrequest_request (request_expiry);
+CREATE INDEX /*i*/request_username ON /*_*/scratch_accountrequest_request (request_username);
+CREATE INDEX/*i*/request_status ON /*_*/scratch_accountrequest_request (request_status);
+CREATE INDEX /*i*/request_last_updated ON /*_*/scratch_accountrequest_request (request_last_updated);
+CREATE INDEX /*i*/request_expiry ON /*_*/scratch_accountrequest_request (request_expiry);
 
 COMMIT;
