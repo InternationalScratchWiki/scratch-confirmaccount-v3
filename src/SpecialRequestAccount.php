@@ -63,6 +63,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$user_check_error = ScratchUserCheck::check($username);
 		switch ($user_check_error) {
 			case 'scratch-confirmaccount-new-scratcher':
+			case 'scratch-confirmaccount-profile-error':
 				$out_error = wfMessage($user_check_error)->text();
 				return;
 			case 'scratch-confirmaccount-joinedat':
