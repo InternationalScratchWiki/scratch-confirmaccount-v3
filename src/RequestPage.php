@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
+require_once __DIR__ . '/common.php';
 
 function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
@@ -9,6 +10,11 @@ function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
 	$form = Html::openElement('form', [
 		'method' => 'post',
 		'action' => SpecialPage::getTitleFor('RequestAccount')->getFullURL()
+	]);
+	$form .= Html::element('input', [
+		'type' => 'hidden',
+		'name' => 'csrftoken',
+		'value' => setCSRFToken($session)
 	]);
 	$form .= Html::element('input', [
 		'type' => 'hidden',
@@ -207,6 +213,11 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 				'class' => 'mw-scratch-confirmaccount-request-form'
 			]
 		);
+		$disp .= Html::element('input', [
+			'type' => 'hidden',
+			'name' => 'csrftoken',
+			'value' => setCSRFToken($session)
+		]);
 		$disp .= Html::rawElement(
 			'input',
 			[
@@ -295,6 +306,11 @@ function requestPage($requestId, $userContext, &$output, &$pageContext, &$sessio
 				'action' => $pageContext->getPageTitle()->getLocalUrl(),
 				'method' => 'post',
 				'enctype' => 'multipart/form-data'
+			]);
+			$disp .= Html::element('input', [
+				'type' => 'hidden',
+				'name' => 'csrftoken',
+				'value' => setCSRFToken($session)
 			]);
 			$disp .= Html::element('input', [
 				'type' => 'hidden',
