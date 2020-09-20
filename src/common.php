@@ -60,3 +60,14 @@ function humanTimestamp($dbTimestamp, $language) {
 		$language->getHumanTimestamp($ts)
 	);
 }
+
+function setCSRFToken(&$session) {
+	$session->persist();
+	$csrftoken = $session->getToken();
+	$session->save();
+	return $csrftoken;
+}
+
+function isCSRF(&$session, $csrftoken) {
+	return !$session->getToken()->match($csrftoken);
+}

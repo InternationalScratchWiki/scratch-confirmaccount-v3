@@ -256,6 +256,10 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function handleAccountRequestFormSubmission(&$request, &$output, &$session) {
+		if (isCSRF($session, $request->getText('csrftoken'))) {
+			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->text());
+		}
+		
 		//validate and sanitize the input
 		$formData = $this->sanitizedPostData($request, $session, $error);
 		if ($error != '') {
@@ -322,6 +326,12 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= $this->requestNotesArea($request);
 		$form .= $this->guidelinesArea();
 
+		$form .= Html::element('input', [
+			'type' => 'hidden',
+			'name' => 'csrftoken',
+			'value' => setCSRFToken($session)
+		]);
+
 		$form .= Html::element('input',
 			[
 				'type' => 'submit',
@@ -335,6 +345,11 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function handleAuthenticationFormSubmission(&$request, &$output, &$session) {
+		if (isCSRF($session, $request->getText('csrftoken'))) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
+			return;
+		}
+		
 		$linkRenderer = $this->getLinkRenderer();
 
 		$username = $request->getText('username');
