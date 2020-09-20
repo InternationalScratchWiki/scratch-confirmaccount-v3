@@ -91,7 +91,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	//show a form that allows editing an existing block or adding a new one (leave the username blank)
-	function singleBlockForm($blockedUsername, &$request, &$output, &$session) {		
+	function singleBlockForm($blockedUsername, &$request, &$output, &$session) {
 		//get the block associated with the provided username
 		if ($blockedUsername) {
 			$block = getSingleBlock($blockedUsername);
