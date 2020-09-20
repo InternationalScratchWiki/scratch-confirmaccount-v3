@@ -33,3 +33,9 @@
 .mw-scratch-confirmaccount-textarea {
 	resize: vertical;
 }
+
+.mw-scratch-confirmaccount-bigselect {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

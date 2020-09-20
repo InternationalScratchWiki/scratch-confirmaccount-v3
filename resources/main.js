@@ -9,3 +9,13 @@ $(function () {
         }
     });
 });
+
+$(function () {
+    Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-bigselect'), el => {
+        el.onchange = function (event) {
+            const value = event.target.value;
+            const textInput = document.getElementById(el.id.replace(/-dropdown$/, ''));
+            textInput.value = value;
+        }
+    });
+});

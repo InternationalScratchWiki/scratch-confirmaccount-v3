@@ -92,6 +92,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
 		
+		//show the header
 		$disp .= Html::element(
 			'h4',
 			[],
@@ -128,7 +129,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			]
 		);
 		
-
+		//show the list of actions, or just a hidden element if there is only one available action
 		$usable_actions = array_filter(actions, function($action) use($userContext) { return in_array($userContext, $action['performers']); });
 
 		if (sizeof($usable_actions) == 1) {
@@ -167,6 +168,16 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			$disp .= Html::closeElement('ul');
 		}
 		
+		//display the common list of admin comments
+		if ($userContext == 'admin') {
+			$options = Xml::listDropDownOptions(
+				 wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(),
+				 [ 'other' => wfMessage( 'other' )->text() ]
+			 );
+			$disp .= Xml::listDropDown('scratch-confirmaccount-comment-dropdown', wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text(), '', 'mw-scratch-confirmaccount-bigselect');
+		}
+		
+		//display the comment box
 		$disp .= Html::openElement('p');
 		$disp .= Html::element(
 			'label',

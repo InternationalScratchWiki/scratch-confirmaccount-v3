@@ -113,5 +113,7 @@
 	"scratch-confirmaccount-open-scratch": "Open Scratch profile after handling new requests",
 	
 	"scratch-confirmaccount-request-account-login-notice": "If you want an account, you must [[Special:RequestAccount|request one]].",
-	"scratch-confirmaccount-view-request": "Already requested? [[Special:RequestAccount/FindRequest|View your request]]."
+	"scratch-confirmaccount-view-request": "Already requested? [[Special:RequestAccount/FindRequest|View your request]].",
+	"scratch-confirmaccount-dropdown-other": "Other",
+	"scratch-confirmaccount-common-admin-comments": "* Accept reasons\n** Your request has been approved! You may log in with your chosen username and password at Special:UserLogin.\n** Thank you for the comment. I have approved your request. You may log in with your chosen username and password at Special:UserLogin\n* Decline reasons\n** I have declined your request because you did not meet the listed requirements on the request page. You may re-request when you meet them.\n** I have declined your request because you did not properly file the request form. You may re-request in ___ from today.\n* Comments\n** Can you please clarify what you mean by ___?\n** Can you add more details to the request?\n** Can you please provide more examples for ___?"
 }
