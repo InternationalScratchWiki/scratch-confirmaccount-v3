@@ -21,6 +21,7 @@ class AccountRequest {
 		$this->status = $status;
 		$this->timestamp = $timestamp;
 		$this->passwordHash = $passwordHash;
+		$this->lastUpdated = $lastUpdated;
 		$this->emailConfirmed = $emailConfirmed;
 		$this->emailToken = $emailToken;
 		$this->emailExpiry = $emailExpiry;
