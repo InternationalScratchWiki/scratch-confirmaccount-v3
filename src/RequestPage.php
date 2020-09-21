@@ -436,8 +436,10 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 		$output->showErrorPage('error', 'scratch-confirmaccount-action-unauthorized');
 		return;
 	}
+	
+	$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
 
-	actionRequest($accountRequest, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'));
+	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'));
 	if ($action == 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output);
 	} else {
