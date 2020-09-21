@@ -12,7 +12,7 @@ class ScratchUserCheck {
 		$status_matches = array();
 		preg_match(self::STATUS_REGEX, $html, $status_matches);
 		if (empty($status_matches)) {
-			$isScratcher = true; // assume Scratcher
+			$isScratcher = null; // can't tell Scratcher status
 			$error = 'scratch-confirmaccount-profile-error';
 		} else {
 			$isScratcher = $status_matches[1] != 'New';
@@ -20,7 +20,7 @@ class ScratchUserCheck {
 		$joined_matches = array();
 		preg_match(self::JOINED_REGEX, $html, $joined_matches);
 		if (empty($joined_matches)) {
-			$joinedAt = wfTimestamp(TS_UNIX, 1); // assume they joined in 1970
+			$joinedAt = null; // can't find join date
 			$error = 'scratch-confirmaccount-profile-error';
 		} else {
 			$joinedAt = wfTimestamp(TS_UNIX,
