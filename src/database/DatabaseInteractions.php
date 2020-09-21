@@ -145,7 +145,7 @@ function getAccountRequestById($id) {
 	return $result ? AccountRequest::fromRow($result) : false;
 }
 
-function actionRequest(AccountRequest $request, string $action, $userPerformingAction, string $comment) {
+function actionRequest(AccountRequest $request, bool $updateStatus, string $action, $userPerformingAction, string $comment) {
 	global $wgScratchAccountRequestRejectCooldownDays;
 	$dbw = wfGetDB( DB_MASTER );
 
@@ -160,7 +160,10 @@ function actionRequest(AccountRequest $request, string $action, $userPerformingA
 
 	//set the timestamp for when the request was last updated
 	$request_update_fields = ['request_last_updated' => $dbw->timestamp()];
-	if (isset(actionToStatus[$action])) { //if the action also updates the status, then set the status appropriately
+	if (isset(actionToStatus[$action]) && $updateStatus) {
+		// if the action also updates the status and $updateStatus is true
+		// then set the status appropriately
+		// $updateStatus could be false e.g. user commenting to New request
 		$request_update_fields['request_status'] = actionToStatus[$action];
 	}
 	if (in_array($action, expirationActions)) { //and if the action makes the request expire, make the request expire
