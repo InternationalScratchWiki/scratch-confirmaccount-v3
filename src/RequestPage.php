@@ -181,7 +181,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		$disp .= Html::openElement('p');
 		$disp .= Html::element(
 			'label',
-			['for' => 'cratch-confirmaccount-comment'],
+			['for' => 'scratch-confirmaccount-comment'],
 			wfMessage('scratch-confirmaccount-comment')->text()
 		);
 		$disp .= Html::element(
