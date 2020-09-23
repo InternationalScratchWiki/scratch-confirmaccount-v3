@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest_history (
 	history_timestamp varbinary(14) NOT NULL
 )/*$wgDBTableOptions*/;
 
-CREATE INDEX /*i*/history_request_id ON /*_*/scratch_accountrequest_history (history_request_id);
-CREATE INDEX /*i*/history_timestamp ON /*_*/scratch_accountrequest_history (history_timestamp);
+CREATE INDEX IF NOT EXISTS /*i*/history_request_id ON /*_*/scratch_accountrequest_history (history_request_id);
+CREATE INDEX IF NOT EXISTS /*i*/history_timestamp ON /*_*/scratch_accountrequest_history (history_timestamp);
 
 COMMIT;
