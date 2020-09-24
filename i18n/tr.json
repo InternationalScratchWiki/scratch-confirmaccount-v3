@@ -45,7 +45,6 @@
 	"scratch-confirmaccount-invalid-action": "Eylem geçersiz.",
 	"scratch-confirmaccount-already-accepted": "Halihazırda kabul edilen istekleri gözden geçiremezsiniz.",
 	"scratch-confirmaccount-already-rejected": "Halihazırda reddedilen isteklere yorum yazamazsınız.",
-	"scratch-confirmaccount-comment-done": "Yorum gönderildi.",
 	"scratch-confirmaccount-set-status-rejected-done": "İstek reddedildi.",
 	"scratch-confirmaccount-comment-done": "Yorum gönderildi. [[Special:ConfirmAccounts/$1|İsteğe geri dön]]",
 	"scratch-confirmaccount-set-status-rejected-done": "İstek reddedildi. [[Special:ConfirmAccounts|İstek kuyruğuna geri dön]]",
@@ -53,6 +52,12 @@
 	"scratch-confirmaccount-request-options": "Request options",
 	"scratch-confirmaccount-search-label": "İsme göre ara",
 	"scratch-confirmaccount-search": "Ara",
+	"scratch-confirmaccount-account-created": "Hesap oluşturuldu.",
+ "scratch-confirmaccount-add-block": "Yeni engel ekle",
+ "scratch-confirmaccount-not-blocked": "Kullanıcı adı engellenmedi.",
+ "scratch-confirmaccount-block-invalid-username": "Engellemek için kullanıcı adını girmelisiniz.",
+ "scratch-confirmaccount-block-invalid-reason": "Nedeni girmelisiniz.",
+ "scratch-confirmaccount-csrf": "İşlem vikiyi bir [[wikipedia:Tr:CSRF|CSRF saldırısından]] korumak için engellenmiştir. Lütfen tekrar deneyin.",
 
 	"scratch-confirmaccount-invalid-username": "Kullanıcı adı geçersiz. Scratch'teki kullanıcı adınızı yazdığınızdan emin olun. Teknik nedenlerden ötürü, alt çizgi içeren bazı kullanıcı adları kabul edilmemektedir.",
 	"scratch-confirmaccount-user-exists": "Kullanıcı halihazırda kaydolmuş.",
@@ -94,11 +99,19 @@
 	"scratch-confirmaccount-email-resent": "Doğrulama e-postası yeniden gönderildi.",
 	"scratch-confirmaccount-new-scratcher": "Yeni Scratch'çiler hesap isteği gönderemez.",
 	"scratch-confirmaccount-joinedat": "Bir hesap istemek için en az $1 gündür Scratch'te kayıtlı olmanız gerekir.",
+	"scratch-confirmaccount-profile-error": "Hesabınızı kontrol ederken bir hata gerçekleşti. Daha sonra tekrar deneyin.",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 bekliyor. <b>İlginiz gerekli!</b>",
-	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|istek|istek}}",
-	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1|bekliyor|bekliyor}}",
+	"scratch-confirmaccount-requests-awaiting-linktext": "istek",
+	"scratch-confirmaccount-requests-awaiting-isare": "",
 
 	"scratch-confirmaccount-email-subject": "$1 için lütfen e-postanızı doğrulayın",
-	"scratch-confirmaccount-email-body": "Merhaba $1,\n\nBirisi $2 üzerinde bir hesap istedi. E-postayı doğrulamak için bu adresi tarayıcınızda açın:\n\n$3\n\nBu bağlantının geçerlilik süresi $4 tarihinde dolacaktır. Şunu unutmayın ki işlem sırasında sizden kullanıcı adınızı ve şifrenizi girmeniz istenecektir.\nE-postanızı doğrulamak isteğe bağlıdır, lakin bu işlem e-posta yoluyla şifrenizi sıfırlamayı sağlar. Eğer $2 üzerinde bir hesap istemediyseniz, bu e-postayı lütfen görmezden gelin."
+	"scratch-confirmaccount-email-body": "Merhaba $1,\n\nBirisi $2 üzerinde bir hesap istedi. E-postayı doğrulamak için bu adresi tarayıcınızda açın:\n\n$3\n\nBu bağlantının geçerlilik süresi $4 tarihinde dolacaktır. Şunu unutmayın ki işlem sırasında sizden kullanıcı adınızı ve şifrenizi girmeniz istenecektir.\nE-postanızı doğrulamak isteğe bağlıdır, lakin bu işlem e-posta yoluyla şifrenizi sıfırlamayı sağlar. Eğer $2 üzerinde bir hesap istemediyseniz, bu e-postayı lütfen görmezden gelin.",
+
+	"scratch-confirmaccount-open-scratch": "Yeni istekleri gözden geçirdikten sonra Scratch profilini aç",
+
+ "scratch-confirmaccount-request-account-login-notice": "Bir hesap istiyorsanız, bir tane [[Special:RequestAccount|bir tane istemelisiniz]].",
+ "scratch-confirmaccount-view-request": "Halihazırda istendi mi? [[Special:RequestAccount/FindRequest|İsteğinizi görün]].",
+ "scratch-confirmaccount-dropdown-other": "Diğer",
+ "scratch-confirmaccount-common-admin-comments": "* Kabul nedenleri\n** İsteğiniz kabul edildi! Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n** Yorum için teşekkürler. İsteğinizi onayladım. Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n* Ret nedenleri\n** İstek listesindeki gereksinimleri karşılamadığınızdan ötürü isteğinizi reddettim. Gereksinimleri sağladığınız zaman yeniden hesap isteyebilirsiniz.\n** İstek formunu düzgün bir şekilde doldurmadığınız için isteğinizi reddettim.\n* Yorumlar\n** ___ diyerek ne demek istediğinizi açıklığa kavuşturabilir misiniz?\n** İsteğe daha fazla detay ekleyebilir misiniz?\n** ___ için daha fazla örnek ekleyebilir misiniz lütfen?"
 }
