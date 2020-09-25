@@ -49,7 +49,7 @@
 	"scratch-confirmaccount-comment-done": "Yorum gönderildi. [[Special:ConfirmAccounts/$1|İsteğe geri dön]]",
 	"scratch-confirmaccount-set-status-rejected-done": "İstek reddedildi. [[Special:ConfirmAccounts|İstek kuyruğuna geri dön]]",
 	"scratch-confirmaccount-set-status-awaiting-user-done": "İstek, bekleyen kullanıcı olarak işaretlendi. [[Special:ConfirmAccounts/$1|İsteğe geri dön]]",
-	"scratch-confirmaccount-request-options": "Request options",
+	"scratch-confirmaccount-request-options": "İstek seçenekleri",
 	"scratch-confirmaccount-search-label": "İsme göre ara",
 	"scratch-confirmaccount-search": "Ara",
 	"scratch-confirmaccount-account-created": "Hesap oluşturuldu.",
