@@ -53,11 +53,11 @@
 	"scratch-confirmaccount-search-label": "İsme göre ara",
 	"scratch-confirmaccount-search": "Ara",
 	"scratch-confirmaccount-account-created": "Hesap oluşturuldu.",
- "scratch-confirmaccount-add-block": "Yeni engel ekle",
- "scratch-confirmaccount-not-blocked": "Kullanıcı adı engellenmedi.",
- "scratch-confirmaccount-block-invalid-username": "Engellemek için kullanıcı adını girmelisiniz.",
- "scratch-confirmaccount-block-invalid-reason": "Nedeni girmelisiniz.",
- "scratch-confirmaccount-csrf": "İşlem vikiyi bir [[wikipedia:Tr:CSRF|CSRF saldırısından]] korumak için engellenmiştir. Lütfen tekrar deneyin.",
+ 	"scratch-confirmaccount-add-block": "Yeni engel ekle",
+ 	"scratch-confirmaccount-not-blocked": "Kullanıcı adı engellenmedi.",
+ 	"scratch-confirmaccount-block-invalid-username": "Engellemek için kullanıcı adını girmelisiniz.",
+ 	"scratch-confirmaccount-block-invalid-reason": "Nedeni girmelisiniz.",
+ 	"scratch-confirmaccount-csrf": "İşlem vikiyi bir [[wikipedia:Tr:CSRF|CSRF saldırısından]] korumak için engellenmiştir. Lütfen tekrar deneyin.",
 
 	"scratch-confirmaccount-invalid-username": "Kullanıcı adı geçersiz. Scratch'teki kullanıcı adınızı yazdığınızdan emin olun. Teknik nedenlerden ötürü, alt çizgi içeren bazı kullanıcı adları kabul edilmemektedir.",
 	"scratch-confirmaccount-user-exists": "Kullanıcı halihazırda kaydolmuş.",
@@ -113,5 +113,5 @@
  "scratch-confirmaccount-request-account-login-notice": "Bir hesap istiyorsanız, bir tane [[Special:RequestAccount|bir tane istemelisiniz]].",
  "scratch-confirmaccount-view-request": "Halihazırda istendi mi? [[Special:RequestAccount/FindRequest|İsteğinizi görün]].",
  "scratch-confirmaccount-dropdown-other": "Diğer",
- "scratch-confirmaccount-common-admin-comments": "* Kabul nedenleri\n** İsteğiniz kabul edildi! Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n** Yorum için teşekkürler. İsteğinizi onayladım. Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n* Ret nedenleri\n** İstek listesindeki gereksinimleri karşılamadığınızdan ötürü isteğinizi reddettim. Gereksinimleri sağladığınız zaman yeniden hesap isteyebilirsiniz.\n** İstek formunu düzgün bir şekilde doldurmadığınız için isteğinizi reddettim.\n* Yorumlar\n** ___ diyerek ne demek istediğinizi açıklığa kavuşturabilir misiniz?\n** İsteğe daha fazla detay ekleyebilir misiniz?\n** ___ için daha fazla örnek ekleyebilir misiniz lütfen?"
+ "scratch-confirmaccount-common-admin-comments": "* Kabul nedenleri\n** İsteğiniz kabul edildi! Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n** Yorum için teşekkürler. İsteğinizi onayladım. Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n* Ret nedenleri\n** İstek listesindeki gereksinimleri karşılamadığınızdan ötürü isteğinizi reddettim. Gereksinimleri sağladığınız zaman yeniden hesap isteyebilirsiniz.\n** İstek formunu düzgün bir şekilde doldurmadığınız için isteğinizi reddettim.\n* Yorumlar\n** ___ diyerek ne demek istediğinizi açıklığa kavuşturabilir misiniz?\n** İsteğe daha fazla detay ekleyebilir misiniz?\n** ___ için daha fazla örnek ekleyebilir misiniz lütfen?",
 }
