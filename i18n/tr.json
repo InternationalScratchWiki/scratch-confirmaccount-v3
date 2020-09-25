@@ -87,7 +87,7 @@
 	"scratch-confirmaccount-incorrect-password": "Şifre eşleşmiyor.",
 	"scratch-confirmaccount-password-min": "Şifre en az $1 karakter uzunluğunda olmalıdır.",
 	"scratch-confirmaccount-password-max": "Şifre $1 karakterden daha uzun olamaz.",
-	"scratch-confirmaccount-see-request": "See your request",
+	"scratch-confirmaccount-see-request": "İsteğinizi görüntüleyin",
 	"scratch-confirmaccount-action-unauthorized": "Bu eylemi gerçekleştiremezsiniz.",
 	"scratch-confirmaccount-set-status-awaiting-admin-done": "Yorumunuz gönderildi. Hizmetliler yorumu gözden geçirecek ve cevap verecekler. [[Special:RequestAccount/$1|İsteğe geri dön]]",
 	"scratch-confirmaccount-invalid-email-token": "E-postanız doğrulanamadı. [$1 İstek sayfasından] e-postanızı tekrar göndermeyi deneyin.",
