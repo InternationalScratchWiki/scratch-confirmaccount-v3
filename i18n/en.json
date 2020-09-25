@@ -67,7 +67,7 @@
 	"scratch-confirmaccount-verif-missing": "Please comment the verification code while logged into Scratch account '$1'.",
 	"scratch-confirmaccount-user-blocked": "You are not allowed to request an account for the following reason: $1",
 	"scratch-confirmaccount-invalid-email": "The email address is invalid.",
-	"scratch-confirmaccount-disagree-tos": "You must  agree to the Terms of Service to request an account.",
+	"scratch-confirmaccount-disagree-tos": "You must agree to the Terms of Service to request an account.",
 	"scratch-confirmaccount-no-request-notes": "The request notes cannot be empty.",
 	"scratch-confirmaccount-success": "Account request has been received. The administrators will handle it and send a response on the [[Special:RequestAccount/$1|request page]].",
 	"scratch-confirmaccount-waiting-request": "$1: $2",
