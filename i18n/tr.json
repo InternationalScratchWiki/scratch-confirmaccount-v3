@@ -110,7 +110,7 @@
 
 	"scratch-confirmaccount-open-scratch": "Yeni istekleri gözden geçirdikten sonra Scratch profilini aç",
 
- 	"scratch-confirmaccount-request-account-login-notice": "Bir hesap istiyorsanız, bir tane [[Special:RequestAccount|bir tane istemelisiniz]].",
+ 	"scratch-confirmaccount-request-account-login-notice": "Bir hesap istiyorsanız, [[Special:RequestAccount|bir tane istemelisiniz]].",
  	"scratch-confirmaccount-view-request": "Halihazırda istendi mi? [[Special:RequestAccount/FindRequest|İsteğinizi görün]].",
  	"scratch-confirmaccount-dropdown-other": "Diğer",
  	"scratch-confirmaccount-common-admin-comments": "* Kabul nedenleri\n** İsteğiniz kabul edildi! Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n** Yorum için teşekkürler. İsteğinizi onayladım. Özel:KullanıcıOturumuAçma sayfasından seçtiğiniz kullanıcı adıyla ve şifrenizle giriş yapabilirsiniz.\n* Ret nedenleri\n** İstek listesindeki gereksinimleri karşılamadığınızdan ötürü isteğinizi reddettim. Gereksinimleri sağladığınız zaman yeniden hesap isteyebilirsiniz.\n** İstek formunu düzgün bir şekilde doldurmadığınız için isteğinizi reddettim.\n* Yorumlar\n** ___ diyerek ne demek istediğinizi açıklığa kavuşturabilir misiniz?\n** İsteğe daha fazla detay ekleyebilir misiniz?\n** ___ için daha fazla örnek ekleyebilir misiniz lütfen?"
