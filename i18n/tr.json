@@ -45,7 +45,6 @@
 	"scratch-confirmaccount-invalid-action": "Eylem geçersiz.",
 	"scratch-confirmaccount-already-accepted": "Halihazırda kabul edilen istekleri gözden geçiremezsiniz.",
 	"scratch-confirmaccount-already-rejected": "Halihazırda reddedilen isteklere yorum yazamazsınız.",
-	"scratch-confirmaccount-set-status-rejected-done": "İstek reddedildi.",
 	"scratch-confirmaccount-comment-done": "Yorum gönderildi. [[Special:ConfirmAccounts/$1|İsteğe geri dön]]",
 	"scratch-confirmaccount-set-status-rejected-done": "İstek reddedildi. [[Special:ConfirmAccounts|İstek kuyruğuna geri dön]]",
 	"scratch-confirmaccount-set-status-awaiting-user-done": "İstek, bekleyen kullanıcı olarak işaretlendi. [[Special:ConfirmAccounts/$1|İsteğe geri dön]]",
