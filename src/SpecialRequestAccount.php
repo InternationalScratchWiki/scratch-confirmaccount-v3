@@ -252,10 +252,6 @@ class SpecialRequestAccount extends SpecialPage {
 		return $form;
 	}
 
-	function guidelinesArea() {
-		return '';
-	}
-
 	function handleAccountRequestFormSubmission(&$request, &$output, &$session) {
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->text());
@@ -325,7 +321,6 @@ class SpecialRequestAccount extends SpecialPage {
 		//form body
 		$form .= $this->usernameAndVerificationArea($session, $request);
 		$form .= $this->requestNotesArea($request);
-		$form .= $this->guidelinesArea();
 
 		$form .= Html::element('input', [
 			'type' => 'hidden',
