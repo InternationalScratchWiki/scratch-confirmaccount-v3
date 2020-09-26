@@ -14,7 +14,7 @@
 	"scratch-confirmaccount-scratchusername": "Имя пользователя в Скретч",
 	"scratch-confirmaccount-email": "Электронная почта (по желанию)",
 	"scratch-confirmaccount-request-submit": "Запросить аккаунт",
-	"scratch-confirmaccount-vercode-explanation": "Пожалуйста, перейдите нас траницу с <span class=\"plainlinks\">[$1 проектом подтверждения аккаунтов]</span> и напишите следующий код в комментарии:",
+	"scratch-confirmaccount-vercode-explanation": "Пожалуйста, перейдите нас cтраницу с <span class=\"plainlinks\">[$1 проектом подтверждения аккаунтов]</span> и напишите следующий код в комментарии:",
 	"scratch-confirmaccount-checkbox-agree": "Я соглашаюсь с Условиями предоставления услуг",
 	"scratch-confirmaccount-findrequest-nomatch": "Либо нет открытых запросов по этим именем, либо пароль был введен неправильно. [[Special:RequestAccount/FindRequest|Попробуйте еще раз]]",
 	"scratch-confirmaccount-findrequest-password-prompt": "Пароль из запроса",
@@ -57,9 +57,9 @@
 	"scratch-confirmaccount-not-blocked": "Пользователь с этим именем не заблокирован.",
 	"scratch-confirmaccount-block-invalid-username": "Вы должны ввести имя пользователя, которого вы хотите заблокировать.",
 	"scratch-confirmaccount-block-invalid-reason": "Вы должны ввести причину.",
-	"scratch-confirmaccount-csrf": "Ваше действие было прдотвращено для защиты Вики от [[wikipedia:Ru:Межсайтовая подделка запроса|межсайтовой подделки запроса]]. Пожалуйста, повторите попытку.",
+	"scratch-confirmaccount-csrf": "Ваше действие было предотвращено для защиты Вики от [[wikipedia:Ru:Межсайтовая подделка запроса|межсайтовой подделки запроса]]. Пожалуйста, повторите попытку.",
 
-	"scratch-confirmaccount-invalid-username": "Имя пользователя недействительно. Убедитесь, что вы написали своё имя пользователя в Скретч. По техническим причинам, некоторые имена, которые начинаются или заканчиваются нижним подчёркиванием являются недействительными. Пожалуйста, свяжитесь с администратором, если это ваш случай.",
+	"scratch-confirmaccount-invalid-username": "Имя пользователя недействительно. Убедитесь, что вы написали своё имя пользователя в Скретч. По техническим причинам, некоторые имена, которые начинаются или заканчиваются нижним подчёркиванием, являются недействительными. Пожалуйста, свяжитесь с администратором, если это ваш случай.",
 	"scratch-confirmaccount-user-exists": "Пользователь уже зарегистрирован.",
 	"scratch-confirmaccount-request-exists": "Ваша заявка уже получена. Пожалуйста, дождитесь её рассмотрения администратором.",
 	"scratch-confirmaccount-verif-missing": "Пожалуйста, прокомментируйте проверочный код при входе в Скретч '$1'.",
@@ -71,7 +71,7 @@
 	"scratch-confirmaccount-waiting-request": "$1: $2",
 	"scratch-confirmaccount-new": "Новый",
 	"scratch-confirmaccount-awaiting-admin": "Ожидание администратора",
-	"scratch-confirmaccount-awaiting-user": "Ожидания пользователя",
+	"scratch-confirmaccount-awaiting-user": "Ожидание пользователя",
 	"scratch-confirmaccount-rejected": "Отклонено",
 	"scratch-confirmaccount-accepted": "Принято",
 	"scratch-confirmaccount-accepted-requests": "Принятые заявки",
@@ -98,15 +98,15 @@
 	"scratch-confirmaccount-email-unregistered": "Нет адресов для подтвержения, или адрес был уже подтверждён.",
 	"scratch-confirmaccount-email-resent": "Письмо с подтверждением было отправлено ещё раз.",
 	"scratch-confirmaccount-new-scratcher": "Новые Скретчеры не могут отправлять запросы на создание аакаунта.",
-	"scratch-confirmaccount-joinedat": "Вы должны быть зарегистрированы на Скретч по кменьшей мере $1 дней, чтобы запросить аккаунт.",
-	"scratch-confirmaccount-profile-error": "Воникла ошибка во время проверки вашего Скретч аккаунта. Попробуйте ещё раз позже.",
+	"scratch-confirmaccount-joinedat": "Вы должны быть зарегистрированы на Скретч по меньшей мере $1 дней, чтобы запросить аккаунт.",
+	"scratch-confirmaccount-profile-error": "Возникла ошибка во время проверки вашего Скретч аккаунта. Попробуйте ещё раз позже.",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $3 жд$1. <b>Требуется ваше внимание!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|заявка|заявки}}",
 	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1|ёт|ут}}",
 
 	"scratch-confirmaccount-email-subject": "Пожалуйста, подтвердите адрес электронной почты для $1",
-	"scratch-confirmaccount-email-body": "Здравствуй, $1,\n\nкто-то запросил аккаунт на $2. Чтобы подтвердить адрес электронной почты, пожалуйста, откройте эту страницу:\n\n$3\n\nЭта ссылка истечёт $4. Заметьте, что вас попросят ввести имя пользователя и пароль во время процесса.\nПодтверждение адреса электронной почты необязательно, но это позволит сбосить пароль через почту. Если вы не запрашивали аккаунт на $2, пожалуйста, проигнорируйте это письмо.",
+	"scratch-confirmaccount-email-body": "Здравствуй, $1,\n\nкто-то запросил аккаунт на $2. Чтобы подтвердить адрес электронной почты, пожалуйста, откройте эту страницу:\n\n$3\n\nЭта ссылка истечёт $4. Заметьте, что вас попросят ввести имя пользователя и пароль во время процесса.\nПодтверждение адреса электронной почты необязательно, но это позволит сбросить пароль через почту. Если вы не запрашивали аккаунт на $2, пожалуйста, проигнорируйте это письмо.",
 	
 	"scratch-confirmaccount-open-scratch": "Откройте Скретч, перед тем как рассматривать заявки",
 	
