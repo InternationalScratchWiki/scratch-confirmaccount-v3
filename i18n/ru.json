@@ -16,7 +16,7 @@
 	"scratch-confirmaccount-request-submit": "Запросить аккаунт",
 	"scratch-confirmaccount-vercode-explanation": "Пожалуйста, перейдите нас траницу с <span class=\"plainlinks\">[$1 проектом подтверждения аккаунтов]</span> и напишите следующий код в комментарии:",
 	"scratch-confirmaccount-checkbox-agree": "Я соглашаюсь с Условиями предоставления услуг",
-	"scratch-confirmaccount-findrequest-nomatch": "Either there are no active requests under this username or the submitted password was incorrect. [[Special:RequestAccount/FindRequest|Попробуйте еще раз]]",
+	"scratch-confirmaccount-findrequest-nomatch": "Либо нет открытых запросов по этим именем, либо пароль был введен неправильно. [[Special:RequestAccount/FindRequest|Попробуйте еще раз]]",
 	"scratch-confirmaccount-findrequest-password-prompt": "Пароль из запроса",
 	"scratch-confirmaccount-findrequest-nopermission": "У вас нет разрешения для просмотра этой заявки. [[Special:RequestAccount/FindRequest|Перейдите по ссылке, чтобы аутентифицировать себя]].",
 	"scratch-confirmaccount-unreviewed": "Непроверенные",
@@ -47,9 +47,9 @@
 	"scratch-confirmaccount-already-accepted": "Вы не можете рассмотреть заявки, которые уже были приняты.",
 	"scratch-confirmaccount-already-rejected": "Вы не можете комементировать на заявке, которая была отклонена.",
 	"scratch-confirmaccount-comment-done": "Комментарий отправлен. [[Special:ConfirmAccounts/$1|Вернуться к заявке]]",
-	"scratch-confirmaccount-set-status-rejected-done": "Request rejected. [[Special:ConfirmAccounts|Return to request queue]]",
-	"scratch-confirmaccount-set-status-awaiting-user-done": "Request marked as awaiting user. [[Special:ConfirmAccounts/$1|Return to request]]",
-	"scratch-confirmaccount-request-options": "Request options",
+	"scratch-confirmaccount-set-status-rejected-done": "Заявка отклонена. [[Special:ConfirmAccounts|Вернуться к очереди заявок]]",
+	"scratch-confirmaccount-set-status-awaiting-user-done": "Заявка помечена как ожидающая пользователя. [[Special:ConfirmAccounts/$1|Вернуться к заявке]]",
+	"scratch-confirmaccount-request-options": "Параметры запроса",
 	"scratch-confirmaccount-search-label": "Поиск по имени пользователя",
 	"scratch-confirmaccount-search": "Искать",
 	"scratch-confirmaccount-account-created": "Аккаунт создан.",
@@ -57,7 +57,7 @@
 	"scratch-confirmaccount-not-blocked": "Пользователь с этим именем не заблокирован.",
 	"scratch-confirmaccount-block-invalid-username": "Вы должны ввести имя пользователя, которого вы хотите заблокировать.",
 	"scratch-confirmaccount-block-invalid-reason": "Вы должны ввести причину.",
-	"scratch-confirmaccount-csrf": "Ваше действие было прдотвращено для защиты Вики от [[wikipedia:Cross-site request forgery|межсайтовой подделки запроса]]. Пожалуйста, повторите попытку.",
+	"scratch-confirmaccount-csrf": "Ваше действие было прдотвращено для защиты Вики от [[wikipedia:Ru:Межсайтовая подделка запроса|межсайтовой подделки запроса]]. Пожалуйста, повторите попытку.",
 
 	"scratch-confirmaccount-invalid-username": "Имя пользователя недействительно. Убедитесь, что вы написали своё имя пользователя в Скретч. По техническим причинам, некоторые имена, которые начинаются или заканчиваются нижним подчёркиванием являются недействительными. Пожалуйста, свяжитесь с администратором, если это ваш случай.",
 	"scratch-confirmaccount-user-exists": "Пользователь уже зарегистрирован.",
@@ -95,23 +95,23 @@
 	"scratch-confirmaccount-success-email": "Заявка была получена. Мы выслали вам письмо с подтверждением на электронную почту. Администраторы рассмотрят заявку и отправят ответ на [[Special:RequestAccount/$1|страницу запроса]].",
 	"scratch-confirmaccount-resend": "Отправить письмо с подтверждением пароля ещё раз",
 	"scratch-confirmaccount-already-accepted-email": "Заявка на создание аккаунта уже была принята; вы должны войти в аккаунт и изменить адрес электронной почты в [[Special:Preferences|настройках]].",
-	"scratch-confirmaccount-email-unregistered": "There is no unconfirmed email address associated with this request.",
+	"scratch-confirmaccount-email-unregistered": "Нет адресов для подтвержения, или адрес был уже подтверждён.",
 	"scratch-confirmaccount-email-resent": "Письмо с подтверждением было отправлено ещё раз.",
 	"scratch-confirmaccount-new-scratcher": "Новые Скретчеры не могут отправлять запросы на создание аакаунта.",
 	"scratch-confirmaccount-joinedat": "Вы должны быть зарегистрированы на Скретч по кменьшей мере $1 дней, чтобы запросить аккаунт.",
-	"scratch-confirmaccount-profile-error": "There was an error while checking your Scratch account. Try again later.",
+	"scratch-confirmaccount-profile-error": "Воникла ошибка во время проверки вашего Скретч аккаунта. Попробуйте ещё раз позже.",
 
-	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 ждёт(-ут). <b>Требуется ваше внимание!</b>",
+	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $3 жд$1. <b>Требуется ваше внимание!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|заявка|заявки}}",
-	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1||}}",
+	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1|ёт|ут}}",
 
 	"scratch-confirmaccount-email-subject": "Пожалуйста, подтвердите адрес электронной почты для $1",
-	"scratch-confirmaccount-email-body": "Hello $1,\n\nSomeone requested an account on $2. To confirm the email, please open this address in your browser:\n\n$3\n\nThis link will expire at $4. Note that you will be asked to enter your username and password during the process.\nConfirming your email address is optional, but it will allow you to reset your password via email. If you did not request the account on $2, please ignore this email.",
+	"scratch-confirmaccount-email-body": "Здравствуй, $1,\n\nкто-то запросил аккаунт на $2. Чтобы подтвердить адрес электронной почты, пожалуйста, откройте эту страницу:\n\n$3\n\nЭта ссылка истечёт $4. Заметьте, что вас попросят ввести имя пользователя и пароль во время процесса.\nПодтверждение адреса электронной почты необязательно, но это позволит сбосить пароль через почту. Если вы не запрашивали аккаунт на $2, пожалуйста, проигнорируйте это письмо.",
 	
 	"scratch-confirmaccount-open-scratch": "Откройте Скретч, перед тем как рассматривать заявки",
 	
 	"scratch-confirmaccount-request-account-login-notice": "Если вы хотите аккаунт, вы должны его [[Special:RequestAccount|запросить]].",
 	"scratch-confirmaccount-view-request": "Уже запросили? [[Special:RequestAccount/FindRequest|Посмотреть свою заявку]].",
 	"scratch-confirmaccount-dropdown-other": "Прочее",
-	"scratch-confirmaccount-common-admin-comments": "* Accept reasons\n** Your request has been approved! You may log in with your chosen username and password at Special:UserLogin.\n** Thank you for the comment. I have approved your request. You may log in with your chosen username and password at Special:UserLogin\n* Decline reasons\n** I have declined your request because you did not meet the listed requirements on the request page. You may re-request when you meet them.\n** I have declined your request because you did not properly file the request form. You may re-request in ___ from today.\n* Comments\n** Can you please clarify what you mean by ___?\n** Can you add more details to the request?\n** Can you please provide more examples for ___?"
+	"scratch-confirmaccount-common-admin-comments": "* Причины принятия\n** Ваша заявка была одобрена! Вы можете войти в свой аккаунт на Special:UserLogin.\n** Спасибо за комментарий. Я одобрил вашу заявку. Вы можете войти под своим логином и паролем Special:UserLogin\n* Причины отклонения\n** Я отклонил вашу заявку, потому что вы не соблюли требования, указанные на странице запроса заявки. Вы можете запросить аккаунт ещё раз.\n** Я отклонил вашу завяку, потому что вы неправильно заполнили форму запроса. Вы можете запросить еще раз на ___ с сегодняшнего дня.\n* Комментарии\n** Не могли бы вы прояснить, что значит ___?\n** Не могли бы вы добавить больше деталей в свой запрос?\n** Не могли бы вы привести больше примеров для ___?"
 }
