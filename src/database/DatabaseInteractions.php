@@ -200,7 +200,7 @@ function createAccount(AccountRequest $request, $creator) {
 	$updater = [
 		'user_password' => $request->passwordHash
 	];
-
+	
 	$dbw = wfGetDB( DB_MASTER );
 
 	// If email is confirmed, set it
@@ -229,6 +229,19 @@ function createAccount(AccountRequest $request, $creator) {
 	$logId = $logEntry->insert();
 
 	$logEntry->publish($logId);
+}
+
+function purgeOldAccountRequestPasswords() {
+	$dbw = wfGetDB( DB_MASTER );
+	
+	$dbw->update('scratch_accountrequest_request', ['password_hash' => ''],
+		$dbw->makeList([
+			'request_status' => ['accepted'],
+			$dbw->makeList([
+				'request_status' => ['rejected'],
+				'request_expiry < ' . $dbw->timestamp()
+			], $dbw::LIST_AND)
+		], $dbw::LIST_OR));
 }
 
 function userExists(string $username) : bool {

@@ -449,4 +449,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 			wfMessage(actions[$action]['message'] . '-done', $accountRequest->id)->parse()
 		));
 	}
+	
+	//also when someone acts on a request, add an option to clear out old account request passwords
+	JobQueueGroup::singleton()->push(new PurgeAccountRequestPasswordsJob());
 }

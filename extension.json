@@ -13,11 +13,15 @@
 	"AutoloadClasses": {
 		"SpecialRequestAccount": "src/SpecialRequestAccount.php",
 		"SpecialConfirmAccounts": "src/SpecialConfirmAccounts.php",
-		"ScratchConfirmAccountHooks": "src/ScratchConfirmAccountHooks.php"
+		"ScratchConfirmAccountHooks": "src/ScratchConfirmAccountHooks.php",
+		"PurgeAccountRequestPasswordsJob": "src/PurgeAccountRequestPasswordsJob.php"
 	},
 	"SpecialPages": {
 		"RequestAccount": "SpecialRequestAccount",
 		"ConfirmAccounts": "SpecialConfirmAccounts"
+	},
+	"JobClasses": {
+		"purgeAccountRequestPasswords": "PurgeAccountRequestPasswordsJob"
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates",
