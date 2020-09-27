@@ -39,3 +39,8 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+.mw-scratch-confirmaccount-alt-warning {
+	color: red;
+	font-weight: bold;
+}

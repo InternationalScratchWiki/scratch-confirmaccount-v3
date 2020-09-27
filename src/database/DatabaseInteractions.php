@@ -315,3 +315,13 @@ function setRequestEmailConfirmed($request_id) {
 		__METHOD__
 	);
 }
+
+function getRequestUsernamesFromIP($ip, &$usernames) {
+	$dbr = wfGetDB(DB_REPLICA);
+	$usernames = $dbr->selectFieldValues(
+		'scratch_accountrequest_request',
+		'request_username',
+		['request_ip' => $ip],
+		__METHOD__
+	);
+}

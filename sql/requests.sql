@@ -22,5 +22,6 @@ CREATE INDEX IF NOT EXISTS /*i*/request_username ON /*_*/scratch_accountrequest_
 CREATE INDEX IF NOT EXISTS /*i*/request_status ON /*_*/scratch_accountrequest_request (request_status);
 CREATE INDEX IF NOT EXISTS /*i*/request_last_updated ON /*_*/scratch_accountrequest_request (request_last_updated);
 CREATE INDEX IF NOT EXISTS /*i*/request_expiry ON /*_*/scratch_accountrequest_request (request_expiry);
+CREATE INDEX IF NOT EXISTS /*i*/request_ip ON /*_*/scratch_accountrequest_request (request_ip);
 
 COMMIT;
