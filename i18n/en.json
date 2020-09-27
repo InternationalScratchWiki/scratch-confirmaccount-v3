@@ -60,6 +60,10 @@
 	"scratch-confirmaccount-block-invalid-username": "You must enter the username to block.",
 	"scratch-confirmaccount-block-invalid-reason": "You must enter the reason.",
 	"scratch-confirmaccount-csrf": "The action was prevented to protect the wiki from an [[wikipedia:Cross-site request forgery|CSRF attack]]. Please try again.",
+	"scratch-confirmaccount-ipaddress": "IP address",
+	"scratch-confirmaccount-ip-warning": "Warning",
+	"scratch-confirmaccount-ip-warning-request": "The following accounts have made account requests from the same IP address as this user:",
+	"scratch-confirmaccount-ip-warning-checkuser": "The following accounts have made edits from the same IP address as this user:",
 
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which start or end with underscore are not allowed. Please contact an administrator if this is the case for you",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
@@ -102,6 +106,7 @@
 	"scratch-confirmaccount-new-scratcher": "New Scratchers cannot submit account requests.",
 	"scratch-confirmaccount-joinedat": "You must have been registered on Scratch for at least $1 days to request an account.",
 	"scratch-confirmaccount-profile-error": "There was an error while checking your Scratch account. Try again later.",
+	"scratch-confirmaccount-logged-in": "'''Note: You are already logged in with a registered account.'''",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 awaiting. <b>Your attention is needed!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|request|requests}}",

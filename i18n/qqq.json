@@ -58,6 +58,10 @@
 	"scratch-confirmaccount-block-invalid-username": "Error when username to block is missing or invalid",
 	"scratch-confirmaccount-block-invalid-reason": "Error when block reason is missing",
 	"scratch-confirmaccount-csrf": "Error shown when preventing CSRF",
+	"scratch-confirmaccount-ipaddress": "Label for IP address field",
+	"scratch-confirmaccount-ip-warning": "Label for warning",
+	"scratch-confirmaccount-ip-warning-request": "Warning shown when the user has requested an account before",
+	"scratch-confirmaccount-ip-warning-checkuser": "Warning shown when the user has edited before",
 
 	"scratch-confirmaccount-invalid-username": "Error when Scratch username input is invalid",
 	"scratch-confirmaccount-user-exists": "Error when username is already registered",
@@ -100,6 +104,7 @@
 	"scratch-confirmaccount-new-scratcher": "Error when attempting to request as a New Scratcher if it is prohibited",
 	"scratch-confirmaccount-joinedat": "Error when attempting to request from a Scratch account that is too young - parameter is minimum age of account, in '''days'''",
 	"scratch-confirmaccount-profile-error": "Error when fetching profile data fails",
+	"scratch-confirmaccount-logged-in": "Warning shown in the request page when the user is already logged in",
 
 	"scratch-confirmaccount-requests-awaiting": "[[Special:RecentChanges]] banner indicating requests are awaiting",
 	"scratch-confirmaccount-requests-awaiting-linktext": "Parameter 1 of requests-awaiting message",

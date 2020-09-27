@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
+require_once __DIR__ . '/database/CheckUserIntegration.php';
 require_once __DIR__ . '/common.php';
 
 function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
@@ -207,7 +208,9 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 	}
 }
 
-function requestMetadataDisplay(AccountRequest &$accountRequest, Language $language, OutputPage &$output) {
+function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, Language $language, OutputPage &$output) {
+	global $wgUser;
+	
 	$disp = '';
 	
 	$disp .= Html::element(
@@ -260,6 +263,20 @@ function requestMetadataDisplay(AccountRequest &$accountRequest, Language $langu
 		)
 	);
 	$disp .= Html::closeElement('tr');
+	if ($userContext == 'admin' && CheckUserIntegration::isLoaded() && $wgUser->isAllowed('checkuser')) {
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-ipaddress')->text()
+		);
+		$disp .= Html::element(
+			'td',
+			[],
+			$accountRequest->ip
+		);
+		$disp .= Html::closeElement('tr');
+	}
 	$disp .= Html::closeElement('table');
 	
 	$output->addHTML($disp);
@@ -311,6 +328,47 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 	}, $history));
 	
 	$output->addHTML($disp);
+}
+
+function requestAltWarningDisplay(OutputPage &$output, string $key, array &$usernames) {
+	$disp = Html::openElement('fieldset');
+	$disp .= Html::element(
+		'legend',
+		['class' => 'mw-scratch-confirmaccount-alt-warning'],
+		wfMessage('scratch-confirmaccount-ip-warning')->text()
+	);
+	$disp .= Html::element(
+		'strong',
+		[],
+		wfMessage($key)->text()
+	);
+	$disp .= Html::openElement('ul');
+	$disp .= implode('', array_map(function($value) {
+		return Html::element('li', [], $value);
+	}, $usernames));
+	$disp .= Html::closeElement('ul');
+	$disp .= Html::closeElement('fieldset');
+	$output->addHTML($disp);
+}
+
+function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output) {
+	if ($userContext != 'admin') {
+		return;
+	}
+	$requestUsernames = array();
+	getRequestUsernamesFromIP($accountRequest->ip, $requestUsernames, $accountRequest->username);
+	$checkUserUsernames = array();
+	CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $checkUserUsernames);
+	if (empty($requestUsernames) && empty($checkUserUsernames)) {
+		return;
+	}
+	
+	if (!empty($requestUsernames)) {
+		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-request', $requestUsernames);
+	}
+	if (!empty($checkUserUsernames)) {
+		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames);
+	}
 }
 
 function emailConfirmationForm(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session) {
@@ -371,9 +429,10 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 	
 	$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
 
-	requestMetadataDisplay($accountRequest, $language, $output);
+	requestMetadataDisplay($accountRequest, $userContext, $language, $output);
 	requestNotesDisplay($accountRequest, $output);
 	requestHistoryDisplay($accountRequest, $history, $language, $output);
+	requestCheckUserDisplay($accountRequest, $userContext, $output);
 	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $output, $pageContext, $session);
 	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
 }

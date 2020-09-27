@@ -6,6 +6,7 @@ class AccountRequest {
 	var $requestNotes;
 	var $status;
 	var $timestamp;
+	var $ip;
 	var $lastUpdated;
 	var $expiry;
 	var $passwordHash;
@@ -13,13 +14,14 @@ class AccountRequest {
 	var $emailToken;
 	var $emailExpiry;
 
-	function __construct($id, $username, $email, $passwordHash, $requestNotes, $status, $timestamp, $lastUpdated, $expiry, $emailConfirmed, $emailToken, $emailExpiry) {
+	function __construct($id, $username, $email, $passwordHash, $requestNotes, $status, $timestamp, $ip, $lastUpdated, $expiry, $emailConfirmed, $emailToken, $emailExpiry) {
 		$this->id = $id;
 		$this->username = $username;
 		$this->email = $email;
 		$this->requestNotes = $requestNotes;
 		$this->status = $status;
 		$this->timestamp = $timestamp;
+		$this->ip = $ip;
 		$this->passwordHash = $passwordHash;
 		$this->lastUpdated = $lastUpdated;
 		$this->emailConfirmed = $emailConfirmed;
@@ -36,6 +38,7 @@ class AccountRequest {
 			$row->request_notes,
 			$row->request_status,
 			$row->request_timestamp,
+			$row->request_ip,
 			$row->request_last_updated,
 			$row->request_expiry,
 			$row->request_email_confirmed,
