@@ -316,6 +316,10 @@ class SpecialRequestAccount extends SpecialPage {
 			$form .= Html::element('p', ['class' => 'error'], $error);
 		}
 		
+		if ($this->getUser()->isRegistered()) {
+			$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-logged-in')->parse());
+		}
+		
 		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-view-request')->parse());
 
 		//form body
