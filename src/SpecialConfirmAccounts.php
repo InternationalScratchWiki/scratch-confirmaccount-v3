@@ -221,6 +221,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			['for' => 'scratch-confirmaccount-usernamesearch'],
 			wfMessage('scratch-confirmaccount-search-label')->text()
 		);
+		$disp .= Html::element('br');
 		$disp .= Html::element('input', [
 			'type' => 'search',
 			'id' => 'scratch-confirmaccount-usernamesearch',
