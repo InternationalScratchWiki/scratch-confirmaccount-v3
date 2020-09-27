@@ -356,7 +356,7 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 		return;
 	}
 	$requestUsernames = array();
-	getRequestUsernamesFromIP($accountRequest->ip, $requestUsernames);
+	getRequestUsernamesFromIP($accountRequest->ip, $requestUsernames, $accountRequest->username);
 	$checkUserUsernames = array();
 	CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $checkUserUsernames);
 	if (empty($requestUsernames) && empty($checkUserUsernames)) {
