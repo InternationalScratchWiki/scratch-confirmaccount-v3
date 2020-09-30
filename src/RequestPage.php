@@ -295,7 +295,7 @@ function requestNotesDisplay(AccountRequest &$accountRequest, OutputPage &$outpu
 			'class' => 'mw-scratch-confirmaccount-textarea',
 			'readonly' => true
 		],
-		htmlspecialchars($accountRequest->requestNotes)
+		$accountRequest->requestNotes
 	);
 	
 	$output->addHTML($disp);
