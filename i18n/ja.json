@@ -58,6 +58,10 @@
 	"scratch-confirmaccount-block-invalid-username": "ブロックするユーザー名を入力してください。",
 	"scratch-confirmaccount-block-invalid-reason": "理由を入力してください。",
 	"scratch-confirmaccount-csrf": "ウィキを[[wikipedia:Cross-site request forgery|CSRF攻撃]]から保護するため、操作は阻止されました。もう一度試してください。",
+	"scratch-confirmaccount-ipaddress": "IPアドレス",
+	"scratch-confirmaccount-ip-warning": "注意",
+	"scratch-confirmaccount-ip-warning-request": "申請時のIPアドレスでは、過去に以下のアカウントの申請が行われました:",
+	"scratch-confirmaccount-ip-warning-request": "申請時のIPアドレスでは、過去に以下のアカウントにより編集が行われました:",
 
 	"scratch-confirmaccount-invalid-username": "ユーザー名は無効です。Scratchのユーザー名を入力してください。技術的制約により、一部のアンダースコアを含むユーザー名は利用できません。その場合は管理者に連絡してください。",
 	"scratch-confirmaccount-user-exists": "そのユーザー名は既に使用されています。",
@@ -100,6 +104,7 @@
 	"scratch-confirmaccount-new-scratcher": "New Scratcherはアカウントを申請できません。",
 	"scratch-confirmaccount-joinedat": "Scratch上でアカウントを作成してから$1日以上経過していないので、アカウントを申請できません。",
 	"scratch-confirmaccount-profile-error": "Scratchアカウントを確認中にエラーが発生しました。後でもう一度試してください。",
+	"scratch-confirmaccount-logged-in": "'''注意: あなたはすでにログインしています。'''",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b>個の$1$3管理者待ちです。<b>確認してください!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "申請",
