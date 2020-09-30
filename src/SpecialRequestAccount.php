@@ -220,8 +220,8 @@ class SpecialRequestAccount extends SpecialPage {
 	function requestNotesArea(&$request) {
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-requestnotes')->text());
 
-		$form .= Html::element('p', [], wfMessage('scratch-confirmaccount-requestnotes-explanation')->parse());
-		$form .= Html::element(
+		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-requestnotes-explanation')->parse());
+		$form .= Html::rawElement(
 			'label',
 			['for' => 'scratch-confirmaccount-requestnotes'],
 			wfMessage('scratch-confirmaccount-requestnotes')->text()
@@ -232,7 +232,7 @@ class SpecialRequestAccount extends SpecialPage {
 			$request->getText('requestnotes')
 		);
 
-		$form .= Html::openElement('br');
+		$form .= Html::element('br');
 
 		$form .= Html::element('input', [
 			'type' => 'checkbox',
@@ -240,12 +240,12 @@ class SpecialRequestAccount extends SpecialPage {
 			'value' => 'true',
 			'id' => 'scratch-confirmaccount-agree'
 		]);
-		$form .= Html::element(
+		$form .= Html::rawElement(
 			'label',
 			['for' => 'scratch-confirmaccount-agree'],
 			wfMessage('scratch-confirmaccount-checkbox-agree')->text()
 		);
-		$form .= Html::openElement('br');
+		$form .= Html::element('br');
 
 		$form .= $this->formSectionFooter();
 
