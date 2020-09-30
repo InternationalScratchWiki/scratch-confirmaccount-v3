@@ -224,7 +224,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement(
 			'label',
 			['for' => 'scratch-confirmaccount-requestnotes'],
-			wfMessage('scratch-confirmaccount-requestnotes')->text()
+			wfMessage('scratch-confirmaccount-requestnotes')->parse()
 		);
 		$form .= Html::element(
 			'textarea',
@@ -243,7 +243,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement(
 			'label',
 			['for' => 'scratch-confirmaccount-agree'],
-			wfMessage('scratch-confirmaccount-checkbox-agree')->text()
+			wfMessage('scratch-confirmaccount-checkbox-agree')->parse()
 		);
 		$form .= Html::element('br');
 
