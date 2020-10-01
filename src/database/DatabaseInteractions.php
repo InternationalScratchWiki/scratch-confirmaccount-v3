@@ -229,6 +229,8 @@ function createAccount(AccountRequest $request, $creator) {
 	$logId = $logEntry->insert();
 
 	$logEntry->publish($logId);
+	
+	return $user;
 }
 
 function purgeOldAccountRequestPasswords() {

@@ -3,6 +3,8 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/database/CheckUserIntegration.php';
 require_once __DIR__ . '/common.php';
 
+use MediaWiki\Revision\SlotRecord;
+
 function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
 }
@@ -438,14 +440,29 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 }
 
 function handleAccountCreation($accountRequest, &$output) {
-	global $wgUser;
+	global $wgUser, $wgAutoWelcomeNewUsers;
 
 	if (userExists($accountRequest->username)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
 		return;
 	}
 
-	createAccount($accountRequest, $wgUser);
+	$createdUser = createAccount($accountRequest, $wgUser);
+	if ($wgAutoWelcomeNewUsers) {
+		$talkPage = new WikiPage($createdUser->getTalkPage());
+		$updater = $talkPage->newPageUpdater($wgUser);
+		$updater->setContent(
+			SlotRecord::MAIN,
+			new WikitextContent('{{subst:MediaWiki:Scratch-confirmaccount-welcome}} ~~~~')
+		);
+		if ($wgUser->isAllowed('autopatrol')) {
+			$updater->setRcPatrolStatus(RecentChange::PRC_AUTOPATROLLED);
+		}
+		$updater->saveRevision(
+			CommentStoreComment::newUnsavedComment(wfMessage('scratch-confirmaccount-welcome-summary')),
+			EDIT_MINOR
+		);
+	}
 	$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-account-created')->text()));
 }
 

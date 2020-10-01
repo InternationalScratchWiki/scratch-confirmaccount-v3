@@ -62,6 +62,8 @@
 	"scratch-confirmaccount-ip-warning": "注意",
 	"scratch-confirmaccount-ip-warning-request": "申請時のIPアドレスでは、過去に以下のアカウントの申請が行われました:",
 	"scratch-confirmaccount-ip-warning-checkuser": "申請時のIPアドレスでは、過去に以下のアカウントにより編集が行われました:",
+	"scratch-confirmaccount-welcome": "ウィキへようこそ!",
+	"scratch-confirmaccount-welcome-summary": "ようこそ!",
 
 	"scratch-confirmaccount-invalid-username": "ユーザー名は無効です。Scratchのユーザー名を入力してください。技術的制約により、一部のアンダースコアを含むユーザー名は利用できません。その場合は管理者に連絡してください。",
 	"scratch-confirmaccount-user-exists": "そのユーザー名は既に使用されています。",

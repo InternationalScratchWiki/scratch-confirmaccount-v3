@@ -62,6 +62,8 @@
 	"scratch-confirmaccount-ip-warning": "Label for warning",
 	"scratch-confirmaccount-ip-warning-request": "Warning shown when the user has requested an account before",
 	"scratch-confirmaccount-ip-warning-checkuser": "Warning shown when the user has edited before",
+	"scratch-confirmaccount-welcome": "Welcome message posted on the talk page",
+	"scratch-confirmaccount-welcome-summary": "Edit summary used when posting welcome message",
 
 	"scratch-confirmaccount-invalid-username": "Error when Scratch username input is invalid",
 	"scratch-confirmaccount-user-exists": "Error when username is already registered",

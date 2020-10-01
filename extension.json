@@ -43,7 +43,8 @@
 		"ScratchVerificationProjectAuthor": "ModShare",
 		"ScratchAccountRequestRejectCooldownDays": 7,
 		"ScratchAccountCheckDisallowNewScratcher": false,
-		"ScratchAccountJoinedRequirement": 0
+		"ScratchAccountJoinedRequirement": 0,
+		"AutoWelcomeNewUsers": true
 	},
 	"DefaultUserOptions": {
 		"scratch-confirmaccount-open-scratch": true
