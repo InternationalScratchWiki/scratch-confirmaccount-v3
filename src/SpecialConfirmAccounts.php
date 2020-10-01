@@ -10,7 +10,7 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 
 		$this->linkRenderer = $linkRenderer;
 		$this->language = $language;
-	}
+	}	
 
 	function rowFromRequest($accountRequest) {
 		$row = Html::openElement('tr');
@@ -38,6 +38,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 	function getGroupName() {
 		return 'users';
+	}
+	
+	//return if the current user can view/edit blocks
+	function canViewBlocks() {		
+		return $this->getUser()->isAllowed('block');
 	}
 
 	function blocksListPage(&$request, &$output, &$session) {
@@ -92,6 +97,10 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 	//show a form that allows editing an existing block or adding a new one (leave the username blank)
 	function singleBlockForm($blockedUsername, &$request, &$output, &$session) {
+		if (!$this->canViewBlocks()) {
+			throw new PermissionsError('block');
+		}
+		
 		//get the block associated with the provided username
 		if ($blockedUsername) {
 			$block = getSingleBlock($blockedUsername);
@@ -140,6 +149,10 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function blocksPage($par, &$request, &$output, &$session) {
+		if (!$this->canViewBlocks()) {
+			throw new PermissionsError('block');
+		}
+		
 		$subpageParts = explode('/', $par);
 
 		if (sizeof($subpageParts) < 2) {
@@ -239,8 +252,10 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function handleBlockFormSubmission(&$request, &$output, &$session) {
-		global $wgUser;
-
+		if (!$this->canViewBlocks()) {
+			throw new PermissionsError('block');
+		}
+		
 		$username = $request->getText('username');
 		$reason = $request->getText('reason');
 		
@@ -261,15 +276,19 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		$block = getSingleBlock($username);
 		if ($block) {
-			updateBlock($username, $reason, $wgUser);
+			updateBlock($username, $reason, $this->getUser());
 		} else {
-			addBlock($username, $reason, $wgUser);
+			addBlock($username, $reason, $this->getUser());
 		}
 
 		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
 	}
 
 	function handleUnblockFormSubmission(&$request, &$output, &$session) {
+		if (!$this->canViewBlocks()) {
+			throw new PermissionsError('block');
+		}
+		
 		$username = $request->getText('username');
 		
 		if (isCSRF($session, $request->getText('csrftoken'))) {
@@ -317,22 +336,27 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		$links = [];
 
+		//the root ConfirmAccounts page
 		$links[] = $linkRenderer->makeKnownLink(
 			SpecialPage::getTitleFor('ConfirmAccounts'),
 			wfMessage('confirmaccounts')->text()
 		);
 
-		$links = array_merge($links, array_map(function ($status, $statusmsg) use($linkRenderer) {
+		//the pages for each status
+		$links += array_map(function ($status, $statusmsg) use($linkRenderer) {
 			return $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor('ConfirmAccounts', $status),
 				wfMessage('scratch-confirmaccount-' . $status)->text()
 			);
-		}, array_keys(statuses), array_values(statuses)));
-
-		$links[] = $linkRenderer->makeKnownLink(
-			SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')),
-			wfMessage('scratch-confirmaccount-blocks')->text()
-		);
+		}, array_keys(statuses), array_values(statuses));
+		
+		//blocks (if the current user can view them)
+		if ($this->canViewBlocks()) {
+			$links[] = $linkRenderer->makeKnownLink(
+				SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')),
+				wfMessage('scratch-confirmaccount-blocks')->text()
+			);
+		}
 
 		$this->getOutput()->setSubtitle($this->getLanguage()->pipeList($links));
 	}
