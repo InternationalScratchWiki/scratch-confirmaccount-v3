@@ -213,7 +213,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$output->addHTML(Html::element(
 			'h3',
 			[],
-			wfMessage('scratch-confirmaccount-confirm-header', $status)->text()
+			wfMessage('scratch-confirmaccount-confirm-header-' . $status)->text()
 		));
 
 		$table = $this->requestTable(null, $status, $linkRenderer);
