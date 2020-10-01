@@ -64,6 +64,8 @@
 	"scratch-confirmaccount-ip-warning": "Warning",
 	"scratch-confirmaccount-ip-warning-request": "The following accounts have made account requests from the same IP address as this user:",
 	"scratch-confirmaccount-ip-warning-checkuser": "The following accounts have made edits from the same IP address as this user:",
+	"scratch-confirmaccount-welcome": "Welcome to the wiki!",
+	"scratch-confirmaccount-welcome-summary": "Welcome!",
 
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which start or end with underscore are not allowed. Please contact an administrator if this is the case for you",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
