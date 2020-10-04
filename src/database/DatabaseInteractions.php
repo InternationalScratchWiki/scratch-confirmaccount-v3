@@ -237,13 +237,10 @@ function purgeOldAccountRequestPasswords() {
 	$dbw = wfGetDB( DB_MASTER );
 	
 	$dbw->update('scratch_accountrequest_request', ['password_hash' => ''],
-		$dbw->makeList([
-			'request_status' => ['accepted'],
-			$dbw->makeList([
-				'request_status' => ['rejected'],
-				'request_expiry < ' . $dbw->timestamp()
-			], $dbw::LIST_AND)
-		], $dbw::LIST_OR));
+	[
+		'request_status' => ['accepted', 'rejected'],
+		'request_expiry < ' . $dbw->timestamp()
+	]);
 }
 
 function userExists(string $username) : bool {

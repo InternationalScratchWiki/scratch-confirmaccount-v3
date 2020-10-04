@@ -36,7 +36,7 @@ const actionToStatus = [
 	'set-status-awaiting-user' => 'awaiting-user'
 ];
 
-const expirationActions = ['set-status-rejected'];
+const expirationActions = ['set-status-rejected', 'set-status-accepted'];
 
 function passwordMinMax() {
 	global $wgPasswordPolicy;
