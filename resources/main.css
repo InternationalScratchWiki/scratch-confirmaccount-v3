@@ -12,6 +12,10 @@
 	font-weight: bold;
 }
 
+.mw-scratch-confirmaccount-requestnotestablecell {
+	word-wrap: anywhere;
+}
+
 .mw-scratch-confirmaccount-rc-awaiting {
 	padding: 3px;
 	margin: 5px;
