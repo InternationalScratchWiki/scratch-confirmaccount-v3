@@ -24,22 +24,16 @@ $(function (){
     	copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
     }
 
-    function copyToClipboard(e) {
+    function copyToClipboard(temptext) {
         var tempItem = document.createElement('textarea');
-
-        tempItem.setAttribute('type','text');
-        tempItem.setAttribute('display','none');
-
-        let content = e;
-        if (e instanceof HTMLElement) {
-        		content = e.innerHTML;
-        }
-
-        tempItem.setAttribute('value',content);
+        tempItem.value = temptext;
+        tempItem.style.top = "0";
+        tempItem.style.left = "0";
+        tempItem.style.position = "fixed";
         document.body.appendChild(tempItem);
-
+        tempItem.focus();
         tempItem.select();
-        document.execCommand('Copy');
+        document.execCommand('copy');
 
         tempItem.parentElement.removeChild(tempItem);
     }
