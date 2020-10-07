@@ -211,7 +211,11 @@ class SpecialRequestAccount extends SpecialPage {
 			['class' => 'mw-scratch-confirmaccount-verifcode'],
 			ScratchVerification::sessionVerificationCode($session)
 		);
-
+		$form .= Html::element(
+			'p',
+			['class' => 'mw-scratch-confirmaccount-verifcode'],
+			'Copy to clipboard'
+		);
 		$form .= $this->formSectionFooter();
 
 		return $form;
@@ -256,7 +260,7 @@ class SpecialRequestAccount extends SpecialPage {
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->text());
 		}
-		
+
 		//validate and sanitize the input
 		$formData = $this->sanitizedPostData($request, $session, $error);
 		if ($error != '') {
@@ -315,11 +319,11 @@ class SpecialRequestAccount extends SpecialPage {
 		if ($error != '') {
 			$form .= Html::element('p', ['class' => 'error'], $error);
 		}
-		
+
 		if ($this->getUser()->isRegistered()) {
 			$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-logged-in')->parse());
 		}
-		
+
 		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-view-request')->parse());
 
 		//form body
@@ -349,7 +353,7 @@ class SpecialRequestAccount extends SpecialPage {
 			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
 			return;
 		}
-		
+
 		$linkRenderer = $this->getLinkRenderer();
 
 		$username = $request->getText('username');
