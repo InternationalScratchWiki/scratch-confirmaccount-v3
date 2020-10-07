@@ -213,7 +213,10 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		$form .= Html::element(
 			'button',
-			['class' => 'mw-scratch-confirmaccount-clickCopy'],
+			[
+				'class' => 'mw-scratch-confirmaccount-clickCopy',
+				'onclick' => 'copyToClipboard()',
+			],
 			'Copy to clipboard'
 		);
 		$form .= $this->formSectionFooter();
