@@ -21,7 +21,7 @@ $(function () {
 
 $(function () {
   Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-clickCopy'), el => {
-    el.onchange = function copyToClipboard(temptext) {
+    el.onclick = function copyToClipboard(temptext) {
         var tempItem = document.createElement('textarea');
         tempItem.value = temptext;
         tempItem.style.top = "0";
@@ -31,7 +31,6 @@ $(function () {
         tempItem.focus();
         tempItem.select();
         document.execCommand('copy');
-
         tempItem.parentElement.removeChild(tempItem);
     }
   });
