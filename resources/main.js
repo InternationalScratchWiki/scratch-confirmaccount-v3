@@ -19,12 +19,9 @@ $(function () {
         }
     });
 
-$(function (){
-    document.getElementById("textarea").onclick = function() {
-    	copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
-    }
-
-    function copyToClipboard(temptext) {
+$(function () {
+  Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-clickCopy'), el => {
+    el.onchange = function copyToClipboard(temptext) {
         var tempItem = document.createElement('textarea');
         tempItem.value = temptext;
         tempItem.style.top = "0";
@@ -37,4 +34,5 @@ $(function (){
 
         tempItem.parentElement.removeChild(tempItem);
     }
-  };
+  });
+});
