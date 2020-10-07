@@ -25,7 +25,7 @@ $(function (){
     }
 
     function copyToClipboard(e) {
-        var tempItem = document.createElement('input');
+        var tempItem = document.createElement('textarea');
 
         tempItem.setAttribute('type','text');
         tempItem.setAttribute('display','none');

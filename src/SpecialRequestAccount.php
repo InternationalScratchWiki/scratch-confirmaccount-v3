@@ -216,6 +216,7 @@ class SpecialRequestAccount extends SpecialPage {
 			[
 				'class' => 'mw-scratch-confirmaccount-clickCopy',
 				'onclick' => 'copyToClipboard()',
+				'id' => 'mw-scratch-confirmaccount-clickCopy'
 			],
 			'Copy to clipboard'
 		);
