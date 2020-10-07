@@ -215,7 +215,7 @@ class SpecialRequestAccount extends SpecialPage {
 			'button',
 			[
 				'class' => 'mw-scratch-confirmaccount-clickCopy',
-				'onclick' => 'copyToClipboard()',
+				'onclick' => 'copyToClipboard(mw-scratch-confirmaccount-verifcode)',
 				'id' => 'mw-scratch-confirmaccount-clickCopy'
 			],
 			'Copy to clipboard'
