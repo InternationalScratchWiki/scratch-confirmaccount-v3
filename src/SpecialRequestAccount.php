@@ -208,10 +208,7 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		$form .= Html::element(
 			'readonly',
-			[
-				'class' => 'mw-scratch-confirmaccount-verifcode'
-				'onclick' => 'copyToClipboard(mw-scratch-confirmaccount-verifcode)'
-		  ],
+			['class' => 'mw-scratch-confirmaccount-verifcode'],
 			ScratchVerification::sessionVerificationCode($session)
 		);
 		$form .= Html::element(
