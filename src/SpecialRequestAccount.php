@@ -207,7 +207,7 @@ class SpecialRequestAccount extends SpecialPage {
 			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID))->parse()
 		);
 		$form .= Html::element(
-			'readonly',
+			'textarea',
 			['class' => 'mw-scratch-confirmaccount-verifcode'],
 			ScratchVerification::sessionVerificationCode($session)
 		);
