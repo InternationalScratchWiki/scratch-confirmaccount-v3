@@ -113,6 +113,7 @@
 	"scratch-confirmaccount-joinedat": "You must have been registered on Scratch for at least $1 days to request an account.",
 	"scratch-confirmaccount-profile-error": "There was an error while checking your Scratch account. Try again later.",
 	"scratch-confirmaccount-logged-in": "'''Note: You are already logged in with a registered account.'''",
+	"scratch-confirmaccount-clickCopy": "Copy to clipboard",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 awaiting. <b>Your attention is needed!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|request|requests}}",

@@ -19,9 +19,10 @@ $(function () {
         }
     });
 
-$(function () {
-  Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-clickCopy'), el => {
-    el.onclick = function copyToClipboard(temptext) {
+document.getElementById("clickCopy").onclick = function() {
+    copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
+}
+function copyToClipboard(temptext) {
         var tempItem = document.createElement('textarea');
         tempItem.value = temptext;
         tempItem.style.top = "0";
@@ -32,6 +33,4 @@ $(function () {
         tempItem.select();
         document.execCommand('copy');
         tempItem.parentElement.removeChild(tempItem);
-    }
-  });
-});
+}
