@@ -20,7 +20,7 @@ $(function () {
     });
 
 $(function (){
-    document.getElementById("mw-scratch-confirmaccount-clickCopy").onclick = function() {
+    document.getElementById("textarea").onclick = function() {
     	copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
     }
 
