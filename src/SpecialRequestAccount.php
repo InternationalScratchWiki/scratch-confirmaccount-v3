@@ -212,7 +212,7 @@ class SpecialRequestAccount extends SpecialPage {
 			ScratchVerification::sessionVerificationCode($session)
 		);
 		$form .= Html::element(
-			'p',
+			'button',
 			['class' => 'mw-scratch-confirmaccount-clickCopy'],
 			'Copy to clipboard'
 		);

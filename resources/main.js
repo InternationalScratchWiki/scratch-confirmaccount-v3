@@ -43,4 +43,4 @@ $(function (){
 
         tempItem.parentElement.removeChild(tempItem);
     }
-  })
+  });
