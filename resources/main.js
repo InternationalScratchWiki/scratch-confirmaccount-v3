@@ -25,7 +25,7 @@ $(function () { document.getElementById("mw-scratch-confirmaccount-clickCopy").o
   }
 });
 
-$(function () {function copyToClipboard(temptext) {
+function copyToClipboard(temptext) {
         var tempItem = document.createElement('textarea');
         tempItem.value = temptext.innerText;
         tempItem.style.top = "0";
@@ -37,4 +37,3 @@ $(function () {function copyToClipboard(temptext) {
         document.execCommand('copy');
         tempItem.parentElement.removeChild(tempItem);
       }
-});
