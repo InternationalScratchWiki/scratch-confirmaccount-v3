@@ -110,7 +110,7 @@
 	"scratch-confirmaccount-joinedat": "Bir hesap istemek için en az $1 gündür Scratch'te kayıtlı olmanız gerekir.",
 	"scratch-confirmaccount-profile-error": "Hesabınızı kontrol ederken bir hata gerçekleşti. Daha sonra tekrar deneyin.",
 	"scratch-confirmaccount-logged-in": "'''Not: Halihazırda bir kaydolmuş kullanıcı adıyla giriş yapmış durumdasınız.'''",
-	"scratch-confirmaccount-clickCopy": "Panoya kopyala",
+	"scratch-confirmaccount-click-copy": "Panoya kopyala",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 bekliyor. <b>İlginiz gerekli!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|istek}}",

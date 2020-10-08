@@ -111,6 +111,7 @@
 	"scratch-confirmaccount-joinedat": "Error when attempting to request from a Scratch account that is too young - parameter is minimum age of account, in '''days'''",
 	"scratch-confirmaccount-profile-error": "Error when fetching profile data fails",
 	"scratch-confirmaccount-logged-in": "Warning shown in the request page when the user is already logged in",
+	"scratch-confirmaccount-click-copy": "The button for copying",
 
 	"scratch-confirmaccount-requests-awaiting": "[[Special:RecentChanges]] banner indicating requests are awaiting",
 	"scratch-confirmaccount-requests-awaiting-linktext": "Parameter 1 of requests-awaiting message",
@@ -118,9 +119,9 @@
 
 	"scratch-confirmaccount-email-subject": "Subject line of confirmation email",
 	"scratch-confirmaccount-email-body": "Body of confirmation email",
-	
+
 	"scratch-confirmaccount-open-scratch": "Label for setting to open Scratch profiles automatically",
-	
+
 	"scratch-confirmaccount-request-account-login-notice": "Text added to login form with link to [[Special:RequestAccount]]",
 	"scratch-confirmaccount-view-request": "Text with link to find submitted request",
 	"scratch-confirmaccount-dropdown-other": "No idea why this string exists",

@@ -216,11 +216,11 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::element(
 			'button',
 			[
-				'class' => 'mw-scratch-confirmaccount-clickCopy',
-				'id' => 'mw-scratch-confirmaccount-clickCopy',
+				'class' => 'mw-scratch-confirmaccount-click-copy',
+				'id' => 'mw-scratch-confirmaccount-click-copy',
 				'type' => 'button'
 			],
-			wfMessage('scratch-confirmaccount-clickCopy')->text()
+			wfMessage('scratch-confirmaccount-click-copy')->text()
 		);
 		$form .= $this->formSectionFooter();
 

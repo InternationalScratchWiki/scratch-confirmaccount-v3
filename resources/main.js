@@ -32,7 +32,7 @@ $(function () {
     });
   });
 
-$(function () { document.getElementById("mw-scratch-confirmaccount-clickCopy").onclick = function() {
+$(function () { document.getElementById("mw-scratch-confirmaccount-click-copy").onclick = function() {
   copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode").innerText);
 };
 
