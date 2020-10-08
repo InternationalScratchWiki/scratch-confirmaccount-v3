@@ -1,15 +1,3 @@
-function copyToClipboard(temptext) {
-        var tempItem = document.createElement('textarea');
-        tempItem.value = temptext.innerText;
-        tempItem.style.top = "0";
-        tempItem.style.left = "0";
-        tempItem.style.position = "fixed";
-        document.body.appendChild(tempItem);
-        tempItem.focus();
-        tempItem.select();
-        document.execCommand('copy');
-        tempItem.parentElement.removeChild(tempItem);
-      }
 $(function () {
     Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-request-form'), el => {
         if (!el.shouldOpenScratchPage) return;
