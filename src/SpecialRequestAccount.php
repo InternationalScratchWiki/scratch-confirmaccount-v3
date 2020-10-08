@@ -215,7 +215,7 @@ class SpecialRequestAccount extends SpecialPage {
 			'button',
 			[
 				'class' => 'mw-scratch-confirmaccount-clickCopy',
-				'id' => 'mw-scratch-confirmaccount-clickCopy'
+				'id' => 'mw-scratch-confirmaccount-clickCopy',
 				'type' => 'button'
 			],
 			wfMessage('scratch-confirmaccount-clickCopy')->text()
