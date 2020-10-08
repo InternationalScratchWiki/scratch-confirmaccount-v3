@@ -16,13 +16,15 @@ $(function () {
             const value = event.target.value;
             const textInput = document.getElementById(el.id.replace(/-dropdown$/, ''));
             textInput.value = value;
-        });
+        };
     });
+  });
 
 $(function () { document.getElementById("mw-scratch-confirmaccount-clickCopy").onclick = function() {
   copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
   }
 });
+
 $(function () {function copyToClipboard(temptext) {
         var tempItem = document.createElement('textarea');
         tempItem.value = temptext.innerText;
