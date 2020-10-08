@@ -21,7 +21,7 @@ $(function () {
 
 $(function () { document.getElementById("mw-scratch-confirmaccount-clickCopy").onclick = function() {
   copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode").innerText);
-};
+});
 
 function copyToClipboard(temptext) {
         var tempItem = document.createElement('textarea');
