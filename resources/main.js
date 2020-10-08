@@ -1,3 +1,15 @@
+function copyToClipboard(temptext) {
+        var tempItem = document.createElement('textarea');
+        tempItem.value = temptext.innerText;
+        tempItem.style.top = "0";
+        tempItem.style.left = "0";
+        tempItem.style.position = "fixed";
+        document.body.appendChild(tempItem);
+        tempItem.focus();
+        tempItem.select();
+        document.execCommand('copy');
+        tempItem.parentElement.removeChild(tempItem);
+      }
 $(function () {
     Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-request-form'), el => {
         if (!el.shouldOpenScratchPage) return;
@@ -16,8 +28,9 @@ $(function () {
             const value = event.target.value;
             const textInput = document.getElementById(el.id.replace(/-dropdown$/, ''));
             textInput.value = value;
-        }
+        };
     });
+  });
 
 $(function () { document.getElementById("mw-scratch-confirmaccount-clickCopy").onclick = function() {
   copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode").innerText);
