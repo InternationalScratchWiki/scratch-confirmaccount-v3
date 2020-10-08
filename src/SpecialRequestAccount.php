@@ -208,7 +208,9 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		$form .= Html::element(
 			'p',
-			['class' => 'mw-scratch-confirmaccount-verifcode'],
+			['class' => 'mw-scratch-confirmaccount-verifcode',
+		   'id' => 'mw-scratch-confirmaccount-verifcode'
+		  ],
 			ScratchVerification::sessionVerificationCode($session)
 		);
 		$form .= Html::element(
