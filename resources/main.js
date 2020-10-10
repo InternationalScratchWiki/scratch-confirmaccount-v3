@@ -27,7 +27,7 @@ $(function () { document.getElementById("mw-scratch-confirmaccount-click-copy").
 });
 
 function copyToClipboard(temptext) {
-        var tempItem = document.createElement('TempItem');
+        var tempItem = document.createElement('textarea');
         tempItem.value = temptext.innerText;
         tempItem.style.top = "-999px";
         tempItem.style.left = "-999px";
@@ -36,6 +36,8 @@ function copyToClipboard(temptext) {
         tempItem.focus();
         tempItem.select();
         document.execCommand('copy');
+        $(function() {
+        mw.notify( mw.message( 'scratch-confirmaccount-click-copy-alert', { autoHide: true }, {autoHideSeconds: '5'}) ); // Use an i18n message to send a notification
         tempItem.parentElement.removeChild(tempItem);
-        mw.notify( mw.message( 'scratch-confirmaccount-click-copy-alert' ) ); // Use an i18n message to send a notification
+      });
 }

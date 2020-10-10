@@ -35,7 +35,6 @@
 			"styles": "main.css",
 			"localBasePath": "resources",
 			"remoteExtPath": "scratch-confirmaccount-v3/resources",
-			"packageFiles": ["main.js"],
 			"scripts": "main.js",
 			"messages": [
 				"scratch-confirmaccount-click-copy-alert"
