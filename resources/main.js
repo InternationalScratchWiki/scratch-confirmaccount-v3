@@ -37,7 +37,7 @@ function copyToClipboard(temptext) {
         tempItem.select();
         document.execCommand('copy');
         $(function() {
-        mw.notify( mw.message( 'scratch-confirmaccount-click-copy-alert', { autoHide: true }, {autoHideSeconds: '5'}) ); // Use an i18n message to send a notification
+          mw.notify( mw.message( 'scratch-confirmaccount-click-copy-alert', { autoHide: true }, {autoHideSeconds: 5}); ); // Use an i18n message to send a notification
+          });
         tempItem.parentElement.removeChild(tempItem);
-      });
-}
+      };
