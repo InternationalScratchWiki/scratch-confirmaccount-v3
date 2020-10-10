@@ -27,15 +27,15 @@ $(function () { document.getElementById("mw-scratch-confirmaccount-click-copy").
 });
 
 function copyToClipboard(temptext) {
-        var tempItem = document.createElement('textarea');
+        var tempItem = document.createElement('TempItem');
         tempItem.value = temptext.innerText;
-        tempItem.style.top = "0";
-        tempItem.style.left = "0";
+        tempItem.style.top = "-999px";
+        tempItem.style.left = "-999px";
         tempItem.style.position = "fixed";
         document.body.appendChild(tempItem);
         tempItem.focus();
         tempItem.select();
         document.execCommand('copy');
         tempItem.parentElement.removeChild(tempItem);
-        alert(mw.message( 'scratch-confirmaccount-click-copy-alert').plain());
+        mw.notify( mw.message( 'mw-scratch-confirmaccount-click-copy-alert' ) ); // Use an i18n message to send a notification
 }
