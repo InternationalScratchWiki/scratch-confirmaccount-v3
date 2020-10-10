@@ -37,5 +37,5 @@ function copyToClipboard(temptext) {
         tempItem.select();
         document.execCommand('copy');
         tempItem.parentElement.removeChild(tempItem);
-        mw.notify( mw.message( 'mw-scratch-confirmaccount-click-copy-alert' ) ); // Use an i18n message to send a notification
+        mw.notify( mw.message( 'scratch-confirmaccount-click-copy-alert' ) ); // Use an i18n message to send a notification
 }
