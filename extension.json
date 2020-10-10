@@ -40,13 +40,13 @@
 				"scratch-confirmaccount-click-copy-alert"
 			],
 			"dependencies": [
-			 "mediawiki.util",
-			 "mediawiki.api",
-			 "mediawiki.confirmCloseWindow",
-			 "jquery.textSelection",
-			 "jquery.spinner",
-			 "oojs-ui-core",
-			 "oojs-ui-widgets"
+			 	"mediawiki.util",
+			 	"mediawiki.api",
+			 	"mediawiki.confirmCloseWindow",
+			 	"jquery.textSelection",
+			 	"jquery.spinner",
+			 	"oojs-ui-core",
+			 	"oojs-ui-widgets"
 			]
 		}
 	},
