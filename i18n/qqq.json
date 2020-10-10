@@ -112,7 +112,8 @@
 	"scratch-confirmaccount-profile-error": "Error when fetching profile data fails",
 	"scratch-confirmaccount-logged-in": "Warning shown in the request page when the user is already logged in",
 	"scratch-confirmaccount-click-copy": "The button for copying",
-
+	"scratch-confirmaccount-click-copy-alert": "Copied alert",
+	
 	"scratch-confirmaccount-requests-awaiting": "[[Special:RecentChanges]] banner indicating requests are awaiting",
 	"scratch-confirmaccount-requests-awaiting-linktext": "Parameter 1 of requests-awaiting message",
 	"scratch-confirmaccount-requests-awaiting-isare": "Parameter 3 of requests-awaiting message",

@@ -1,3 +1,4 @@
+
 $(function () {
     Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-request-form'), el => {
         if (!el.shouldOpenScratchPage) return;
@@ -36,5 +37,4 @@ function copyToClipboard(temptext) {
         tempItem.select();
         document.execCommand('copy');
         tempItem.parentElement.removeChild(tempItem);
-        alert ("The verification code has been successfully copied to the clipboard")
 }

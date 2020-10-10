@@ -114,6 +114,7 @@
 	"scratch-confirmaccount-profile-error": "There was an error while checking your Scratch account. Try again later.",
 	"scratch-confirmaccount-logged-in": "'''Note: You are already logged in with a registered account.'''",
 	"scratch-confirmaccount-click-copy": "Copy to clipboard",
+	"scratch-confirmaccount-click-copy-alert": "The verification code has been successfully copied to the clipboard.",
 
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 $3 awaiting. <b>Your attention is needed!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|request|requests}}",
