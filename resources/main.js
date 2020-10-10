@@ -37,4 +37,5 @@ function copyToClipboard(temptext) {
         tempItem.select();
         document.execCommand('copy');
         tempItem.parentElement.removeChild(tempItem);
+        alert(mw.message( 'scratch-confirmaccount-click-copy-alert').plain());
 }
