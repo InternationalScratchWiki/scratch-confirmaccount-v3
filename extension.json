@@ -1,7 +1,7 @@
 {
 	"name": "Scratch Account Request System",
 	"descriptionmsg": "scratch-confirmaccount-desc",
-	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j", "Kenny2scratch"],
+	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j", "Kenny2scratch", "ahmetlii"],
 	"url": "https://github.com/InternationalScratchWiki/scratch-confirmaccount-v3",
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
@@ -35,7 +35,19 @@
 			"styles": "main.css",
 			"localBasePath": "resources",
 			"remoteExtPath": "scratch-confirmaccount-v3/resources",
-			"packageFiles": ["main.js"]
+			"scripts": "main.js",
+			"messages": [
+				"scratch-confirmaccount-click-copy-alert"
+			],
+			"dependencies": [
+			 	"mediawiki.util",
+			 	"mediawiki.api",
+			 	"mediawiki.confirmCloseWindow",
+			 	"jquery.textSelection",
+			 	"jquery.spinner",
+			 	"oojs-ui-core",
+			 	"oojs-ui-widgets"
+			]
 		}
 	},
 	"config": {
