@@ -27,7 +27,6 @@
 	"scratch-confirmaccount-confirm-header-new": "Новые заявки",
 	"scratch-confirmaccount-confirm-header-accepted": "Принятые заявки",
 	"scratch-confirmaccount-confirm-header-rejected": "Отклонённые заявки",
-	"scratch-confirmaccount-confirm-header": "Заявка со статусом $1",
 	"scratch-confirmaccount-confirm-header-awaiting-admin": "Заявки, ожидающие администратора",
 	"scratch-confirmaccount-confirm-header-awaiting-user": "Заявки, ожидающие пользователя",
 	"scratch-confirmaccount-norequests": "Нет запросов для показа.",
@@ -111,10 +110,13 @@
 	"scratch-confirmaccount-new-scratcher": "Новые Скретчеры не могут отправлять запросы на создание аакаунта.",
 	"scratch-confirmaccount-joinedat": "Вы должны быть зарегистрированы на Скретч по меньшей мере $1 дней, чтобы запросить аккаунт.",
 	"scratch-confirmaccount-profile-error": "Возникла ошибка во время проверки вашего Скретч аккаунта. Попробуйте ещё раз позже.",
+	"scratch-confirmaccount-logged-in": "'''Примечание: Вы уже вошли в зарегистрированный аккаунт.'''",
+	"scratch-confirmaccount-click-copy": "Скопировать в буфер обмена",
+	"scratch-confirmaccount-click-copy-alert": "Код подтверждения скопирован в буфер обмена.",
 
-	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $3 жд$1. <b>Требуется ваше внимание!</b>",
+	"scratch-confirmaccount-requests-awaiting": "<b>$2</b> $1 на рассмотрении. <b>Требуется ваше внимание!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "{{PLURAL:$1|заявка|заявки}}",
-	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1|ёт|ут}}",
+	"scratch-confirmaccount-requests-awaiting-isare": "{{PLURAL:$1||}}",
 
 	"scratch-confirmaccount-email-subject": "Пожалуйста, подтвердите адрес электронной почты для $1",
 	"scratch-confirmaccount-email-body": "Здравствуй, $1,\n\nкто-то запросил аккаунт на $2. Чтобы подтвердить адрес электронной почты, пожалуйста, откройте эту страницу:\n\n$3\n\nЭта ссылка истечёт $4. Заметьте, что вас попросят ввести имя пользователя и пароль во время процесса.\nПодтверждение адреса электронной почты необязательно, но это позволит сбросить пароль через почту. Если вы не запрашивали аккаунт на $2, пожалуйста, проигнорируйте это письмо.",
