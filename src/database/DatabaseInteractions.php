@@ -319,7 +319,7 @@ function getRequestUsernamesFromIP($ip, &$usernames, $request_username) {
 	$dbr = wfGetDB(DB_REPLICA);
 	$usernames = $dbr->selectFieldValues(
 		'scratch_accountrequest_request',
-		'request_username',
+		'DISTINCT request_username',
 		[
 			'request_ip' => $ip,
 			'LOWER(CONVERT(request_username using utf8)) != ' . $dbr->addQuotes(strtolower($request_username))
