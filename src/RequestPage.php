@@ -89,6 +89,12 @@ function isActionableRequest(AccountRequest &$accountRequest, string $userContex
 	return $accountRequest->status != 'accepted' && !($accountRequest->status == 'rejected' && $userContext == 'user');
 }
 
+//the headings to show in the actions section for each context
+const actionHeadingsByContext = [
+	'user' => 'scratch-confirmaccount-leave-comment',
+	'admin' => 'scratch-confirmaccount-actions'
+];
+
 function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session) {
 	global $wgUser;
 	
@@ -99,7 +105,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		$disp .= Html::element(
 			'h4',
 			[],
-			wfMessage('scratch-confirmaccount-actions')->text()
+			wfMessage(actionHeadingsByContext[$userContext])->text()
 		);
 		$disp .= Html::openElement(
 			'form',
