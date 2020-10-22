@@ -2,15 +2,29 @@
 require_once __DIR__ . '/../objects/AccountRequest.php';
 require_once __DIR__ . '/../common.php';
 
-function getSingleBlock($username) {
-	$dbr = wfGetDB( DB_REPLICA );
+function getTransactableDatabase(?string &$out_mutexId) : IDatabase {
+	$out_mutexId = (string)rand(0, 100000);
+	
+	$dbw = wfGetDB( DB_MASTER );
+	$dbw->startAtomic( $out_mutexId );
+	
+	return $dbw;
+}
 
+function commitTransaction(IDatabase $dbw, string $mutexId) {
+	$dbw->endAtomic( $mutexId );
+}
+
+function getReadOnlyDatabase() {
+	return wfGetDB( DB_REPLICA );
+}
+
+function getSingleBlock(string $username, IDatabase $dbr) {
 	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_username', 'block_reason'), ['LOWER(CONVERT(block_username using utf8))' => strtolower($username)], __METHOD__);
 	return $row ? AccountRequestUsernameBlock::fromRow($row) : false;
 }
 
-function addBlock($username, $reason, $blocker) {
-	$dbw = wfGetDB( DB_MASTER );
+function addBlock(string $username, string $reason, User $blocker, IDatabase $dbw) {
 	$dbw->insert('scratch_accountrequest_block', [
 		'block_username' => $username,
 		'block_reason' => $reason,
@@ -19,8 +33,7 @@ function addBlock($username, $reason, $blocker) {
 	], __METHOD__);
 }
 
-function updateBlock($username, $reason, $blocker) {
-	$dbw = wfGetDB( DB_MASTER );
+function updateBlock(string $username, string $reason, User $blocker, IDatabase $dbw) {
 	$dbw->update('scratch_accountrequest_block', [
 		'block_reason' => $reason,
 		'block_blocker_user_id' => $blocker->getId(),
@@ -28,13 +41,11 @@ function updateBlock($username, $reason, $blocker) {
 	], ['block_username' => $username], __METHOD__);
 }
 
-function deleteBlock($username) {
-	$dbw = wfGetDB( DB_MASTER );
+function deleteBlock(string $username, IDatabase $dbw) {
 	$dbw->delete('scratch_accountrequest_block', ['block_username' => $username], __METHOD__);
 }
 
-function createAccountRequest($username, $passwordHash, $requestNotes, $email, $ip) {
-	$dbw = wfGetDB( DB_MASTER );
+function createAccountRequest(string $username, string $passwordHash, string $requestNotes, string $email, string $ip, IDatabase $dbw) {
 	$dbw->insert('scratch_accountrequest_request', [
 		'request_username' => $username,
 		'password_hash' => $passwordHash,
@@ -82,8 +93,7 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 	abstract function rowFromRequest(AccountRequest $accountRequest);
 }
 
-function getAccountRequestsByUsername(string $username) : array {
-	$dbr = wfGetDB( DB_REPLICA );
+function getAccountRequestsByUsername(string $username, IDatabase $dbr) : array {
 	$result = $dbr->select('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated'), ['LOWER(CONVERT(request_username using utf8))' => strtolower($username)], __METHOD__, ['ORDER BY' => 'request_timestamp DESC']);
 
 	$results = [];
@@ -93,8 +103,7 @@ function getAccountRequestsByUsername(string $username) : array {
 	return $results;
 }
 
-function getNumberOfRequestsByStatus(array $statuses) : array {
-	$dbr = wfGetDb( DB_REPLICA ); //TODO: have a way to cache this
+function getNumberOfRequestsByStatus(array $statuses, IDatabase $dbr) : array {
 	$result = $dbr->select('scratch_accountrequest_request', ['request_status', 'count' => 'COUNT(request_id)'], ['request_status' => $statuses], __METHOD__, ['GROUP BY' => 'request_status']);
 
 	$statusCounts = [];
@@ -108,8 +117,7 @@ function getNumberOfRequestsByStatus(array $statuses) : array {
 	return $statusCounts;
 }
 
-function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id) : array {
-	$dbr = wfGetDb( DB_REPLICA );
+function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id, IDatabase $dbr) : array {
 	$statusCounts = [];
 	foreach ($statuses as $status) {
 		$statusCounts[$status] = 0;
@@ -138,17 +146,15 @@ function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id) : array {
 	return $statusCounts;
 }
 
-function getAccountRequestById($id) {
-	$dbr = wfGetDB( DB_REPLICA );
+function getAccountRequestById($id, IDatabase $dbr) {
 	$result = $dbr->selectRow('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status', 'request_email_token', 'request_email_confirmed', 'request_email_token_expiry'), ['request_id' => $id], __METHOD__);
 
 	return $result ? AccountRequest::fromRow($result) : false;
 }
 
-function actionRequest(AccountRequest $request, bool $updateStatus, string $action, $userPerformingAction, string $comment) {
+function actionRequest(AccountRequest $request, bool $updateStatus, string $action, $userPerformingAction, string $comment, IDatabase $dbw) {
 	global $wgScratchAccountRequestRejectCooldownDays;
-	$dbw = wfGetDB( DB_MASTER );
-
+	
 	$dbw->insert('scratch_accountrequest_history', [
 		'history_request_id' => $request->id,
 		'history_action' => $action,
@@ -172,9 +178,7 @@ function actionRequest(AccountRequest $request, bool $updateStatus, string $acti
 	$dbw->update('scratch_accountrequest_request', $request_update_fields, ['request_id' => $request->id], __METHOD__);
 }
 
-function getRequestHistory(AccountRequest $request) : array {
-	$dbr = wfGetDB( DB_REPLICA );
-
+function getRequestHistory(AccountRequest $request, IDatabase $dbr) : array {
 	$result = $dbr->select(['scratch_accountrequest_history', 'user'], [
 		'history_timestamp',
 		'history_action',
@@ -192,7 +196,7 @@ function getRequestHistory(AccountRequest $request) : array {
 	return $history;
 }
 
-function createAccount(AccountRequest $request, $creator) {
+function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	//first create the user and add it to the database
 	$user = User::newFromName($request->username);
 	$user->addToDatabase();
@@ -201,8 +205,6 @@ function createAccount(AccountRequest $request, $creator) {
 		'user_password' => $request->passwordHash
 	];
 	
-	$dbw = wfGetDB( DB_MASTER );
-
 	// If email is confirmed, set it
 	if ($request->emailConfirmed) {
 		$updater['user_email'] = $request->email;
@@ -233,9 +235,7 @@ function createAccount(AccountRequest $request, $creator) {
 	return $user;
 }
 
-function purgeOldAccountRequestPasswords() {
-	$dbw = wfGetDB( DB_MASTER );
-	
+function purgeOldAccountRequestPasswords(Database $dbw) {	
 	$dbw->update('scratch_accountrequest_request', ['password_hash' => ''],
 	[
 		'request_status' => ['accepted', 'rejected'],
@@ -243,9 +243,7 @@ function purgeOldAccountRequestPasswords() {
 	]);
 }
 
-function userExists(string $username) : bool {
-	$dbr = wfGetDB( DB_REPLICA );
-
+function userExists(string $username, IDatabase $dbr) : bool {
 	// Use db directly to make it case insensitive
 	return $dbr->selectRowCount(
 		'user',
@@ -255,9 +253,7 @@ function userExists(string $username) : bool {
 	) > 0;
 }
 
-function hasActiveRequest(string $username) : bool {
-	$dbr = wfGetDB( DB_REPLICA );
-
+function hasActiveRequest(string $username, IDatabase $dbr) : bool {
 	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'),
 		$dbr->makeList([
 			'LOWER(CONVERT(request_username using utf8))' => strtolower($username),
@@ -272,9 +268,7 @@ function hasActiveRequest(string $username) : bool {
 	, __METHOD__) > 0;
 }
 
-function getBlocks() : array {
-	$dbr = wfGetDB( DB_REPLICA );
-
+function getBlocks(IDatabase $dbr) : array {
 	$result = $dbr->select('scratch_accountrequest_block', ['block_username', 'block_reason'], [], __METHOD__, ['ORDER BY' => 'block_timestamp ASC']);
 
 	$blocks = [];
@@ -285,9 +279,7 @@ function getBlocks() : array {
 	return $blocks;
 }
 
-function setRequestEmailToken($request_id, $hash, $expiry) {
-	$dbw = wfGetDB( DB_MASTER );
-
+function setRequestEmailToken($request_id, string $hash, $expiry, IDatabase $dbw) {
 	$dbw->update(
 		'scratch_accountrequest_request',
 		[
@@ -300,9 +292,7 @@ function setRequestEmailToken($request_id, $hash, $expiry) {
 	);
 }
 
-function setRequestEmailConfirmed($request_id) {
-	$dbw = wfGetDB( DB_MASTER );
-
+function setRequestEmailConfirmed($request_id, IDatabase $dbw) {
 	$dbw->update(
 		'scratch_accountrequest_request',
 		[
@@ -315,8 +305,7 @@ function setRequestEmailConfirmed($request_id) {
 	);
 }
 
-function getRequestUsernamesFromIP($ip, &$usernames, $request_username) {
-	$dbr = wfGetDB(DB_REPLICA);
+function getRequestUsernamesFromIP($ip, array &$usernames, string $request_username, IDatabase $dbr) {
 	$usernames = $dbr->selectFieldValues(
 		'scratch_accountrequest_request',
 		'DISTINCT request_username',

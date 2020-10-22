@@ -359,14 +359,16 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
 	$output->addHTML($disp);
 }
 
-function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output) {
+function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, IDatabase $dbr) {
 	if ($userContext != 'admin') {
 		return;
 	}
+	
 	$requestUsernames = array();
-	getRequestUsernamesFromIP($accountRequest->ip, $requestUsernames, $accountRequest->username);
+	getRequestUsernamesFromIP($accountRequest->ip, $requestUsernames, $accountRequest->username, $dbr);
+	
 	$checkUserUsernames = array();
-	CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $checkUserUsernames);
+	CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $checkUserUsernames, $dbr);
 	if (empty($requestUsernames) && empty($checkUserUsernames)) {
 		return;
 	}
@@ -374,6 +376,7 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 	if (!empty($requestUsernames)) {
 		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-request', $requestUsernames);
 	}
+	
 	if (!empty($checkUserUsernames)) {
 		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames);
 	}
@@ -416,12 +419,15 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 
 function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language) {
 	global $wgUser;
+	
+	$dbr = getReadOnlyDatabase();
+	
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 		return;
 	}
 
-	$accountRequest = getAccountRequestById($requestId);
+	$accountRequest = getAccountRequestById($requestId, $dbr);
 	if (!$accountRequest) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		return;
@@ -433,27 +439,28 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 		wfMessage('scratch-confirmaccount-accountrequest')->text()
 	));
 	
-	$history = getRequestHistory($accountRequest);
+	$history = getRequestHistory($accountRequest, $dbr);
 	
 	$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
 
 	requestMetadataDisplay($accountRequest, $userContext, $language, $output);
 	requestNotesDisplay($accountRequest, $output);
 	requestHistoryDisplay($accountRequest, $history, $language, $output);
-	requestCheckUserDisplay($accountRequest, $userContext, $output);
+	requestCheckUserDisplay($accountRequest, $userContext, $output, $dbr);
 	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $output, $pageContext, $session);
 	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
 }
 
-function handleAccountCreation($accountRequest, &$output) {
+function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
 	global $wgUser, $wgAutoWelcomeNewUsers;
 
-	if (userExists($accountRequest->username)) {
+	if (userExists($accountRequest->username, $dbw)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
 		return;
 	}
 
-	$createdUser = createAccount($accountRequest, $wgUser);
+	$createdUser = createAccount($accountRequest, $wgUser, $dbw);
+	
 	if ($wgAutoWelcomeNewUsers) {
 		$talkPage = new WikiPage($createdUser->getTalkPage());
 		$updater = $talkPage->newPageUpdater($wgUser);
@@ -469,6 +476,7 @@ function handleAccountCreation($accountRequest, &$output) {
 			EDIT_MINOR
 		);
 	}
+	
 	$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-account-created')->text()));
 }
 
@@ -488,7 +496,8 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 		return;
 	}
 
-	$accountRequest = getAccountRequestById($requestId);
+	$dbw = getTransactableDatabase($mutexId);
+	$accountRequest = getAccountRequestById($requestId, $dbw);
 	if (!$accountRequest) {
 		//request not found
 		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
@@ -521,9 +530,9 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	
 	$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
 
-	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'));
+	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'), $dbw);
 	if ($action == 'set-status-accepted') {
-		handleAccountCreation($accountRequest, $output);
+		handleAccountCreation($accountRequest, $output, $dbw);
 	} else {
 		$output->addHTML(Html::rawElement(
 			'p',
@@ -531,6 +540,8 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 			wfMessage(actions[$action]['message'] . '-done', $accountRequest->id)->parse()
 		));
 	}
+	
+	commitTransaction($dbw, $mutexId);
 	
 	//also when someone acts on a request, add an option to clear out old account request passwords
 	JobQueueGroup::singleton()->push(new PurgeAccountRequestPasswordsJob());

@@ -22,10 +22,12 @@ class ScratchConfirmAccountHooks {
 		if(!$out->getContext()->getTitle()->isSpecial('Recentchanges')){
 			return true;
 		}
+		
+		$dbr = getReadOnlyDatabase();
 
 		$out->addModules('ext.scratchConfirmAccount');
-		$reqCounts = getNumberOfRequestsByStatus(['new'])['new'];
-		$reqCounts += getNumberOfRequestsByStatusAndUser(['awaiting-admin'], $wgUser->getId())['awaiting-admin'];
+		$reqCounts = getNumberOfRequestsByStatus(['new'], $dbr)['new'];
+		$reqCounts += getNumberOfRequestsByStatusAndUser(['awaiting-admin'], $wgUser->getId(), $dbr)['awaiting-admin'];
 		if ($reqCounts > 0) {
 			$reqCountText = Html::openElement('div', [
 				'class' => 'mw-scratch-confirmaccount-rc-awaiting'

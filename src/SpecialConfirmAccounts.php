@@ -46,17 +46,18 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function blocksListPage(&$request, &$output, &$session) {
+		$dbr = getReadOnlyDatabase();
+		
 		$linkRenderer = $this->getLinkRenderer();
 
 		//show the list of existing blocks
-		//TODO: paginate (low priority right now)
 		$output->addHTML(Html::element(
 			'h3',
 			[],
 			wfMessage('scratch-confirmaccount-blocks')->text()
 		));
 
-		$blocks = getBlocks();
+		$blocks = getBlocks($dbr);
 
 		if (empty($blocks)) {
 			$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-noblocks')));
@@ -71,7 +72,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$table .= Html::closeElement('tr');
 
 			//actual list of blocks
-			$blocks = getBlocks();
 			$table .= implode(array_map(function ($block) use ($linkRenderer) {
 				$row = Html::openElement('tr');
 				$row .= Html::element('td', [], $block->blockedUsername);
@@ -92,18 +92,18 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		//also show a form to add a new block
 		$output->addHTML(Html::element('h3', [], wfMessage('scratch-confirmaccount-add-block')->text()));
-		$this->singleBlockForm('', $request, $output, $session);
+		$this->singleBlockForm('', $request, $output, $session, $dbr);
 	}
 
 	//show a form that allows editing an existing block or adding a new one (leave the username blank)
-	function singleBlockForm($blockedUsername, &$request, &$output, &$session) {
+	function singleBlockForm($blockedUsername, &$request, &$output, &$session, IDatabase $dbr) {
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
 		
 		//get the block associated with the provided username
 		if ($blockedUsername) {
-			$block = getSingleBlock($blockedUsername);
+			$block = getSingleBlock($blockedUsername, $dbr);
 			if (!$block) {
 				$output->showErrorPage('error', 'scratch-confirmaccount-not-blocked');
 				return;
@@ -152,13 +152,13 @@ class SpecialConfirmAccounts extends SpecialPage {
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
-		
+				
 		$subpageParts = explode('/', $par);
 
 		if (sizeof($subpageParts) < 2) {
 			return $this->blocksListPage($request, $output, $session);
 		} else {
-			return $this->singleBlockForm($subpageParts[1], $request, $output, $session);
+			return $this->singleBlockForm($subpageParts[1], $request, $output, $session, getReadOnlyDatabase());
 		}
 	}
 
@@ -252,6 +252,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function handleBlockFormSubmission(&$request, &$output, &$session) {
+		$dbw = getTransactableDatabase($mutexId);
+		
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
@@ -274,17 +276,21 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 
-		$block = getSingleBlock($username);
+		$block = getSingleBlock($username, $dbw);
 		if ($block) {
-			updateBlock($username, $reason, $this->getUser());
+			updateBlock($username, $reason, $this->getUser(), $dbw);
 		} else {
-			addBlock($username, $reason, $this->getUser());
+			addBlock($username, $reason, $this->getUser(), $dbw);
 		}
 
 		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
+		
+		commitTransaction($dbw, $mutexId);
 	}
 
 	function handleUnblockFormSubmission(&$request, &$output, &$session) {
+		$dbw = getTransactableDatabase($mutexId);
+		
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
@@ -296,15 +302,17 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 
-		$block = getSingleBlock($username);
+		$block = getSingleBlock($username, $dbw);
 		if (!$block) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-not-blocked');
 			return;
 		}
 
-		deleteBlock($username);
+		deleteBlock($username, $dbw);
 
 		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
+		
+		commitTransaction($dbw, $mutexId);
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
@@ -317,7 +325,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}
 	}
 
-	function searchByUsername($username, &$request, &$output) {
+	function searchByUsername($username, &$request, &$output) {		
 		$linkRenderer = $this->getLinkRenderer();
 
 		$output->addHTML(Html::element(
