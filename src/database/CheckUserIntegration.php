@@ -5,13 +5,11 @@ class CheckUserIntegration {
         return ExtensionRegistry::getInstance()->isLoaded('CheckUser');
     }
     
-    public static function getCUUsernamesFromIP ($ip, &$usernames) {
+    public static function getCUUsernamesFromIP ($ip, &$usernames, IDatabase $dbr) {
         if (!self::isLoaded()) {
             $usernames = array();
             return;
         }
-        
-        $dbr = wfGetDB(DB_REPLICA);
         
         $usernames = $dbr->selectFieldValues(
             ['cu_changes', 'user'],

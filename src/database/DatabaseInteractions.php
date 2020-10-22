@@ -235,7 +235,7 @@ function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	return $user;
 }
 
-function purgeOldAccountRequestPasswords(Database $dbw) {	
+function purgeOldAccountRequestPasswords(IDatabase $dbw) {	
 	$dbw->update('scratch_accountrequest_request', ['password_hash' => ''],
 	[
 		'request_status' => ['accepted', 'rejected'],
