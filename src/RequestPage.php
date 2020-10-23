@@ -498,7 +498,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 
 	$mutexId = 'scratch-confirmaccount-action-request-' . $requestId;
 
-	$dbw = getTransactableDatabase(mutexId);
+	$dbw = getTransactableDatabase($mutexId);
 	$accountRequest = getAccountRequestById($requestId, $dbw);
 	if (!$accountRequest) {
 		//request not found
