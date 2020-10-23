@@ -273,6 +273,7 @@ class SpecialRequestAccount extends SpecialPage {
 		//validate and sanitize the input
 		$formData = $this->sanitizedPostData($request, $session, $error, $dbw);
 		if ($error != '') {
+			commitTransaction($dbw);
 			return $this->requestForm($request, $output, $session, $error);
 		}
 
@@ -391,7 +392,10 @@ class SpecialRequestAccount extends SpecialPage {
 		$dbw = getTransactableDatabase($mutexId);
 		
 		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbw);
-		if ($matchingRequests === null) return;
+		if ($matchingRequests === null) {
+			commitTransaction($dbw, $mutexId);
+			return;
+		}
 		
 		//mark that the user can view the request attached to their username and redirect them to it
 		$accountRequest = $matchingRequests[0];
@@ -399,17 +403,16 @@ class SpecialRequestAccount extends SpecialPage {
 		authenticateForViewingRequest($requestId, $session);
 		$emailToken = md5($request->getText('emailToken'));
 		$requestURL = SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL();
-		if (empty($emailToken)) {
-			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
-			return;
-		}
 
-		if ($accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
+		if (empty($emailToken) || $accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
+			commitTransaction($dbw, $mutexId);
 			return;
 		}
+		
 		if ($accountRequest->status == 'accepted') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
+			commitTransaction($dbw, $mutexId);
 			return;
 		}
 		
@@ -433,20 +436,23 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function handleSendConfirmEmailSubmission(&$request, &$output, &$session) {
-		$dbw = getTransactableDatabase($mutexId);
-		
 		$requestId = $request->getText('requestid');
 		if (!$session->exists('requestId') || $session->get('requestId') != $requestId) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 			return;
 		}
+		
+		$dbw = getTransactableDatabase($mutexId);
+		
 		$accountRequest = getAccountRequestById($requestId, $dbw);
 		if ($accountRequest->status == 'accepted') {
+			commitTransaction($dbw, $mutexId);
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			return;
 		}
 		$sentEmail = sendConfirmationEmail($requestId, $dbw);
 		if (!$sentEmail) {
+			commitTransaction($dbw, $mutexId);
 			$output->showErrorPage('error', 'scratch-confirmaccount-email-unregistered');
 			return;
 		}

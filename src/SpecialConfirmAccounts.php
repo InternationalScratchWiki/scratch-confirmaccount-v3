@@ -252,8 +252,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function handleBlockFormSubmission(&$request, &$output, &$session) {
-		$dbw = getTransactableDatabase($mutexId);
-		
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
@@ -276,6 +274,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 
+		$dbw = getTransactableDatabase($mutexId);
+		
 		$block = getSingleBlock($username, $dbw);
 		if ($block) {
 			updateBlock($username, $reason, $this->getUser(), $dbw);
@@ -289,8 +289,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function handleUnblockFormSubmission(&$request, &$output, &$session) {
-		$dbw = getTransactableDatabase($mutexId);
-		
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
@@ -301,6 +299,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
 			return;
 		}
+		
+		$dbw = getTransactableDatabase($mutexId);
 
 		$block = getSingleBlock($username, $dbw);
 		if (!$block) {
