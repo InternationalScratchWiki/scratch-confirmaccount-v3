@@ -14,7 +14,7 @@ class SpecialRequestAccount extends SpecialPage {
 		parent::__construct( 'RequestAccount' );
 	}
 
-	function sanitizedPostData(&$request, &$session, &$out_error) {
+	function sanitizedPostData(&$request, &$session, &$out_error, IDatabase $dbr) {
 		global $wgScratchAccountJoinedRequirement;
 		$username = $request->getText('scratchusername');
 
@@ -45,12 +45,12 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
-		if (userExists($username)) {
+		if (userExists($username, $dbr)) {
 			$out_error = wfMessage('scratch-confirmaccount-user-exists')->text();
 			return;
 		}
 
-		if (hasActiveRequest($username)) {
+		if (hasActiveRequest($username, $dbr)) {
 			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
 			return;
 		}
@@ -72,7 +72,7 @@ class SpecialRequestAccount extends SpecialPage {
 				return;
 		}
 
-		$block = getSingleBlock($username);
+		$block = getSingleBlock($username, $dbr);
 		if ($block) {
 			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $block->reason)->text();
 			// note : blocks are not publicly visible on scratch, so this needs to run after checking the verification code
@@ -267,10 +267,13 @@ class SpecialRequestAccount extends SpecialPage {
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->text());
 		}
+		
+		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-account-request');
 
 		//validate and sanitize the input
-		$formData = $this->sanitizedPostData($request, $session, $error);
+		$formData = $this->sanitizedPostData($request, $session, $error, $dbw);
 		if ($error != '') {
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
 			return $this->requestForm($request, $output, $session, $error);
 		}
 
@@ -280,12 +283,15 @@ class SpecialRequestAccount extends SpecialPage {
 			$formData['passwordHash'],
 			$formData['requestnotes'],
 			$formData['email'],
-			$request->getIP()
+			$request->getIP(),
+			$dbw
 		);
+		
 		$sentEmail = false;
 		if ($formData['email']) {
-			$sentEmail = sendConfirmationEmail($requestId);
+			$sentEmail = sendConfirmationEmail($requestId, $dbw);
 		}
+		
 		ScratchVerification::generateNewCodeForSession($session);
 		authenticateForViewingRequest($requestId, $session);
 
@@ -303,6 +309,9 @@ class SpecialRequestAccount extends SpecialPage {
 				$requestId
 			)->parse()
 		));
+		
+		//and finally commit the database transaction
+		commitTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
@@ -355,7 +364,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 
-	function handleAuthenticationFormSubmission(&$request, &$output, &$session) {
+	function handleAuthenticationFormSubmission(&$request, &$output, &$session, IDatabase $dbr) {		
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
 			return;
@@ -368,44 +377,55 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//see if there are any requests with the given password
 		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
-		$requests = getAccountRequestsByUsername($username);
+		$requests = getAccountRequestsByUsername($username, $dbr);
 		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
 
 		if (empty($matchingRequests)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nomatch');
 			return;
 		}
+		
 		return $matchingRequests;
 	}
 
 	function handleConfirmEmailFormSubmission(&$request, &$output, &$session) {
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session);
-		if ($matchingRequests === null) return;
+		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-confirm-email');
+		
+		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbw);
+		if ($matchingRequests === null) {
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
+			return;
+		}
+		
 		//mark that the user can view the request attached to their username and redirect them to it
 		$accountRequest = $matchingRequests[0];
 		$requestId = $accountRequest->id;
 		authenticateForViewingRequest($requestId, $session);
 		$emailToken = md5($request->getText('emailToken'));
 		$requestURL = SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL();
-		if (empty($emailToken)) {
-			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
-			return;
-		}
 
-		if ($accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
+		if (empty($emailToken) || $accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
+		
 		if ($accountRequest->status == 'accepted') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
-		setRequestEmailConfirmed($requestId);
+		
+		setRequestEmailConfirmed($requestId, $dbw);
 		$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-email-confirmed')->parse()));
+		
+		commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 	}
 
 	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session);
+		$dbr = getReadOnlyDatabase();
+		
+		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbr);
 		if ($matchingRequests === null) return;
 
 		$requestId = $matchingRequests[0]->id;
@@ -421,17 +441,24 @@ class SpecialRequestAccount extends SpecialPage {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 			return;
 		}
-		$accountRequest = getAccountRequestById($requestId);
+		
+		$dbw = getTransactableDatabase('scratch-confirmaccount-send-confirm-email');
+		
+		$accountRequest = getAccountRequestById($requestId, $dbw);
 		if ($accountRequest->status == 'accepted') {
+			commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			return;
 		}
-		$sentEmail = sendConfirmationEmail($requestId);
+		$sentEmail = sendConfirmationEmail($requestId, $dbw);
 		if (!$sentEmail) {
+			commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-email-unregistered');
 			return;
 		}
 		$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-email-resent')->text()));
+		
+		commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 	}
 
 	function execute( $par ) {

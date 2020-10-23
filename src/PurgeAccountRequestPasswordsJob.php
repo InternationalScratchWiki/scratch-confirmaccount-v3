@@ -6,6 +6,10 @@ class PurgeAccountRequestPasswordsJob extends Job {
 	}
 	
 	public function run() {
-		purgeOldAccountRequestPasswords();
+		$dbw = getTransactableDatabase('scratch-confirmaccount-purge-request-passwords');
+		
+		purgeOldAccountRequestPasswords($dbw);
+		
+		commitTransaction('scratch-confirmaccount-purge-request-passwords');
 	}
 }
