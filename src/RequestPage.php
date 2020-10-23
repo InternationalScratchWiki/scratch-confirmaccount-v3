@@ -496,11 +496,13 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 		return;
 	}
 
-	$dbw = getTransactableDatabase($mutexId);
+	$mutexId = 'scratch-confirmaccount-action-request-' . $requestId;
+
+	$dbw = getTransactableDatabase(mutexId);
 	$accountRequest = getAccountRequestById($requestId, $dbw);
 	if (!$accountRequest) {
 		//request not found
-		commitTransaction($dbw);
+		commitTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		return;
 	}
@@ -508,27 +510,27 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	$action = $request->getText('action');
 	if (!isset(actions[$action])) {
 		//invalid action
-		commitTransaction($dbw);
+		commitTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
 		return;
 	}
 
 	if ($accountRequest->status == 'accepted') {
 		//request was already accepted, so we can't act on it
-		commitTransaction($dbw);
+		commitTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
 		return;
 	}
 
 	if ($userContext == 'user' && $accountRequest->status == 'rejected') {
-		commitTransaction($dbw);
+		commitTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
 		return;
 	}
 
 	if (!in_array($userContext, actions[$action]['performers'])) {
 		//admin does not have permission to perform this action
-		commitTransaction($dbw);
+		commitTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-action-unauthorized');
 		return;
 	}

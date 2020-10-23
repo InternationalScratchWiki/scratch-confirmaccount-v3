@@ -274,6 +274,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 
+		$mutexId = 'scratch-confirmaccount-update-block-' . $username;
 		$dbw = getTransactableDatabase($mutexId);
 		
 		$block = getSingleBlock($username, $dbw);
@@ -300,10 +301,13 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 		
+		$mutexId = 'scratch-confirmaccount-update-unblock-' . $username;
+		
 		$dbw = getTransactableDatabase($mutexId);
 
 		$block = getSingleBlock($username, $dbw);
 		if (!$block) {
+			commitTransaction($dbw, $mutexId);
 			$output->showErrorPage('error', 'scratch-confirmaccount-not-blocked');
 			return;
 		}

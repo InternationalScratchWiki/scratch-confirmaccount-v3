@@ -268,12 +268,12 @@ class SpecialRequestAccount extends SpecialPage {
 			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->text());
 		}
 		
-		$dbw = getTransactableDatabase($mutexId);
+		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-account-request');
 
 		//validate and sanitize the input
 		$formData = $this->sanitizedPostData($request, $session, $error, $dbw);
 		if ($error != '') {
-			commitTransaction($dbw);
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
 			return $this->requestForm($request, $output, $session, $error);
 		}
 
@@ -311,7 +311,7 @@ class SpecialRequestAccount extends SpecialPage {
 		));
 		
 		//and finally commit the database transaction
-		commitTransaction($dbw, $mutexId);
+		commitTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
@@ -389,11 +389,11 @@ class SpecialRequestAccount extends SpecialPage {
 	}
 
 	function handleConfirmEmailFormSubmission(&$request, &$output, &$session) {
-		$dbw = getTransactableDatabase($mutexId);
+		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-confirm-email');
 		
 		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbw);
 		if ($matchingRequests === null) {
-			commitTransaction($dbw, $mutexId);
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
 		
@@ -406,20 +406,20 @@ class SpecialRequestAccount extends SpecialPage {
 
 		if (empty($emailToken) || $accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
-			commitTransaction($dbw, $mutexId);
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
 		
 		if ($accountRequest->status == 'accepted') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
-			commitTransaction($dbw, $mutexId);
+			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
 		
 		setRequestEmailConfirmed($requestId, $dbw);
 		$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-email-confirmed')->parse()));
 		
-		commitTransaction($dbw, $mutexId);
+		commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 	}
 
 	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
@@ -442,23 +442,23 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 		
-		$dbw = getTransactableDatabase($mutexId);
+		$dbw = getTransactableDatabase('scratch-confirmaccount-send-confirm-email');
 		
 		$accountRequest = getAccountRequestById($requestId, $dbw);
 		if ($accountRequest->status == 'accepted') {
-			commitTransaction($dbw, $mutexId);
+			commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			return;
 		}
 		$sentEmail = sendConfirmationEmail($requestId, $dbw);
 		if (!$sentEmail) {
-			commitTransaction($dbw, $mutexId);
+			commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-email-unregistered');
 			return;
 		}
 		$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-email-resent')->text()));
 		
-		commitTransaction($dbw, $mutexId);
+		commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 	}
 
 	function execute( $par ) {

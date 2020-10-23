@@ -2,11 +2,9 @@
 require_once __DIR__ . '/../objects/AccountRequest.php';
 require_once __DIR__ . '/../common.php';
 
-function getTransactableDatabase(?string &$out_mutexId) : IDatabase {
-	$out_mutexId = (string)rand(0, 100000);
-	
+function getTransactableDatabase(string $mutexId) : IDatabase {	
 	$dbw = wfGetDB( DB_MASTER );
-	$dbw->startAtomic( $out_mutexId );
+	$dbw->startAtomic( $mutexId );
 	
 	return $dbw;
 }
