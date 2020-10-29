@@ -468,6 +468,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addModules('ext.scratchConfirmAccount');
 		$session = $request->getSession();
 		$this->setHeaders();
+		$this->checkReadOnly();
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output, $session);

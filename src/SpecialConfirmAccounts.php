@@ -380,6 +380,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$output->addModules('ext.scratchConfirmAccount');
 		$session = $request->getSession();
 		$this->setHeaders();
+		$this->checkReadOnly();
 
 		$this->showTopLinks();
 
