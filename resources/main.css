@@ -52,6 +52,6 @@
 	font-weight: normal;
 }
 
-.client-nojs .mw-scratch-confirmaccount-click-copy {
+.client-nojs #mw-scratch-confirmaccount-click-copy {
 	 display: none; 
 }
