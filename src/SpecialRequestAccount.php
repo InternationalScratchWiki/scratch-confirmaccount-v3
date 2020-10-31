@@ -217,7 +217,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::element(
 			'button',
 			[
-				'class' => 'jsonly',
+				'class' => 'mw-scratch-confirmaccount-click-copy jsonly',
 				'id' => 'mw-scratch-confirmaccount-click-copy',
 				'type' => 'button'
 			],
