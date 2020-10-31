@@ -217,7 +217,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::element(
 			'button',
 			[
-				'class' => 'mw-scratch-confirmaccount-click-copy client-nojs',
+				'class' => 'mw-scratch-confirmaccount-click-copy', 'client-nojs',
 				'id' => 'mw-scratch-confirmaccount-click-copy',
 				'type' => 'button'
 			],
