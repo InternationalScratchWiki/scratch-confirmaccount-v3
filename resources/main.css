@@ -51,3 +51,7 @@
 .mw-scratch-confirmaccount-click-copy {
 	font-weight: normal;
 }
+
+.client-nojs #mw-scratch-confirmaccount-click-copy {
+	 display: none; 
+}
