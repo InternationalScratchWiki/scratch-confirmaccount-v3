@@ -377,8 +377,12 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$language = $this->getLanguage();
-		$output->addModules('ext.scratchConfirmAccount');
+		
+		$output->addModules('ext.scratchConfirmAccount.js');
+		$output->addModuleStyles('ext.scratchConfirmAccount.css');
+		
 		$session = $request->getSession();
+		
 		$this->setHeaders();
 		$this->checkReadOnly();
 
