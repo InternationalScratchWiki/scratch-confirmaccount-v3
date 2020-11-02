@@ -31,11 +31,13 @@
 		"AuthChangeFormFields": "ScratchConfirmAccountHooks::onAuthChangeFormFields"
 	},
 	"ResourceModules": {
-		"ext.scratchConfirmAccount": {
+		"ext.scratchConfirmAccount.css": {
 			"styles": "main.css",
-			"localBasePath": "resources",
-			"remoteExtPath": "scratch-confirmaccount-v3/resources",
+			"localBasePath": "resources"
+		},
+		"ext.scratchConfirmAccount.js": {
 			"scripts": "main.js",
+			"localBasePath": "resources",
 			"messages": [
 				"scratch-confirmaccount-click-copy-alert"
 			],

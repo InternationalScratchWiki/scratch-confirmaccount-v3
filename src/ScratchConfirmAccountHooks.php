@@ -25,7 +25,8 @@ class ScratchConfirmAccountHooks {
 		
 		$dbr = getReadOnlyDatabase();
 
-		$out->addModules('ext.scratchConfirmAccount');
+		$out->addModuleStyles('ext.scratchConfirmAccount.css');
+		
 		$reqCounts = getNumberOfRequestsByStatus(['new'], $dbr)['new'];
 		$reqCounts += getNumberOfRequestsByStatusAndUser(['awaiting-admin'], $wgUser->getId(), $dbr)['awaiting-admin'];
 		if ($reqCounts > 0) {
