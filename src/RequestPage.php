@@ -537,7 +537,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	
 	$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
 
-	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser->getId() : null, $request->getText('comment'), $dbw);
+	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser : null, $request->getText('comment'), $dbw);
 	if ($action == 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output, $dbw);
 	} else {
@@ -551,5 +551,5 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	commitTransaction($dbw, $mutexId);
 	
 	//also when someone acts on a request, add an option to clear out old account request passwords
-	JobQueueGroup::singleton()->push(new PurgeAccountRequestPasswordsJob());
+	JobQueueGroup::singleton()->push(new AccountRequestCleanupJob());
 }

@@ -122,7 +122,7 @@ function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id, IDatabase
 	}
 	$user_req = $dbr->selectFieldValues(
 		'scratch_accountrequest_history',
-		'history_request_id',
+		'DISTINCT history_request_id',
 		['history_performer' => $user_id]
 	);
 	if (count($user_req) == 0) {
@@ -150,14 +150,14 @@ function getAccountRequestById($id, IDatabase $dbr) {
 	return $result ? AccountRequest::fromRow($result) : false;
 }
 
-function actionRequest(AccountRequest $request, bool $updateStatus, string $action, $userPerformingAction, string $comment, IDatabase $dbw) {
+function actionRequest(AccountRequest $request, bool $updateStatus, string $action, ?User $userPerformingAction, string $comment, IDatabase $dbw) {
 	global $wgScratchAccountRequestRejectCooldownDays;
 	
 	$dbw->insert('scratch_accountrequest_history', [
 		'history_request_id' => $request->id,
 		'history_action' => $action,
 		'history_comment' => $comment,
-		'history_performer' => $userPerformingAction,
+		'history_performer' => $userPerformingAction == null ? null : $userPerformingAction->getId(),
 		'history_timestamp' => $dbw->timestamp()
 	], __METHOD__);
 
@@ -313,4 +313,34 @@ function getRequestUsernamesFromIP($ip, array &$usernames, string $request_usern
 		],
 		__METHOD__
 	);
+}
+
+
+function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
+	//TODO: make sure each request is only retrieved ONCE (ideally using a DISTINCT requset_id or something)
+	$result = $dbw->select(
+		['scratch_accountrequest_request', 'scratch_accountrequest_history'], 
+		[
+			'request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated',
+			'handling_admin_id' => 'history_performer'
+		], 
+		[
+			'request_status' => 'awaiting-user',
+			'request_last_updated < ' . $dbw->timestamp(time() - 0) //TODO: use a config value
+		], 
+		__METHOD__,
+		[], 
+		['scratch_accountrequest_history' => ['INNER JOIN', ['history_request_id=request_id', 'history_action' => 'set-status-awaiting-user']]]);
+			
+	$staleRequests = [];
+	foreach ($result as $row) {
+		$staleRequests[] = [
+			'request' => AccountRequest::fromRow($row),
+			'admin' => User::newFromId($row->handling_admin_id)
+		];
+	}
+	
+	foreach ($staleRequests as $requestToDelete) {
+		actionRequest($requestToDelete['request'], true, 'set-status-rejected', $requestToDelete['admin'], 'Old request :(', $dbw); //TODO: use 
+	}
 }
