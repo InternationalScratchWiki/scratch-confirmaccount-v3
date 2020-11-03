@@ -153,6 +153,10 @@ function getAccountRequestById($id, IDatabase $dbr) {
 function actionRequest(AccountRequest $request, bool $updateStatus, string $action, ?User $userPerformingAction, string $comment, IDatabase $dbw) {
 	global $wgScratchAccountRequestRejectCooldownDays;
 	
+	$mutexId = 'scratch-confirmaccount-action-request[' . $request->id . ']';
+	
+	$dbw->startAtomic($mutexId);
+	
 	$dbw->insert('scratch_accountrequest_history', [
 		'history_request_id' => $request->id,
 		'history_action' => $action,
@@ -174,6 +178,8 @@ function actionRequest(AccountRequest $request, bool $updateStatus, string $acti
 		$request_update_fields['request_expiry'] = $dbw->timestamp(time() + 86400 * $wgScratchAccountRequestRejectCooldownDays);
 	}
 	$dbw->update('scratch_accountrequest_request', $request_update_fields, ['request_id' => $request->id], __METHOD__);
+	
+	$dbw->endAtomic($mutexId);
 }
 
 function getRequestHistory(AccountRequest $request, IDatabase $dbr) : array {
@@ -317,21 +323,26 @@ function getRequestUsernamesFromIP($ip, array &$usernames, string $request_usern
 
 
 function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
-	//TODO: make sure each request is only retrieved ONCE (ideally using a DISTINCT requset_id or something)
+	global $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays;
+	
+	//find all stale requests and for each request, the admin who marked it as "awaiting user" (there is guaranteed to be one since for a request to have status "awaiting user", it must have received the action "set-status-awaiting-user")
+	//we also defensively use an INNER JOIN so even if by some fluke a request has no such corresponding admin, the request won't be picked up by the query, and we use the DISTINCT keyword so we only pick up each request once even if it's been marked as "awaiting-user" multiple times
+	//the idea here is finding every request with status "awaiting-user" that hasn't been acted on in $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays days
 	$result = $dbw->select(
 		['scratch_accountrequest_request', 'scratch_accountrequest_history'], 
 		[
-			'request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated',
+			'request_id' => 'DISTINCT request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated',
 			'handling_admin_id' => 'history_performer'
 		], 
 		[
 			'request_status' => 'awaiting-user',
-			'request_last_updated < ' . $dbw->timestamp(time() - 0) //TODO: use a config value
+			'request_last_updated < ' . $dbw->timestamp(time() - 86400 * $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays)
 		], 
 		__METHOD__,
 		[], 
 		['scratch_accountrequest_history' => ['INNER JOIN', ['history_request_id=request_id', 'history_action' => 'set-status-awaiting-user']]]);
-			
+	
+	//then based on the requests, prepare to act
 	$staleRequests = [];
 	foreach ($result as $row) {
 		$staleRequests[] = [
@@ -339,8 +350,9 @@ function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
 			'admin' => User::newFromId($row->handling_admin_id)
 		];
 	}
-	
+			
+	//for each request, mark it as rejected
 	foreach ($staleRequests as $requestToDelete) {
-		actionRequest($requestToDelete['request'], true, 'set-status-rejected', $requestToDelete['admin'], 'Old request :(', $dbw); //TODO: use 
+		actionRequest($requestToDelete['request'], true, 'set-status-rejected', $requestToDelete['admin'], wfMessage('scratch-confirmaccount-stale-awaiting-user-auto-reject-message', $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays)->text(), $dbw);
 	}
 }
