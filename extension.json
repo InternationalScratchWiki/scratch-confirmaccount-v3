@@ -14,14 +14,14 @@
 		"SpecialRequestAccount": "src/SpecialRequestAccount.php",
 		"SpecialConfirmAccounts": "src/SpecialConfirmAccounts.php",
 		"ScratchConfirmAccountHooks": "src/ScratchConfirmAccountHooks.php",
-		"PurgeAccountRequestPasswordsJob": "src/PurgeAccountRequestPasswordsJob.php"
+		"AccountRequestCleanupJob": "src/jobs/AccountRequestCleanupJob.php"
 	},
 	"SpecialPages": {
 		"RequestAccount": "SpecialRequestAccount",
 		"ConfirmAccounts": "SpecialConfirmAccounts"
 	},
 	"JobClasses": {
-		"purgeAccountRequestPasswords": "PurgeAccountRequestPasswordsJob"
+		"accountRequestCleanup": "AccountRequestCleanupJob"
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates",
@@ -58,6 +58,7 @@
 		"ScratchAccountRequestRejectCooldownDays": 7,
 		"ScratchAccountCheckDisallowNewScratcher": false,
 		"ScratchAccountJoinedRequirement": 0,
+		"ScratchAccountAutoRejectStaleAwaitingUserRequestDays": 30,
 		"AutoWelcomeNewUsers": true
 	},
 	"DefaultUserOptions": {
