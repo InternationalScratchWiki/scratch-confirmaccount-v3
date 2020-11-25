@@ -265,6 +265,7 @@ function hasActiveRequest(string $username, IDatabase $dbr) : bool {
 				'request_status' => ['new', 'awaiting-admin', 'awaiting-user'],
 				$dbr->makeList([
 					'request_status' => 'rejected',
+					'request_expiry IS NOT NULL',
 					'request_expiry > ' . $dbr->timestamp()
 				], $dbr::LIST_AND)
 			], $dbr::LIST_OR)
