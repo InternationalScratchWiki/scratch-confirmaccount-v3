@@ -14,8 +14,16 @@ class SpecialRequestAccount extends SpecialPage {
 		parent::__construct( 'RequestAccount' );
 	}
 
-	function sanitizedPostData(&$request, &$session, &$out_error, IDatabase $dbr) {
+	function accountRequestFormData(&$request, &$session, &$out_error, IDatabase $dbr) {
 		global $wgScratchAccountJoinedRequirement;
+		
+		//if the user is IP banned, don't even consider anything else
+		if ($this->getUser()->isBlockedFromCreateAccount()) {
+			$out_error = wfMessage('scratch-confirmaccount-ip-blocked')->text();
+			return;
+		}
+		
+		//verify that the username is valid
 		$username = $request->getText('scratchusername');
 
 		if ($username == '' || !ScratchVerification::isValidScratchUsername($username)) {
@@ -23,6 +31,7 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
+		//check that the passwords match
 		$password = $request->getText('password');
 		$password2 = $request->getText('password2');
 		if ($password != $password2) {
@@ -31,6 +40,7 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
+		//check the password length
 		$passwordRequirement = passwordMinMax();
 		// Scratch requires password to be at least 6 chars
 		$passwordMin = max($passwordRequirement[0], 6);
@@ -45,21 +55,25 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
+		//check that there isn't already a registered user with this username (importantly we have to use our own function rather than a MediaWiki one for case sensitivity reasons)
 		if (userExists($username, $dbr)) {
 			$out_error = wfMessage('scratch-confirmaccount-user-exists')->text();
 			return;
 		}
 
+		//also make sure there aren't any active requests under the given username
 		if (hasActiveRequest($username, $dbr)) {
 			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
 			return;
 		}
 
+		//make sure the user actually commented the verification code
 		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) != $username) {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
 			return;
 		}
 
+		//verify the account's age and Scratcher status
 		$user_check_error = ScratchUserCheck::check($username);
 		switch ($user_check_error) {
 			case 'scratch-confirmaccount-new-scratcher':
@@ -72,6 +86,7 @@ class SpecialRequestAccount extends SpecialPage {
 				return;
 		}
 
+		//see if the username is blocked from submitting account requests (note that this is done after verifying the confirmation code so that we don't accidentally allow block information to be revealed)
 		$block = getSingleBlock($username, $dbr);
 		if ($block) {
 			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $block->reason)->text();
@@ -79,17 +94,20 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
+		//make sure that the email is valid
 		$email = $request->getText('email');
 		if ($email != '' && !Sanitizer::validateEmail($email)) {
 			$out_error = wfMessage('scratch-confirmaccount-invalid-email')->text();
 			return;
 		}
 
+		//make sure that the user agreed to the ToS
 		if($request->getText('agree') != "true"){
 			$out_error = wfMessage('scratch-confirmaccount-disagree-tos')->text();
 			return;
 		}
 
+		//make sure the request notes are non-empty
 		$request_notes = $request->getText('requestnotes');
 
 		if($request_notes == ""){
@@ -271,7 +289,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-account-request');
 
 		//validate and sanitize the input
-		$formData = $this->sanitizedPostData($request, $session, $error, $dbw);
+		$formData = $this->accountRequestFormData($request, $session, $error, $dbw);
 		if ($error != '') {
 			commitTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
 			return $this->requestForm($request, $output, $session, $error);
