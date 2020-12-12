@@ -198,7 +198,8 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[
 				'class' => 'mw-scratch-confirmaccount-textarea',
 				'name' => 'comment',
-				'id' => 'scratch-confirmaccount-comment'
+				'id' => 'scratch-confirmaccount-comment',
+				'required' => 'required'
 			]
 		);
 		$disp .= Html::closeElement('p');
