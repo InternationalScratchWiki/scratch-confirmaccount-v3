@@ -307,7 +307,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		$block = getSingleBlock($username, $dbw);
 		if (!$block) {
-			commitTransaction($dbw, $mutexId);
+			cancelTransaction($dbw, $mutexId);
 			$output->showErrorPage('error', 'scratch-confirmaccount-not-blocked');
 			return;
 		}

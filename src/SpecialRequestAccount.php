@@ -291,7 +291,7 @@ class SpecialRequestAccount extends SpecialPage {
 		//validate and sanitize the input
 		$formData = $this->accountRequestFormData($request, $session, $error, $dbw);
 		if ($error != '') {
-			commitTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
+			cancelTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
 			return $this->requestForm($request, $output, $session, $error);
 		}
 
@@ -411,7 +411,8 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbw);
 		if ($matchingRequests === null) {
-			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
+			//TODO: actually show an error
+			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
 		
@@ -424,13 +425,13 @@ class SpecialRequestAccount extends SpecialPage {
 
 		if (empty($emailToken) || $accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
-			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
+			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
 		
 		if ($accountRequest->status == 'accepted') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
-			commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
+			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
 		}
 		
@@ -464,13 +465,13 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		$accountRequest = getAccountRequestById($requestId, $dbw);
 		if ($accountRequest->status == 'accepted') {
-			commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
+			cancelTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			return;
 		}
 		$sentEmail = sendConfirmationEmail($requestId, $dbw);
 		if (!$sentEmail) {
-			commitTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
+			cancelTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-email-unregistered');
 			return;
 		}
