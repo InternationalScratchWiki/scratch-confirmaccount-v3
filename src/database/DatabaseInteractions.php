@@ -116,31 +116,23 @@ function getNumberOfRequestsByStatus(array $statuses, IDatabase $dbr) : array {
 }
 
 function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id, IDatabase $dbr) : array {
+	$result = $dbr->select(
+		['scratch_accountrequest_history', 'scratch_accountrequest_request'],
+		['request_status', 'count' => 'COUNT(DISTINCT history_request_id)'],
+		['history_performer' => $user_id, 'request_status' => $statuses],
+		__METHOD__,
+		['GROUP BY' => 'request_status'],
+		['scratch_accountrequest_request' => ['LEFT JOIN', 'request_id=history_request_id']]
+	);
+	
 	$statusCounts = [];
 	foreach ($statuses as $status) {
 		$statusCounts[$status] = 0;
 	}
-	$user_req = $dbr->selectFieldValues(
-		'scratch_accountrequest_history',
-		'DISTINCT history_request_id',
-		['history_performer' => $user_id]
-	);
-	if (count($user_req) == 0) {
-		return $statusCounts;
-	}
-	$result = $dbr->select('scratch_accountrequest_request', [
-			'request_status',
-			'count' => 'COUNT(request_id)'
-		], [
-			'request_status' => $statuses,
-			'request_id' => $user_req
-		], __METHOD__, ['GROUP BY' => 'request_status']
-	);
-
 	foreach ($result as $row) {
 		$statusCounts[$row->request_status] = $row->count;
 	}
-
+	
 	return $statusCounts;
 }
 
