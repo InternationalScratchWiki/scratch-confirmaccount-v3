@@ -9,7 +9,11 @@ function getTransactableDatabase(string $mutexId) : IDatabase {
 	return $dbw;
 }
 
-function commitTransaction(IDatabase $dbw, string $mutexId) {
+function commitTransaction(IDatabase $dbw, string $mutexId) : void {
+	$dbw->endAtomic( $mutexId );
+}
+
+function cancelTransaction(IDatabase $dbw, string $mutexId) : void {
 	$dbw->endAtomic( $mutexId );
 }
 

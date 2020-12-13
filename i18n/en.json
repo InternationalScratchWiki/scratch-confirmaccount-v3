@@ -51,6 +51,7 @@
 	"scratch-confirmaccount-history": "History",
 	"scratch-confirmaccount-submit": "Submit",
 	"scratch-confirmaccount-invalid-action": "The action is invalid.",
+	"scratch-confirmaccount-empty-comment": "You need to specify a comment.",
 	"scratch-confirmaccount-already-accepted": "You cannot handle requests that are already accepted.",
 	"scratch-confirmaccount-already-rejected": "You cannot comment on requests that have been rejected.",
 	"scratch-confirmaccount-comment-done": "Comment submitted. [[Special:ConfirmAccounts/$1|Return to request]]",

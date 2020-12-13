@@ -198,7 +198,8 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[
 				'class' => 'mw-scratch-confirmaccount-textarea',
 				'name' => 'comment',
-				'id' => 'scratch-confirmaccount-comment'
+				'id' => 'scratch-confirmaccount-comment',
+				'required' => 'required'
 			]
 		);
 		$disp .= Html::closeElement('p');
@@ -502,7 +503,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	$accountRequest = getAccountRequestById($requestId, $dbw);
 	if (!$accountRequest) {
 		//request not found
-		commitTransaction($dbw, $mutexId);
+		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		return;
 	}
@@ -510,27 +511,33 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	$action = $request->getText('action');
 	if (!isset(actions[$action])) {
 		//invalid action
-		commitTransaction($dbw, $mutexId);
+		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
+		return;
+	}
+	
+	if (trim($request->getText('comment', '') == '')) {
+		cancelTransaction($dbw, $mutexId);
+		$output->showErrorPage('error', 'scratch-confirmaccount-empty-comment');
 		return;
 	}
 
 	if ($accountRequest->status == 'accepted') {
 		//request was already accepted, so we can't act on it
-		commitTransaction($dbw, $mutexId);
+		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
 		return;
 	}
 
 	if ($userContext == 'user' && $accountRequest->status == 'rejected') {
-		commitTransaction($dbw, $mutexId);
+		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
 		return;
 	}
 
 	if (!in_array($userContext, actions[$action]['performers'])) {
 		//admin does not have permission to perform this action
-		commitTransaction($dbw, $mutexId);
+		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-action-unauthorized');
 		return;
 	}
