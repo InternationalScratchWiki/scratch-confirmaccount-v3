@@ -515,6 +515,12 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 		$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
 		return;
 	}
+	
+	if (trim($request->getText('comment', '') == '')) {
+		cancelTransaction($dbw, $mutexId);
+		$output->showErrorPage('error', 'scratch-confirmaccount-empty-comment');
+		return;
+	}
 
 	if ($accountRequest->status == 'accepted') {
 		//request was already accepted, so we can't act on it
