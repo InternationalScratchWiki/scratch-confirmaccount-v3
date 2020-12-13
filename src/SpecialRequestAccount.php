@@ -61,12 +61,6 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
-		//also make sure there aren't any active requests under the given username
-		if (hasActiveRequest($username, $dbr)) {
-			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
-			return;
-		}
-
 		//make sure the user actually commented the verification code
 		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) != $username) {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
@@ -85,7 +79,13 @@ class SpecialRequestAccount extends SpecialPage {
 				$out_error = wfMessage($user_check_error, $days)->text();
 				return;
 		}
-
+		
+		//also make sure there aren't any active requests under the given username
+		if (hasActiveRequest($username, $dbr)) {
+			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
+			return;
+		}
+		
 		//see if the username is blocked from submitting account requests (note that this is done after verifying the confirmation code so that we don't accidentally allow block information to be revealed)
 		$block = getSingleBlock($username, $dbr);
 		if ($block) {
