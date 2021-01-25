@@ -15,7 +15,7 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 	function rowFromRequest($accountRequest) {
 		$row = Html::openElement('tr');
 		$row .= Html::rawElement('td', [], humanTimestamp( $accountRequest->lastUpdated, $this->language ));
-		$row .= Html::element('td', [], $accountRequest->username);
+		$row .= Html::rawElement('td', [], linkToScratchProfile($accountRequest->username));
 		$row .= Html::element('td', ['class' => 'mw-scratch-confirmaccount-requestnotestablecell'], $accountRequest->requestNotes);
 		$row .= Html::rawElement(
 			'td',

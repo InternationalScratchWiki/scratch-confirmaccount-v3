@@ -71,3 +71,21 @@ function setCSRFToken(&$session) {
 function isCSRF(&$session, $csrftoken) {
 	return !$session->getToken()->match($csrftoken);
 }
+
+/**
+ * Return a HTML-formatted link to a user's Scratch profile-link
+ *
+ * @param username The Scratch username whose profile is being linked to
+ * @return A simple <a> link to the user's profile with the contents also being the username
+ */
+function linkToScratchProfile(string $username) : string {
+	return Html::element(
+		'a',
+		[
+			'href' => 'https://scratch.mit.edu/users/' . $username,
+			'target' => '_blank',
+			'id' => 'mw-scratch-confirmaccount-profile-link'
+		],
+		$username
+	);
+}
