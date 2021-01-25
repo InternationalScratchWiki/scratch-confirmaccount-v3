@@ -306,13 +306,22 @@ function setRequestEmailConfirmed($request_id, IDatabase $dbw) {
 	);
 }
 
-function getRequestUsernamesFromIP($ip, array &$usernames, string $request_username, IDatabase $dbr) {
-	$usernames = $dbr->selectFieldValues(
+/**
+ * Get the usernames of account requests that were from a given IP address
+ *
+ * @param ip The IP address being looked at
+ * @param usernameToIgnore Do not return any users with this username (case-insensitive)
+ * @param dbr A readable database connection
+ *
+ * @return An array of usernames with account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
+ */
+function getRequestUsernamesFromIP($ip, string $usernameToIgnore, IDatabase $dbr) : array {
+	return $dbr->selectFieldValues(
 		'scratch_accountrequest_request',
 		'DISTINCT request_username',
 		[
 			'request_ip' => $ip,
-			'LOWER(CONVERT(request_username using utf8)) != ' . $dbr->addQuotes(strtolower($request_username))
+			'LOWER(CONVERT(request_username using utf8)) != ' . $dbr->addQuotes(strtolower($usernameToIgnore))
 		],
 		__METHOD__
 	);
