@@ -10,6 +10,9 @@
 			"i18n"
 		]
 	},
+	"ExtensionMessagesFiles": {
+		"ScratchConfirmAccount": "src/ScratchConfirmAccount.i18n.alias.php"
+	},
 	"AutoloadClasses": {
 		"SpecialRequestAccount": "src/SpecialRequestAccount.php",
 		"SpecialConfirmAccounts": "src/SpecialConfirmAccounts.php",
