@@ -261,15 +261,7 @@ function requestMetadataDisplay(AccountRequest &$accountRequest, string $userCon
 	$disp .= Html::rawElement(
 		'td',
 		[],
-		Html::element(
-			'a',
-			[
-				'href' => 'https://scratch.mit.edu/users/' . $accountRequest->username,
-				'target' => '_blank',
-				'id' => 'mw-scratch-confirmaccount-profile-link'
-			],
-			$accountRequest->username
-		)
+		linkToScratchProfile($accountRequest->username)
 	);
 	$disp .= Html::closeElement('tr');
 	if ($userContext == 'admin' && CheckUserIntegration::isLoaded() && $wgUser->isAllowed('checkuser')) {
