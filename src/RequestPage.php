@@ -352,19 +352,26 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
 	$output->addHTML($disp);
 }
 
-function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, IDatabase $dbr) {
+/**
+ * Display the alternate account warning (if applicable for the request)
+ *
+ * @param accountRequest The relevant account request
+ * @param userContext One of "admin" or "user", denoting who is viewing the request
+ * @param output The page where the output will be displayed
+ * @param dbr A readable database connection reference
+ */
+function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, IDatabase $dbr) : void {
 	if ($userContext != 'admin') {
 		return;
 	}
 	
-	$requestUsernames = array();
-	getRequestUsernamesFromIP($accountRequest->ip, $requestUsernames, $accountRequest->username, $dbr);
+	//find all users that have submitted account requests from this IP
+	$requestUsernames = getRequestUsernamesFromIP($accountRequest->ip, $accountRequest->username, $dbr);
 	
-	$checkUserUsernames = array();
-	CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $checkUserUsernames, $dbr);
-	if (empty($requestUsernames) && empty($checkUserUsernames)) {
-		return;
-	}
+	//for the checkuser usernames, remove any entries that match the username on the request (which may happen after the request is accepted and the user is editing)
+	$accountRequestWikiUsername = User::getCanonicalName($accountRequest->username);
+	$checkUserUsernames = array_filter(CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $dbr), 
+	function ($testUsername) use ($accountRequestWikiUsername) { return $testUsername != $accountRequestWikiUsername; });
 	
 	if (!empty($requestUsernames)) {
 		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-request', $requestUsernames);
