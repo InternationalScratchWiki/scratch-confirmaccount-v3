@@ -24,6 +24,7 @@ class AccountRequest {
 		$this->ip = $ip;
 		$this->passwordHash = $passwordHash;
 		$this->lastUpdated = $lastUpdated;
+		$this->expiry = $expiry;
 		$this->emailConfirmed = $emailConfirmed;
 		$this->emailToken = $emailToken;
 		$this->emailExpiry = $emailExpiry;
@@ -45,6 +46,10 @@ class AccountRequest {
 			$row->request_email_token,
 			$row->request_email_token_expiry
 		);
+	}
+	
+	function isExpired() : bool {
+		return $this->expiry != null && $this->expiry < wfTimestampNow();
 	}
 }
 

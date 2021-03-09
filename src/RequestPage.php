@@ -86,7 +86,7 @@ function confirmEmailPage($token, &$request, &$output, &$session) {
 
 //return if a request can actually be acted on in a given context
 function isActionableRequest(AccountRequest &$accountRequest, string $userContext) {
-	return $accountRequest->status != 'accepted' && !($accountRequest->status == 'rejected' && $userContext == 'user');
+	return $accountRequest->status != 'accepted' && !($accountRequest->status == 'rejected' && ($userContext == 'user' || $accountRequest->isExpired()));
 }
 
 //the headings to show in the actions section for each context
