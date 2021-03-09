@@ -83,6 +83,7 @@
 	"scratch-confirmaccount-disagree-tos": "You must agree to the Terms of Service to request an account.",
 	"scratch-confirmaccount-no-request-notes": "The request notes cannot be empty.",
 	"scratch-confirmaccount-success": "Account request has been received. The administrators will handle it and send a response on the [[Special:RequestAccount/$1|request page]].",
+	"scratch-confirmaccount-success-noid": "Account request has been received. The administrators will handle it and send a response on the [[Special:RequestAccount/FindRequest|request page]].",
 	"scratch-confirmaccount-waiting-request": "$1: $2",
 	"scratch-confirmaccount-new": "New",
 	"scratch-confirmaccount-awaiting-admin": "Awaiting admin",

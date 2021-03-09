@@ -81,11 +81,11 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 		
 		//also make sure there aren't any active requests under the given username
-		if (hasActiveRequest($username, $dbr)) {
+		if (!canMakeRequestForUsername($username, $dbr)) {
 			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
 			return;
 		}
-		
+				
 		//see if the username is blocked from submitting account requests (note that this is done after verifying the confirmation code so that we don't accidentally allow block information to be revealed)
 		$block = getSingleBlock($username, $dbr);
 		if ($block) {
@@ -286,15 +286,15 @@ class SpecialRequestAccount extends SpecialPage {
 			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->text());
 		}
 		
-		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-account-request');
+		$dbw = getTransactableDatabase(__METHOD__);
 
 		//validate and sanitize the input
 		$formData = $this->accountRequestFormData($request, $session, $error, $dbw);
 		if ($error != '') {
-			cancelTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
+			cancelTransaction($dbw, __METHOD__);
 			return $this->requestForm($request, $output, $session, $error);
 		}
-
+		
 		//now actually create the request and reset the verification code
 		$requestId = createAccountRequest(
 			$formData['username'],
@@ -306,17 +306,25 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		
 		$sentEmail = false;
-		if ($formData['email']) {
-			$sentEmail = sendConfirmationEmail($requestId, $dbw);
-		}
-		
 		ScratchVerification::generateNewCodeForSession($session);
-		authenticateForViewingRequest($requestId, $session);
-
-		$message = 'scratch-confirmaccount-success';
-		if ($sentEmail) {
-			$message = 'scratch-confirmaccount-success-email';
+		if ($requestId != null) { //only send the verification email if this request actually created the request
+			if ($formData['email']) {
+				$sentEmail = sendConfirmationEmail($requestId, $dbw);
+			}
+			
+			authenticateForViewingRequest($requestId, $session);
+			
+			if ($sentEmail) {
+				$message = 'scratch-confirmaccount-success-email';
+			} else {
+				$message = 'scratch-confirmaccount-success';
+			}
+		} else { //if we encountered a race condition of getting a duplicate request, show the existing request instead
+			//TODO: link to FindRequest instead
+			$message = 'scratch-confirmaccount-success-noid';
 		}
+		assert(isset($message));
+		
 
 		//and show the output
 		$output->addHTML(Html::rawElement(
@@ -329,7 +337,7 @@ class SpecialRequestAccount extends SpecialPage {
 		));
 		
 		//and finally commit the database transaction
-		commitTransaction($dbw, 'scratch-confirmaccount-submit-account-request');
+		commitTransaction($dbw, __METHOD__);
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {

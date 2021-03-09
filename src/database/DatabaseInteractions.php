@@ -47,9 +47,20 @@ function deleteBlock(string $username, IDatabase $dbw) {
 	$dbw->delete('scratch_accountrequest_block', ['block_username' => $username], __METHOD__);
 }
 
-function createAccountRequest(string $username, string $passwordHash, string $requestNotes, string $email, string $ip, IDatabase $dbw) {
+/**
+ * Create an account request in the database
+ *
+ * @param username The username of the account request
+ * @param passwordHash The pre-hashed password to insert into the database
+ * @param email The email address (may be empty) for the request
+ * @param ip The IP from which the request was submitted
+ * @param dbw A writeable database instance
+ * @return The ID of the request if creating the request succeeded, or null if creating the request failed due to there already being an active request under that username
+ */
+function createAccountRequest(string $username, string $passwordHash, string $requestNotes, string $email, string $ip, IDatabase $dbw) : ?int {
 	$dbw->insert('scratch_accountrequest_request', [
 		'request_username' => $username,
+		'request_active_username' => strtolower($username),
 		'password_hash' => $passwordHash,
 		'request_email' => $email,
 		'request_timestamp' => $dbw->timestamp(),
@@ -57,7 +68,7 @@ function createAccountRequest(string $username, string $passwordHash, string $re
 		'request_notes' => $requestNotes,
 		'request_ip' => $ip,
 		'request_status' => 'new'
-	], __METHOD__);
+	], __METHOD__, ['IGNORE']);
 
 	return $dbw->insertID();
 }
@@ -236,7 +247,7 @@ function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 }
 
 function purgeOldAccountRequestPasswords(IDatabase $dbw) {	
-	$dbw->update('scratch_accountrequest_request', ['password_hash' => ''],
+	$dbw->update('scratch_accountrequest_request', ['password_hash' => '', 'request_active_username' => null],
 	[
 		'request_status' => ['accepted', 'rejected'],
 		'request_expiry < ' . $dbw->timestamp()
@@ -253,20 +264,15 @@ function userExists(string $username, IDatabase $dbr) : bool {
 	) > 0;
 }
 
-function hasActiveRequest(string $username, IDatabase $dbr) : bool {
-	return $dbr->selectRowCount('scratch_accountrequest_request', array('1'),
-		$dbr->makeList([
-			'LOWER(CONVERT(request_username using utf8))' => strtolower($username),
-			$dbr->makeList([
-				'request_status' => ['new', 'awaiting-admin', 'awaiting-user'],
-				$dbr->makeList([
-					'request_status' => 'rejected',
-					'request_expiry IS NOT NULL',
-					'request_expiry > ' . $dbr->timestamp()
-				], $dbr::LIST_AND)
-			], $dbr::LIST_OR)
-		], $dbr::LIST_AND)
-	, __METHOD__) > 0;
+/**
+ * Check if it is possible to make a request under a given username
+ *
+ * @param username The username of of the user being requested
+ * @param dbr A readable database
+ * @return true if it is possible to create a request under the given username, false if there is already an active request under that username
+ */
+function canMakeRequestForUsername(string $username, IDatabase $dbr) : bool {
+	return !$dbr->selectField('scratch_accountrequest_request', '1', ['request_active_username' => strtolower($username)], __METHOD__, []);
 }
 
 function getBlocks(IDatabase $dbr) : array {
