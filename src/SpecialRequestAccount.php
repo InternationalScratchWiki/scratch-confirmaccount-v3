@@ -294,7 +294,7 @@ class SpecialRequestAccount extends SpecialPage {
 			cancelTransaction($dbw, __METHOD__);
 			return $this->requestForm($request, $output, $session, $error);
 		}
-
+		
 		//now actually create the request and reset the verification code
 		$requestId = createAccountRequest(
 			$formData['username'],
@@ -313,14 +313,18 @@ class SpecialRequestAccount extends SpecialPage {
 			}
 			
 			authenticateForViewingRequest($requestId, $session);
+			
+			if ($sentEmail) {
+				$message = 'scratch-confirmaccount-success-email';
+			} else {
+				$message = 'scratch-confirmaccount-success';
+			}
 		} else { //if we encountered a race condition of getting a duplicate request, show the existing request instead
 			//TODO: link to FindRequest instead
+			$message = 'scratch-confirmaccount-success-noid';
 		}
+		assert(isset($message));
 		
-		$message = 'scratch-confirmaccount-success';
-		if ($sentEmail) {
-			$message = 'scratch-confirmaccount-success-email';
-		}
 
 		//and show the output
 		$output->addHTML(Html::rawElement(
@@ -333,7 +337,7 @@ class SpecialRequestAccount extends SpecialPage {
 		));
 		
 		//and finally commit the database transaction
-		commitTransaction(__METHOD__);
+		commitTransaction($dbw, __METHOD__);
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
