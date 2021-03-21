@@ -14,7 +14,7 @@ class SpecialRequestAccount extends SpecialPage {
 		parent::__construct( 'RequestAccount' );
 	}
 
-	function accountRequestFormData(&$request, &$session, &$out_error, IDatabase $dbr) {
+	function accountRequestFormData(&$request, &$session, &$out_error, AccountRequestLoader $accountRequestLoader, AccountRequestBlockLoader $blockLoader) {
 		global $wgScratchAccountJoinedRequirement;
 		
 		//if the user is IP banned, don't even consider anything else
@@ -56,15 +56,15 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 		//check that there isn't already a registered user with this username (importantly we have to use our own function rather than a MediaWiki one for case sensitivity reasons)
-		if (userExists($username, $dbr)) {
+		if ($accountRequestLoader->userExists($username)) {
 			$out_error = wfMessage('scratch-confirmaccount-user-exists')->text();
 			return;
 		}
 
 		//make sure the user actually commented the verification code
 		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) !== $username) {
-			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
-			return;
+			//$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
+			//return;
 		}
 
 		//verify the account's age and Scratcher status
@@ -81,13 +81,13 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 		
 		//also make sure there aren't any active requests under the given username
-		if (!canMakeRequestForUsername($username, $dbr)) {
+		if (!$accountRequestLoader->canMakeRequestForUsername($username)) {
 			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
 			return;
 		}
-				
+		
 		//see if the username is blocked from submitting account requests (note that this is done after verifying the confirmation code so that we don't accidentally allow block information to be revealed)
-		$block = getSingleBlock($username, $dbr);
+		$block = $blockLoader->getSingleBlock($username);
 		if ($block) {
 			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $block->reason)->text();
 			// note : blocks are not publicly visible on scratch, so this needs to run after checking the verification code
@@ -287,29 +287,30 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 		
 		$dbw = getTransactableDatabase(__METHOD__);
+		$accountRequestRepository = new AccountRequestRepository($dbw);
+		$blockLoader = new AccountRequestBlockLoader($dbw);
 
 		//validate and sanitize the input
-		$formData = $this->accountRequestFormData($request, $session, $error, $dbw);
+		$formData = $this->accountRequestFormData($request, $session, $error, $accountRequestRepository, $blockLoader);
 		if ($error != '') {
 			cancelTransaction($dbw, __METHOD__);
 			return $this->requestForm($request, $output, $session, $error);
 		}
 		
 		//now actually create the request and reset the verification code
-		$requestId = createAccountRequest(
+		$requestId = $accountRequestRepository->createAccountRequest(
 			$formData['username'],
 			$formData['passwordHash'],
 			$formData['requestnotes'],
 			$formData['email'],
-			$request->getIP(),
-			$dbw
+			$request->getIP()
 		);
 		
 		$sentEmail = false;
 		ScratchVerification::generateNewCodeForSession($session);
 		if ($requestId != null) { //only send the verification email if this request actually created the request
 			if ($formData['email']) {
-				$sentEmail = sendConfirmationEmail($requestId, $dbw);
+				$sentEmail = $accountRequestRepository->sendConfirmationEmail($requestId);
 			}
 			
 			authenticateForViewingRequest($requestId, $session);
@@ -390,7 +391,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 
-	function handleAuthenticationFormSubmission(&$request, &$output, &$session, IDatabase $dbr) {		
+	function handleAuthenticationFormSubmission(&$request, &$output, &$session, AccountRequestLoader $accountRequestLoader) {		
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
 			return;
@@ -403,7 +404,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//see if there are any requests with the given password
 		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
-		$requests = getAccountRequestsByUsername($username, $dbr);
+		$requests = $accountRequestLoader->getAccountRequestsByUsername($username);
 		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
 
 		if (empty($matchingRequests)) {
@@ -416,8 +417,9 @@ class SpecialRequestAccount extends SpecialPage {
 
 	function handleConfirmEmailFormSubmission(&$request, &$output, &$session) {
 		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-confirm-email');
+		$accountRequestRepository = new AccountRequestRepository($dbw);
 		
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbw);
+		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $accountRequestRepository);
 		if ($matchingRequests === null) {
 			//TODO: actually show an error
 			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
@@ -443,7 +445,7 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 		
-		setRequestEmailConfirmed($requestId, $dbw);
+		$accountRequestRepository->setRequestEmailConfirmed($requestId);
 		$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-email-confirmed')->parse()));
 		
 		commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
@@ -451,8 +453,9 @@ class SpecialRequestAccount extends SpecialPage {
 
 	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
 		$dbr = getReadOnlyDatabase();
+		$accountRequestLoader = new AccountRequestLoader($dbr);
 		
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbr);
+		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $accountRequestLoader);
 		if ($matchingRequests === null) return;
 
 		$requestId = $matchingRequests[0]->id;
@@ -470,14 +473,15 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 		
 		$dbw = getTransactableDatabase('scratch-confirmaccount-send-confirm-email');
+		$accountRequestRepository = new AccountRequestRepository($dbw);
 		
-		$accountRequest = getAccountRequestById($requestId, $dbw);
+		$accountRequest = $accountRequestRepository->getAccountRequestById($requestId);
 		if ($accountRequest->status == 'accepted') {
 			cancelTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			return;
 		}
-		$sentEmail = sendConfirmationEmail($requestId, $dbw);
+		$sentEmail = $accountRequestRepository->sendConfirmationEmail($requestId);
 		if (!$sentEmail) {
 			cancelTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-email-unregistered');
