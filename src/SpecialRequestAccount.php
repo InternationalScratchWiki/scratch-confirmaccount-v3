@@ -406,7 +406,9 @@ class SpecialRequestAccount extends SpecialPage {
 		if (empty($password)) {
 			//TODO: also do age verification similar to what we do in ScratchLogin (this time we can just filter out requests older than the creation date)
 			if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) === $username) {
-				$matchingRequests = $requests;
+				$registeredAt = ScratchVerification::getScratchUserRegisteredAt($username);
+				
+				$matchingRequests = array_filter($requests, function($accountRequest) use($registeredAt) { return $accountRequest->timestamp > $registeredAt; });
 				ScratchVerification::generateNewCodeForSession($session);
 			} else {
 				$matchingRequests = [];

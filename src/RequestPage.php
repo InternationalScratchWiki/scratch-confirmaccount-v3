@@ -69,7 +69,7 @@ function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
 	$form .= Html::closeElement('table');
 	
 	$form .= Html::openElement('div');
-	$form .= 'You can alternately comment this code on the ' . Html::element('a', ['href' => sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID)], 'user verification project') . ': ';
+	$form .= 'You can alternately comment this code on the ' . Html::element('a', ['href' => sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID), 'target' => '_blank'], 'user verification project') . ': ';
 	$form .= Html::element('br');
 	$form .= Html::element(
 		'span', 
