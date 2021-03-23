@@ -400,11 +400,23 @@ class SpecialRequestAccount extends SpecialPage {
 
 		$username = $request->getText('username');
 		$password = $request->getText('password');
-
-		//see if there are any requests with the given password
-		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
+		
 		$requests = getAccountRequestsByUsername($username, $dbr);
-		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
+		
+		if (empty($password)) {
+			//TODO: also do age verification similar to what we do in ScratchLogin (this time we can just filter out requests older than the creation date)
+			if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) === $username) {
+				$matchingRequests = $requests;
+				ScratchVerification::generateNewCodeForSession($session);
+			} else {
+				$matchingRequests = [];
+			}
+		} else {
+			//see if there are any requests with the given password
+			$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
+			
+			$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
+		}
 
 		if (empty($matchingRequests)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nomatch');

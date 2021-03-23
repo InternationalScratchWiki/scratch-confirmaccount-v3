@@ -10,6 +10,8 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 }
 
 function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
+	global $wgScratchVerificationProjectID;
+	
 	$form = Html::openElement('form', [
 		'method' => 'post',
 		'action' => SpecialPage::getTitleFor('RequestAccount')->getFullURL()
@@ -65,11 +67,21 @@ function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
 	));
 	$form .= Html::closeElement('tr');
 	$form .= Html::closeElement('table');
+	
+	$form .= Html::openElement('div');
+	$form .= 'You can alternately comment this code on the ' . Html::element('a', ['href' => sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID)], 'user verification project') . ': ';
+	$form .= Html::element('br');
+	$form .= Html::element(
+		'span', 
+		['id' => 'mw-scratch-confirmaccount-verifcode', 'class' => 'mw-scratch-confirmaccount-verifcode'],
+		ScratchVerification::sessionVerificationCode($session)
+	);
+	$form .= Html::closeElement('div');
+	
 	$form .= Html::element('input', [
 		'type' => 'submit',
 		'value' => wfMessage('scratch-confirmaccount-submit')->parse()
 	]);
-	$form .= Html::closeElement('table');
 
 	$output->addHTML($form);
 }
