@@ -17,7 +17,8 @@
 		"SpecialRequestAccount": "src/SpecialRequestAccount.php",
 		"SpecialConfirmAccounts": "src/SpecialConfirmAccounts.php",
 		"ScratchConfirmAccountHooks": "src/ScratchConfirmAccountHooks.php",
-		"AccountRequestCleanupJob": "src/jobs/AccountRequestCleanupJob.php"
+		"AccountRequestCleanupJob": "src/jobs/AccountRequestCleanupJob.php",
+		"ScratchConfirmAccountPreAuthenticationProvider": "src/ScratchConfirmAccountPreAuthenticationProvider.php"
 	},
 	"SpecialPages": {
 		"RequestAccount": "SpecialRequestAccount",
@@ -66,5 +67,13 @@
 	},
 	"DefaultUserOptions": {
 		"scratch-confirmaccount-open-scratch": true
+	},
+	"AuthManagerAutoConfig": {
+		"preauth": {
+			"ScratchConfirmAccountPreAuthenticationProvider": {
+				"class": "ScratchConfirmAccountPreAuthenticationProvider",
+				"sort": 10
+			}
+		}
 	}
 }
