@@ -48,6 +48,10 @@ class AccountRequest {
 		);
 	}
 	
+	function isActive() : bool {
+		return in_array($this->status, ['new', 'awaiting-admin', 'awaiting-user']);
+	}
+	
 	function isExpired() : bool {
 		return $this->expiry != null && $this->expiry < wfTimestampNow();
 	}
