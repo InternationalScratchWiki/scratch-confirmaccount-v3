@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../objects/AccountRequest.php';
 require_once __DIR__ . '/../common.php';
 
+use MediaWiki\MediaWikiServices;
+
 function getTransactableDatabase(string $mutexId) : IDatabase {	
 	$dbw = wfGetDB( DB_MASTER );
 	$dbw->startAtomic( $mutexId );
@@ -209,7 +211,8 @@ function getRequestHistory(AccountRequest $request, IDatabase $dbr) : array {
 
 function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	//first create the user and add it to the database
-	$user = User::newFromName($request->username);
+	$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+	$user = $userFactory->newFromName($request->username);
 	$user->addToDatabase();
 
 	$updater = [
