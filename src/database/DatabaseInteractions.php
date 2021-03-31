@@ -358,11 +358,12 @@ function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
 		['scratch_accountrequest_history' => ['INNER JOIN', ['history_request_id=request_id', 'history_action' => 'set-status-awaiting-user']]]);
 	
 	//then based on the requests, prepare to act
+	$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 	$staleRequests = [];
 	foreach ($result as $row) {
 		$staleRequests[] = [
 			'request' => AccountRequest::fromRow($row),
-			'admin' => User::newFromId($row->handling_admin_id)
+			'admin' => $userFactory->newFromId($row->handling_admin_id)
 		];
 	}
 			
