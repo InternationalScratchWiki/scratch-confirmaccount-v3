@@ -3,6 +3,7 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/database/CheckUserIntegration.php';
 require_once __DIR__ . '/common.php';
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
 function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
@@ -100,6 +101,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 	
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
+		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
 		
 		//show the header
 		$disp .= Html::element(
@@ -126,7 +128,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[
 				'type' => 'hidden',
 				'name' => 'shouldOpenScratchPage',
-				'value' => $userContext == 'admin' && !$hasHandledBefore && $wgUser->getOption('scratch-confirmaccount-open-scratch')
+				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
 			]
 		);
 		$disp .= Html::rawElement(

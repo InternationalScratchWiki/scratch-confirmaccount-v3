@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../objects/AccountRequest.php';
 require_once __DIR__ . '/../common.php';
 
+use MediaWiki\MediaWikiServices;
+
 function getTransactableDatabase(string $mutexId) : IDatabase {	
 	$dbw = wfGetDB( DB_MASTER );
 	$dbw->startAtomic( $mutexId );
@@ -209,7 +211,8 @@ function getRequestHistory(AccountRequest $request, IDatabase $dbr) : array {
 
 function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	//first create the user and add it to the database
-	$user = User::newFromName($request->username);
+	$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+	$user = $userFactory->newFromName($request->username);
 	$user->addToDatabase();
 
 	$updater = [
@@ -355,11 +358,12 @@ function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
 		['scratch_accountrequest_history' => ['INNER JOIN', ['history_request_id=request_id', 'history_action' => 'set-status-awaiting-user']]]);
 	
 	//then based on the requests, prepare to act
+	$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 	$staleRequests = [];
 	foreach ($result as $row) {
 		$staleRequests[] = [
 			'request' => AccountRequest::fromRow($row),
-			'admin' => User::newFromId($row->handling_admin_id)
+			'admin' => $userFactory->newFromId($row->handling_admin_id)
 		];
 	}
 			
