@@ -369,7 +369,15 @@ function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
 			
 	//for each request, mark it as rejected
 	foreach ($staleRequests as $requestToDelete) {
-		if ($accountRequest->status != 'rejected')
+		if ( count($requestToDelete['admin']) > 1) {
+		$randomizedDeletionReq = []; //randomized the admin, so it will not need to post more than one admin comment
+		$randomizedDeletionReq[] = [
+		'randomized_admin' => array_rand($requestToDelete['admin'])
+		];
+		actionRequest($requestToDelete['request'], true, 'set-status-rejected', $randomizedDeletionReq['randomized_admin'], wfMessage('scratch-confirmaccount-stale-awaiting-user-auto-reject-message', $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays)->text(), $dbw);
+		}
+		else {
 		actionRequest($requestToDelete['request'], true, 'set-status-rejected', $requestToDelete['admin'], wfMessage('scratch-confirmaccount-stale-awaiting-user-auto-reject-message', $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays)->text(), $dbw);
+		}
 	}
 }
