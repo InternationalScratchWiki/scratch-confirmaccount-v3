@@ -369,6 +369,7 @@ function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
 			
 	//for each request, mark it as rejected
 	foreach ($staleRequests as $requestToDelete) {
+		if ($accountRequest->status != 'rejected')
 		actionRequest($requestToDelete['request'], true, 'set-status-rejected', $requestToDelete['admin'], wfMessage('scratch-confirmaccount-stale-awaiting-user-auto-reject-message', $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays)->text(), $dbw);
 	}
 }
