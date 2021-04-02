@@ -6,8 +6,10 @@ class ScratchVerification {
 	const PROJECT_LINK = 'https://scratch.mit.edu/projects/%s/';
 
 	private static function randomVerificationCode() {
-		// translate 0->A, 1->B, etc to bypass Scratch phone number censor
-		return strtr(hash('sha256', random_bytes(16)), '0123456789', 'ABCDEFGHIJ');
+		//split into five-piece chunks with colons to bypass the phone filter, and use only hex characters to reduce the likelihood of a swear word
+		$code = chunk_split(hash('sha256', random_bytes(16)), 5, ':');
+		
+		return substr($code, 0, strlen($code) - 1);
 	}
 
 	public static function generateNewCodeForSession(&$session) {
