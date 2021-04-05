@@ -257,7 +257,7 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		$form .= Html::element(
 			'textarea',
-			['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'requestnotes'],
+			['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'requestnotes', 'required' => true],
 			$request->getText('requestnotes')
 		);
 
