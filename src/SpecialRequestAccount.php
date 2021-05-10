@@ -10,6 +10,8 @@ require_once __DIR__ . '/RequestPage.php';
 use MediaWiki\MediaWikiServices;
 
 class SpecialRequestAccount extends SpecialPage {
+	const REQUEST_NOTES_MAX_LENGTH = 5000;
+	
 	function __construct() {
 		parent::__construct( 'RequestAccount' );
 	}
@@ -112,6 +114,11 @@ class SpecialRequestAccount extends SpecialPage {
 
 		if($request_notes == ""){
 			$out_error = wfMessage('scratch-confirmaccount-no-request-notes')->text();
+			return;
+		}
+		
+		if (strlen($request_notes) > self::REQUEST_NOTES_MAX_LENGTH) {
+			$out_error = wfMessage('scratch-confirmaccount-request-notes-too-long', self::REQUEST_NOTES_MAX_LENGTH)->text();
 			return;
 		}
 
@@ -257,7 +264,7 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		$form .= Html::element(
 			'textarea',
-			['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'requestnotes', 'required' => true],
+			['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'requestnotes', 'required' => true, 'maxlength' => self::REQUEST_NOTES_MAX_LENGTH],
 			$request->getText('requestnotes')
 		);
 
@@ -283,7 +290,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 	function handleAccountRequestFormSubmission(&$request, &$output, &$session) {
 		if (isCSRF($session, $request->getText('csrftoken'))) {
-			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->text());
+			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->parse());
 		}
 		
 		$dbw = getTransactableDatabase(__METHOD__);
