@@ -17,6 +17,7 @@
 	"scratch-confirmaccount-vercode-explanation": "Instructions for user verification",
 	"scratch-confirmaccount-checkbox-agree": "Text of ToS-agreement checkbox",
 	"scratch-confirmaccount-findrequest-nomatch": "Error when username+password combination for viewing own request is invalid",
+	"scratch-confirmaccount-request-notes-too-long": "Error when request notes are too long",
 	"scratch-confirmaccount-findrequest-password-prompt": "Label for password field on find-request page",
 	"scratch-confirmaccount-findrequest-nopermission": "Error when trying to view request by ID but not authenticated",
 	"scratch-confirmaccount-unreviewed": "Status for unreviewed request",

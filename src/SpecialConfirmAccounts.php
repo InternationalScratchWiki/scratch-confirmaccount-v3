@@ -3,7 +3,14 @@ require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/RequestPage.php';
 
+function truncate(string $str, int $length) : string {
+	assert($length >= 0);
+	
+	return strlen($str) > $length ? substr($str, 0, $length) . '...' : $str;
+}
+
 class AccountRequestPager extends AbstractAccountRequestPager {
+	const REQUEST_NOTES_TABLE_CELL_MAX_LENGTH = 500;
 	private $linkRenderer, $language;
 	function __construct($username, $status, $linkRenderer, $language) {
 		parent::__construct($username, $status);
@@ -16,7 +23,7 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 		$row = Html::openElement('tr');
 		$row .= Html::rawElement('td', [], humanTimestamp( $accountRequest->lastUpdated, $this->language ));
 		$row .= Html::rawElement('td', [], linkToScratchProfile($accountRequest->username));
-		$row .= Html::element('td', ['class' => 'mw-scratch-confirmaccount-requestnotestablecell'], $accountRequest->requestNotes);
+		$row .= Html::element('td', ['class' => 'mw-scratch-confirmaccount-requestnotestablecell'], truncate($accountRequest->requestNotes, self::REQUEST_NOTES_TABLE_CELL_MAX_LENGTH));
 		$row .= Html::rawElement(
 			'td',
 			[],
