@@ -385,6 +385,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$output = $this->getOutput();
 		$language = $this->getLanguage();
 		
+		$output->setPageTitle( $this->msg( "confirmaccounts" )->escaped() );
+		
 		$output->addModules('ext.scratchConfirmAccount.js');
 		$output->addModuleStyles('ext.scratchConfirmAccount.css');
 		
