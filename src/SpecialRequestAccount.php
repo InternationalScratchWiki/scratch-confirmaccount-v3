@@ -500,6 +500,8 @@ class SpecialRequestAccount extends SpecialPage {
 		$output = $this->getOutput();
 		$language = $this->getLanguage();
 		
+		$output->setPageTitle( $this->msg( "requestaccount" )->escaped() );
+		
 		$output->addModules('ext.scratchConfirmAccount.js');
 		$output->addModuleStyles('ext.scratchConfirmAccount.css');
 		
