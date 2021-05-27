@@ -313,7 +313,7 @@ class SpecialRequestAccount extends SpecialPage {
 		);
 		
 		//run hooks for handling that the request was submitted
-		Hooks::run('ScratchConfirmAccountHooks::onAccountRequestSubmitted', [$formData['username']]);
+		Hooks::run('ScratchConfirmAccountHooks::onAccountRequestSubmitted', [$formData['username'], $formData['requestnotes']]);
 		
 		$sentEmail = false;
 		ScratchVerification::generateNewCodeForSession($session);

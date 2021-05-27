@@ -462,7 +462,7 @@ function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
 	}
 
 	$createdUser = createAccount($accountRequest, $wgUser, $dbw);
-	Hooks::run('ScratchConfirmAccountHooks::onCreateAccount', [$accountRequest->username]);
+	Hooks::run('ScratchConfirmAccountHooks::onCreateAccount', [$accountRequest, $wgUser->getName()]);
 	
 	if ($wgAutoWelcomeNewUsers) {
 		$talkPage = new WikiPage($createdUser->getTalkPage());
@@ -548,7 +548,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 
 	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser : null, $request->getText('comment'), $dbw);
 	
-	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest->id, $accountRequest->username, $userContext == 'admin' ? $wgUser->getName() : null, $request->getText('comment')]);
+	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $wgUser->getName() : null, $request->getText('comment')]);
 	
 	if ($action == 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output, $dbw);
