@@ -312,6 +312,9 @@ class SpecialRequestAccount extends SpecialPage {
 			$dbw
 		);
 		
+		//run hooks for handling that the request was submitted
+		Hooks::run('ScratchConfirmAccountHooks::onAccountRequestSubmitted', [$formData['username']]);
+		
 		$sentEmail = false;
 		ScratchVerification::generateNewCodeForSession($session);
 		if ($requestId != null) { //only send the verification email if this request actually created the request
