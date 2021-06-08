@@ -369,7 +369,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//display errors if there are any relevant
 		if ($error != '') {
-			$form .= Html::element('p', ['class' => 'error'], $error);
+			$form .= Html::element('p', ['class' => 'errorbox'], $error);
 		}
 
 		if ($this->getUser()->isRegistered()) {
