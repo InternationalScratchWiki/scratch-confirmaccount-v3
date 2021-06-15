@@ -313,6 +313,7 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		wfMessage('scratch-confirmaccount-history')->text()
 	);
 	
+	//display a row for each comment on the request
 	$disp .= implode(array_map(function($historyEntry) use($accountRequest, $language) {
 		$row = Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry']);
 		$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
@@ -324,7 +325,12 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		]);
 
 		$row .= Html::closeElement('h5');
-		$row .= Html::element('p', [], $historyEntry->comment);
+		//format links for admin comments, but just show the comment as normal for requester comments
+		if ($historyEntry->performer === null) {
+			$row .= Html::element('p', [], $historyEntry->comment);
+		} else {
+			$row .= Html::rawElement('p', [], Linker::formatComment($historyEntry->comment));
+		}
 		$row .= Html::closeElement('div');
 
 		return $row;
