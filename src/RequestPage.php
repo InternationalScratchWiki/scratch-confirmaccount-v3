@@ -215,7 +215,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		);
 		$disp .= Html::closeElement('form');
 		
-		$output->addHTML(Linker::formatComment($disp));
+		$output->addHTML($disp);
 	}
 }
 
