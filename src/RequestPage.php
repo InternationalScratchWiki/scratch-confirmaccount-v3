@@ -326,6 +326,10 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		$row .= Html::closeElement('h5');
 		$row .= Html::element('p', [], $historyEntry->comment);
 		$row .= Html::closeElement('div');
+		if ($AccountRequestHistoryEntry->$comment =! null) {
+			$row .= htmlspecialchars($row);
+			$row .= Linker::formatComment($row);
+		}
 
 		return $row;
 	}, $history));
