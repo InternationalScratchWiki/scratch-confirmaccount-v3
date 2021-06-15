@@ -323,9 +323,13 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 			Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text())
 		]);
 
-		if ($historyEntry->comment != null) {
+		if ($historyEntry->performer != null) {
 			$row .= Html::closeElement('h5');
-			$row .= Html::element('p', [], Linker::formatComment(htmlspecialchars($historyEntry->comment)));
+			$row .= Html::element('p', [], $historyEntry->comment);
+			$row .= Html::closeElement('div');	
+		} else if ($historyEntry->performer === null) {
+			$row .= Html::closeElement('h5');
+			$row .= Html::element('p', [], Linker::formatComment($historyEntry->comment));
 			$row .= Html::closeElement('div');	
 		}
 
