@@ -9,6 +9,7 @@ Rewrite of previous versions of ConfirmAccount which were based on [MediaWiki Co
 - $wgScratchAccountCheckDisallowNewScratcher - If set to true, disallow requests from New Scratchers (default: `false`)
 - $wgScratchAccountJoinedRequirement - Scratch account's minimum age, in seconds (default: `0`)
 - $wgAutoWelcomeNewUsers - If set to true, talk page is automatically created with welcome message
+- $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays - The number of days to wait before automatically rejecting requests marked "awaiting user" (default: `30`)
 
 ### Example
 ```php
