@@ -354,7 +354,7 @@ function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
 			'request_last_updated < ' . $dbw->timestamp(time() - 86400 * $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays)
 		], 
 		__METHOD__,
-		[], 
+		['GROUP BY' => 'request_id'], 
 		['scratch_accountrequest_history' => ['INNER JOIN', ['history_request_id=request_id', 'history_action' => 'set-status-awaiting-user']]]);
 	
 	//then based on the requests, prepare to act
