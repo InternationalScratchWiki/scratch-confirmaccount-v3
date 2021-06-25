@@ -329,9 +329,29 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		wfMessage('scratch-confirmaccount-history')->text()
 	);
 	
+	$hasReachedConflictPoint = false;
+	
 	//display a row for each comment on the request
-	$disp .= implode(array_map(function($historyEntry) use($accountRequest, $language, $conflictTimestamp) {		
-		$row = Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry' . ($conflictTimestamp != null && $historyEntry->timestamp > $conflictTimestamp ? ' mw-scratch-confirmaccount-actionentry__conflict' : '')]);
+	foreach ($history as $historyEntry) {
+		$row = '';
+		
+		//see if we have a "edit conflict"
+		$isConflicted = $conflictTimestamp != null && $historyEntry->timestamp > $conflictTimestamp;
+		
+		//if we see a conflict and this is the first conflicted entry we've seen, show a warning
+		if ($isConflicted && !$hasReachedConflictPoint) {
+			$row .= Html::rawElement(
+				'div', 
+				[
+					'class' => 'mw-scratch-confirmaccount-conflict-warning'
+				],
+				wfMessage('scratch-confirmaccount-request-action-conflict-warning')->parse()
+			);
+			$hasReachedConflictPoint = true;
+		}
+		
+		$row .= Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry' . ($isConflicted ? ' mw-scratch-confirmaccount-actionentry__conflict' : '')]); //highlight conflicted edits
+		
 		$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
 
 		$row .= $language->pipeList([
@@ -349,8 +369,8 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		}
 		$row .= Html::closeElement('div');
 
-		return $row;
-	}, $history));
+		$disp .= $row;
+	}
 	
 	$output->addHTML($disp);
 }
