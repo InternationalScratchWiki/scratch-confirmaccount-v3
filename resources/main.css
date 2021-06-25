@@ -55,3 +55,7 @@
 .client-nojs #mw-scratch-confirmaccount-click-copy {
 	 display: none; 
 }
+
+.mw-scratch-confirmaccount-actionentry__conflict {
+	background-color: #FCC;
+}

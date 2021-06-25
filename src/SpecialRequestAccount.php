@@ -352,7 +352,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 	function handleFormSubmission(&$request, &$output, &$session) {
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('user', $request, $output, $session);
+			handleRequestActionSubmission('user', $request, $output, $this, $session, $this->getLanguage());
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission($request, $output, $session);
 		} else if ($request->getText('confirmEmail')) {
