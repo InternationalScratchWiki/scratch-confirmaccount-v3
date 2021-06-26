@@ -98,7 +98,8 @@ const actionHeadingsByContext = [
 
 function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session, $timestamp) {
 	global $wgUser;
-	
+
+	$request = $this->getRequest();
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
 		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
