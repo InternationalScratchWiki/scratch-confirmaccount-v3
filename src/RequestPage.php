@@ -464,7 +464,7 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 
 function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language, $conflictTimestamp = null) {
 	global $wgUser;
-		
+	
 	$dbr = getReadOnlyDatabase();
 	
 	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
