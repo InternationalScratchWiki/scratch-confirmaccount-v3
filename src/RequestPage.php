@@ -169,7 +169,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		} else {
 			$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
 			
-			$selectedAction = $pageContext->getRequest()->getText('action') ?? '';
+			$selectedAction = $request->getText('action') ?? '';
 			
 			$disp .= implode(array_map(function($key, $val) use ($selectedAction) {
 				$row = Html::openElement('li');
