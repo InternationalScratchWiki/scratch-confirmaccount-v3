@@ -47,7 +47,7 @@ class ScratchVerification {
 	public static function topVerifCommenter($req_comment) {
 		$comments = self::verifComments();
 
-		$matching_comments = array_filter($comments, function($comment) use($req_comment) {
+		$matching_comments = array_filter($comments, function(&$comment) use($req_comment) {
 			return self::isValidScratchUsername($comment['author']['username']) && stristr($comment['content'], $req_comment);
 		});
 		if (empty($matching_comments)) {
