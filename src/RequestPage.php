@@ -219,7 +219,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 				'id' => 'scratch-confirmaccount-comment',
 				'required' => 'required'
 			],
-			$pageContext->getRequest()->getText('comment') ?? ''
+			$request->getText('comment') ?? ''
 		);
 		$disp .= Html::closeElement('p');
 		$disp .= Html::rawElement(
