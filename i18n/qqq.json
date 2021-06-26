@@ -128,5 +128,6 @@
 	"scratch-confirmaccount-request-account-login-notice": "Text added to login form with link to [[Special:RequestAccount]]",
 	"scratch-confirmaccount-view-request": "Text with link to find submitted request",
 	"scratch-confirmaccount-dropdown-other": "No idea why this string exists",
-	"scratch-confirmaccount-common-admin-comments": "Default admin comments for requests"
+	"scratch-confirmaccount-common-admin-comments": "Default admin comments for requests",
+	"scratch-confirmaccount-request-action-conflict-warning": "The warning shown when there is an action conflict on a request"
 }

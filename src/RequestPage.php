@@ -96,9 +96,10 @@ const actionHeadingsByContext = [
 	'admin' => 'scratch-confirmaccount-actions'
 ];
 
-function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session) {
+function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session, $timestamp) {
 	global $wgUser;
-	
+
+	$request = $this->getRequest();
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
 		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
@@ -109,6 +110,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[],
 			wfMessage(actionHeadingsByContext[$userContext])->text()
 		);
+		
 		$disp .= Html::openElement(
 			'form',
 			[
@@ -118,11 +120,13 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 				'class' => 'mw-scratch-confirmaccount-request-form'
 			]
 		);
+		
 		$disp .= Html::element('input', [
 			'type' => 'hidden',
 			'name' => 'csrftoken',
 			'value' => setCSRFToken($session)
 		]);
+		
 		$disp .= Html::rawElement(
 			'input',
 			[
@@ -131,12 +135,21 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
 			]
 		);
+		
 		$disp .= Html::rawElement(
 			'input',
 			[
 				'type' => 'hidden',
 				'name' => 'requestid',
 				'value' => $accountRequest->id
+			]
+		);
+		
+		$disp .= Html::rawElement('input',
+			[
+				'type' => 'hidden',
+				'name' => 'loadtimestamp',
+				'value' => $timestamp
 			]
 		);
 		
@@ -156,7 +169,9 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		} else {
 			$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
 			
-			$disp .= implode(array_map(function($key, $val) {
+			$selectedAction = $request->getText('action') ?? '';
+			
+			$disp .= implode(array_map(function($key, $val) use ($selectedAction) {
 				$row = Html::openElement('li');
 				$row .= Html::element(
 					'input',
@@ -165,7 +180,8 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 						'name' => 'action',
 						'id' => 'scratch-confirmaccount-action-' . $key,
 						'value' => $key,
-						'required' => true
+						'required' => true,
+						'checked' => $selectedAction === $key
 					]
 				);
 				$row .= Html::element(
@@ -202,7 +218,8 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 				'name' => 'comment',
 				'id' => 'scratch-confirmaccount-comment',
 				'required' => 'required'
-			]
+			],
+			$request->getText('comment') ?? ''
 		);
 		$disp .= Html::closeElement('p');
 		$disp .= Html::rawElement(
@@ -304,7 +321,7 @@ function requestNotesDisplay(AccountRequest &$accountRequest, OutputPage &$outpu
 	$output->addHTML($disp);
 }
 
-function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history, Language &$language, OutputPage &$output) {
+function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history, Language &$language, OutputPage &$output, $conflictTimestamp = null) {
 	$disp = '';
 	
 	$disp .= Html::element(
@@ -313,9 +330,29 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		wfMessage('scratch-confirmaccount-history')->text()
 	);
 	
+	$hasReachedConflictPoint = false;
+	
 	//display a row for each comment on the request
-	$disp .= implode(array_map(function($historyEntry) use($accountRequest, $language) {
-		$row = Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry']);
+	foreach ($history as $historyEntry) {
+		$row = '';
+		
+		//see if we have a "edit conflict"
+		$isConflicted = $conflictTimestamp != null && $historyEntry->timestamp > $conflictTimestamp;
+		
+		//if we see a conflict and this is the first conflicted entry we've seen, show a warning
+		if ($isConflicted && !$hasReachedConflictPoint) {
+			$row .= Html::rawElement(
+				'div', 
+				[
+					'class' => 'mw-scratch-confirmaccount-conflict-warning'
+				],
+				wfMessage('scratch-confirmaccount-request-action-conflict-warning')->parse()
+			);
+			$hasReachedConflictPoint = true;
+		}
+		
+		$row .= Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry' . ($isConflicted ? ' mw-scratch-confirmaccount-actionentry__conflict' : '')]); //highlight conflicted edits
+		
 		$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
 
 		$row .= $language->pipeList([
@@ -333,8 +370,8 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		}
 		$row .= Html::closeElement('div');
 
-		return $row;
-	}, $history));
+		$disp .= $row;
+	}
 	
 	$output->addHTML($disp);
 }
@@ -425,7 +462,7 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 	}
 }
 
-function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language) {
+function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language, $conflictTimestamp = null) {
 	global $wgUser;
 	
 	$dbr = getReadOnlyDatabase();
@@ -453,9 +490,9 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 
 	requestMetadataDisplay($accountRequest, $userContext, $language, $output);
 	requestNotesDisplay($accountRequest, $output);
-	requestHistoryDisplay($accountRequest, $history, $language, $output);
+	requestHistoryDisplay($accountRequest, $history, $language, $output, $conflictTimestamp);
 	requestCheckUserDisplay($accountRequest, $userContext, $output, $dbr);
-	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $output, $pageContext, $session);
+	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $output, $pageContext, $session, $dbr->timestamp());
 	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
 }
 
@@ -495,7 +532,7 @@ function authenticateForViewingRequest($requestId, &$session) {
 	$session->save();
 }
 
-function handleRequestActionSubmission($userContext, &$request, &$output, &$session) {
+function handleRequestActionSubmission($userContext, &$request, &$output, SpecialPage $pageContext, &$session, Language $language) {
 	global $wgUser;
 
 	$requestId = $request->getText('requestid');
@@ -508,6 +545,8 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 	$mutexId = 'scratch-confirmaccount-action-request-' . $requestId;
 
 	$dbw = getTransactableDatabase($mutexId);
+	
+	//find the request
 	$accountRequest = getAccountRequestById($requestId, $dbw);
 	if (!$accountRequest) {
 		//request not found
@@ -515,7 +554,15 @@ function handleRequestActionSubmission($userContext, &$request, &$output, &$sess
 		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		return;
 	}
-
+	
+	//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
+	$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
+	if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
+		requestPage($accountRequest->id, $userContext, $output, $pageContext, $session, $language, $submissionTimestamp);
+		cancelTransaction($dbw, $mutexId);
+		return;
+	}
+	
 	$action = $request->getText('action');
 	if (!isset(actions[$action])) {
 		//invalid action
