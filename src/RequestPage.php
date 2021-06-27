@@ -335,7 +335,10 @@ function requestNotesDisplay(AccountRequest &$accountRequest, SpecialPage $pageC
 	$output->addHTML($disp);
 }
 
-function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history, Language &$language, OutputPage &$output, $conflictTimestamp = null) {
+function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history, SpecialPage $pageContext, $conflictTimestamp = null) {
+	$output = $pageContext->getOutput();
+	$language = $pageContext->getLanguage();
+	
 	$disp = '';
 	
 	$disp .= Html::element(
@@ -390,7 +393,9 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 	$output->addHTML($disp);
 }
 
-function requestAltWarningDisplay(OutputPage &$output, string $key, array &$usernames) {
+function requestAltWarningDisplay(string $key, array &$usernames, SpecialPage $pageContext) {
+	$output = $pageContext->getOutput();
+
 	$disp = Html::openElement('fieldset');
 	$disp .= Html::element(
 		'legend',
@@ -419,7 +424,7 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
  * @param output The page where the output will be displayed
  * @param dbr A readable database connection reference
  */
-function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, IDatabase $dbr) : void {
+function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, SpecialPage $pageContext, IDatabase $dbr) : void {
 	if ($userContext != 'admin') {
 		return;
 	}
@@ -433,11 +438,11 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 	function ($testUsername) use ($accountRequestWikiUsername) { return $testUsername != $accountRequestWikiUsername; });
 	
 	if (!empty($requestUsernames)) {
-		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-request', $requestUsernames);
+		requestAltWarningDisplay('scratch-confirmaccount-ip-warning-request', $requestUsernames, $pageContext);
 	}
 	
 	if (!empty($checkUserUsernames)) {
-		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames);
+		requestAltWarningDisplay('scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames, $pageContext);
 	}
 }
 
@@ -504,8 +509,8 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 
 	requestMetadataDisplay($accountRequest, $userContext, $pageContext);
 	requestNotesDisplay($accountRequest, $pageContext);
-	requestHistoryDisplay($accountRequest, $history, $language, $output, $conflictTimestamp);
-	requestCheckUserDisplay($accountRequest, $userContext, $output, $dbr);
+	requestHistoryDisplay($accountRequest, $history, $pageContext, $conflictTimestamp);
+	requestCheckUserDisplay($accountRequest, $userContext, $pageContext, $dbr);
 	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $pageContext, $dbr->timestamp());
 	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
 }
