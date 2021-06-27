@@ -268,7 +268,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$this->listRequestsByStatus('awaiting-admin');
 	}
 
-	function handleBlockFormSubmission(&$request, &$output, &$session) {
+	function handleBlockFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
@@ -306,7 +310,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 		commitTransaction($dbw, $mutexId);
 	}
 
-	function handleUnblockFormSubmission(&$request, &$output, &$session) {
+	function handleUnblockFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
@@ -340,9 +348,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 		if ($request->getText('action')) {
 			handleRequestActionSubmission('admin', $this, $session, $this->getLanguage());
 		} else if ($request->getText('blockSubmit')) {
-			$this->handleBlockFormSubmission($request, $output, $session);
+			$this->handleBlockFormSubmission();
 		} else if ($request->getText('unblockSubmit')) {
-			$this->handleUnblockFormSubmission($request, $output, $session);
+			$this->handleUnblockFormSubmission();
 		}
 	}
 
