@@ -484,8 +484,12 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 	}
 }
 
-function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language, $conflictTimestamp = null) {
+function requestPage($requestId, string $userContext, SpecialPage &$pageContext, $conflictTimestamp = null) {
 	global $wgUser;
+
+	$output = $pageContext->getOutput();
+	$session = $pageContext->getRequest()->getSession();
+	$language = $pageContext->getLanguage();
 	
 	$dbr = getReadOnlyDatabase();
 	
@@ -580,7 +584,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, Specia
 	//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
 	$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
 	if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
-		requestPage($accountRequest->id, $userContext, $output, $pageContext, $session, $language, $submissionTimestamp);
+		requestPage($accountRequest->id, $userContext, $pageContext, $submissionTimestamp);
 		cancelTransaction($dbw, $mutexId);
 		return;
 	}
