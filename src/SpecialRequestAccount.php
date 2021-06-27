@@ -364,7 +364,7 @@ class SpecialRequestAccount extends SpecialPage {
 		if ($request->getText('action')) {
 			handleRequestActionSubmission('user', $this, $session, $this->getLanguage());
 		} else if ($request->getText('findRequest')) {
-			$this->handleFindRequestFormSubmission($request, $output, $session);
+			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
 			$this->handleConfirmEmailFormSubmission();
 		} else if ($request->getText('sendConfirmationEmail')) {
@@ -481,7 +481,11 @@ class SpecialRequestAccount extends SpecialPage {
 		commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 	}
 
-	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
+	function handleFindRequestFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+		
 		$dbr = getReadOnlyDatabase();
 		
 		$matchingRequests = $this->handleAuthenticationFormSubmission($dbr);
