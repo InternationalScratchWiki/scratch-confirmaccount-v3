@@ -48,14 +48,13 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 	
 	//return if the current user can view/edit blocks
-	function canViewBlocks() {		
+	private function canViewBlocks() {		
 		return $this->getUser()->isAllowed('block');
 	}
 
 	private function blocksListPage() {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
-		$session = $request->getSession();
 
 		$dbr = getReadOnlyDatabase();
 		
@@ -103,15 +102,19 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		//also show a form to add a new block
 		$output->addHTML(Html::element('h3', [], wfMessage('scratch-confirmaccount-add-block')->text()));
-		$this->singleBlockForm('', $request, $output, $session, $dbr);
+		$this->singleBlockForm('', $dbr);
 	}
 
 	//show a form that allows editing an existing block or adding a new one (leave the username blank)
-	function singleBlockForm($blockedUsername, &$request, &$output, &$session, IDatabase $dbr) {
+	function singleBlockForm($blockedUsername, IDatabase $dbr) {
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
 		
+		$output = $this->getOutput();
+		$request = $this->getRequest();
+		$session = $request->getSession();
+
 		//get the block associated with the provided username
 		if ($blockedUsername) {
 			$block = getSingleBlock($blockedUsername, $dbr);
@@ -169,7 +172,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		if (sizeof($subpageParts) < 2) {
 			return $this->blocksListPage();
 		} else {
-			return $this->singleBlockForm($subpageParts[1], $request, $output, $session, getReadOnlyDatabase());
+			return $this->singleBlockForm($subpageParts[1], getReadOnlyDatabase());
 		}
 	}
 
