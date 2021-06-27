@@ -356,8 +356,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}
 	}
 
-	function searchByUsername($username, &$request, &$output) {		
+	function searchByUsername($username) {		
 		$linkRenderer = $this->getLinkRenderer();
+		$output = $this->getOutput();
 
 		$output->addHTML(Html::element(
 			'h3',
