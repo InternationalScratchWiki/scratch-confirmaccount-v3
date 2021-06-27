@@ -430,11 +430,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
 			return $this->blocksPage($par);
 		} else if ($request->getText('username')) {
-			return $this->searchByUsername($request->getText('username'), $request, $output);
+			return $this->searchByUsername($request->getText('username'));
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $this, $language);
+			return requestPage($par, 'admin', $this);
 		} else if (empty($par)) {
 			return $this->defaultPage();
 		} else {
