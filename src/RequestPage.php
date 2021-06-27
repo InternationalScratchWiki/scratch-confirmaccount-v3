@@ -11,6 +11,8 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 }
 
 function loginPage($loginType, SpecialPage $pageContext, $extra = null) {
+	assert(!empty($loginType));
+
 	$request = $pageContext->getRequest();
 	$output = $pageContext->getOutput();
 	$session = $request->getSession();
@@ -100,10 +102,13 @@ const actionHeadingsByContext = [
 	'admin' => 'scratch-confirmaccount-actions'
 ];
 
-function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session, $timestamp) {
+function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, SpecialPage &$pageContext, $timestamp) {
 	global $wgUser;
 
+	$output = $pageContext->getOutput();
 	$request = $pageContext->getRequest();
+	$session = $request->getSession();
+
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
 		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
@@ -496,7 +501,7 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 	requestNotesDisplay($accountRequest, $output);
 	requestHistoryDisplay($accountRequest, $history, $language, $output, $conflictTimestamp);
 	requestCheckUserDisplay($accountRequest, $userContext, $output, $dbr);
-	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $output, $pageContext, $session, $dbr->timestamp());
+	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $pageContext, $dbr->timestamp());
 	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
 }
 

@@ -61,7 +61,9 @@ function humanTimestamp($dbTimestamp, $language) {
 	);
 }
 
-function setCSRFToken(&$session) {
+function setCSRFToken($session) {
+	assert(!empty($session));
+
 	$session->persist();
 	$csrftoken = $session->getToken();
 	$session->save();
