@@ -176,7 +176,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}
 	}
 
-	function requestTable($username, $status, &$linkRenderer) {
+	function requestTable($username, $status) {
+		$linkRenderer = $this->getLinkRenderer();
+
 		$pager = new AccountRequestPager($username, $status, $linkRenderer, $this->getLanguage());
 
 		if ($pager->getNumRows() == 0) {
@@ -221,8 +223,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 		return $table;
 	}
 
-	function listRequestsByStatus($status, &$output) {
-		$linkRenderer = $this->getLinkRenderer();
+	function listRequestsByStatus($status) {
+		$output = $this->getOutput();
 
 		$output->addHTML(Html::element(
 			'h3',
@@ -261,8 +263,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$disp .= Html::closeElement('form');
 		$output->addHTML($disp);
 
-		$this->listRequestsByStatus('new', $output);
-		$this->listRequestsByStatus('awaiting-admin', $output);
+		$this->listRequestsByStatus('new');
+		$this->listRequestsByStatus('awaiting-admin');
 	}
 
 	function handleBlockFormSubmission(&$request, &$output, &$session) {
@@ -418,7 +420,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if ($request->getText('username')) {
 			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {
-			return $this->listRequestsByStatus($par, $output);
+			return $this->listRequestsByStatus($par);
 		} else if (ctype_digit($par)) {
 			return requestPage($par, 'admin', $this, $language);
 		} else if (empty($par)) {
