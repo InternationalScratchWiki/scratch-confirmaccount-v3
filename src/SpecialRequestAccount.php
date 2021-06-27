@@ -498,7 +498,11 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->redirect(SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL());
 	}
 
-	function handleSendConfirmEmailSubmission(&$request, &$output, &$session) {
+	function handleSendConfirmEmailSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+		
 		$requestId = $request->getText('requestid');
 		if (!$session->exists('requestId') || $session->get('requestId') != $requestId) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
