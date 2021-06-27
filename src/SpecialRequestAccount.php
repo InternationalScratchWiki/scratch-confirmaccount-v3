@@ -141,7 +141,7 @@ class SpecialRequestAccount extends SpecialPage {
 		return 'login';
 	}
 
-	function formSectionHeader($name) {
+	function formSectionHeader(string $name) {
 		$form = Html::openElement('fieldset');
 		$form .= Html::openElement('legend');
 		$form .= $name;
@@ -154,7 +154,10 @@ class SpecialRequestAccount extends SpecialPage {
 		return Html::closeElement('fieldset');
 	}
 
-	function usernameAndVerificationArea(&$session, $request) {
+	function usernameAndVerificationArea() {
+		$request = $this->getRequest();
+		$session = $request->getSession();
+
 		global $wgScratchVerificationProjectID;
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-usernameverification')->text());
 
@@ -382,7 +385,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-view-request')->parse());
 
 		//form body
-		$form .= $this->usernameAndVerificationArea($session, $request);
+		$form .= $this->usernameAndVerificationArea();
 		$form .= $this->requestNotesArea($request);
 
 		$form .= Html::element('input', [
