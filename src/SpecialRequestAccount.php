@@ -360,15 +360,17 @@ class SpecialRequestAccount extends SpecialPage {
 		commitTransaction($dbw, __METHOD__);
 	}
 
-	private function handleFormSubmission(&$request, &$output, &$session) {
+	private function handleFormSubmission() {
+		$request = $this->getRequest();
+
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('user', $this, $session, $this->getLanguage());
+			handleRequestActionSubmission('user', $this);
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
 			$this->handleConfirmEmailFormSubmission();
 		} else if ($request->getText('sendConfirmationEmail')) {
-			$this->handleSendConfirmEmailSubmission($request, $output, $session);
+			$this->handleSendConfirmEmailSubmission();
 		} else {
 			$this->handleAccountRequestFormSubmission();
 		}
@@ -544,7 +546,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$this->checkReadOnly();
 
 		if ($request->wasPosted()) {
-			return $this->handleFormSubmission($request, $output, $session);
+			return $this->handleFormSubmission();
 		} else if ($par == '') {
 			return $this->requestForm();
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
