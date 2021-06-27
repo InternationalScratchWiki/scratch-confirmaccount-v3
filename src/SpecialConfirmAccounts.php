@@ -344,9 +344,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 		commitTransaction($dbw, $mutexId);
 	}
 
-	function handleFormSubmission(&$request, &$output, &$session) {
+	function handleFormSubmission() {
+		$request = $this->getRequest();
+
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('admin', $this, $session, $this->getLanguage());
+			handleRequestActionSubmission('admin', $this);
 		} else if ($request->getText('blockSubmit')) {
 			$this->handleBlockFormSubmission();
 		} else if ($request->getText('unblockSubmit')) {
@@ -423,7 +425,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		}
 
 		if ($request->wasPosted()) {
-			return $this->handleFormSubmission($request, $output, $session);
+			return $this->handleFormSubmission();
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
 			return $this->blocksPage($par);
 		} else if ($request->getText('username')) {
