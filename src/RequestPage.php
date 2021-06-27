@@ -446,7 +446,10 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 	}
 }
 
-function emailConfirmationForm(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session) {
+function emailConfirmationForm(AccountRequest &$accountRequest, string $userContext, SpecialPage &$pageContext) {
+	$output = $pageContext->getOutput();
+	$session = $pageContext->getRequest()->getSession();
+
 	if ($userContext == 'user' && $accountRequest->status !='accepted' && $accountRequest->status !='rejected') {
 		$disp = '';
 		if (!empty($accountRequest->email) && !$accountRequest->emailConfirmed) {
@@ -512,7 +515,7 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 	requestHistoryDisplay($accountRequest, $history, $pageContext, $conflictTimestamp);
 	requestCheckUserDisplay($accountRequest, $userContext, $pageContext, $dbr);
 	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $pageContext, $dbr->timestamp());
-	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
+	emailConfirmationForm($accountRequest, $userContext, $pageContext);
 }
 
 function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
