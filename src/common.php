@@ -73,7 +73,9 @@ function setCSRFToken($session) {
 	return $csrftoken;
 }
 
-function isCSRF(&$session, $csrftoken) {
+function isCSRF($session, $csrftoken) {
+	assert(!empty($session));
+
 	return !$session->getToken()->match($csrftoken);
 }
 

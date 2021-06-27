@@ -52,7 +52,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 		return $this->getUser()->isAllowed('block');
 	}
 
-	function blocksListPage(&$request, &$output, &$session) {
+	private function blocksListPage() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		$dbr = getReadOnlyDatabase();
 		
 		$linkRenderer = $this->getLinkRenderer();
@@ -163,7 +167,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$subpageParts = explode('/', $par);
 
 		if (sizeof($subpageParts) < 2) {
-			return $this->blocksListPage($request, $output, $session);
+			return $this->blocksListPage();
 		} else {
 			return $this->singleBlockForm($subpageParts[1], $request, $output, $session, getReadOnlyDatabase());
 		}
