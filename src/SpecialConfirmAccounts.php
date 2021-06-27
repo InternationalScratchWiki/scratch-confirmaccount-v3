@@ -11,23 +11,25 @@ function truncate(string $str, int $length) : string {
 
 class AccountRequestPager extends AbstractAccountRequestPager {
 	const REQUEST_NOTES_TABLE_CELL_MAX_LENGTH = 500;
-	private $linkRenderer, $language;
-	function __construct($username, $status, $linkRenderer, $language) {
+	private $pageContext;
+	function __construct(?string $username, ?string $status, SpecialPage $pageContext) {
 		parent::__construct($username, $status);
 
-		$this->linkRenderer = $linkRenderer;
-		$this->language = $language;
+		$this->pageContext = $pageContext;
 	}	
 
 	function rowFromRequest($accountRequest) {
+		$linkRenderer = $this->pageContext->getLinkRenderer();
+		$language = $this->pageContext->getLanguage();
+
 		$row = Html::openElement('tr');
-		$row .= Html::rawElement('td', [], humanTimestamp( $accountRequest->lastUpdated, $this->language ));
+		$row .= Html::rawElement('td', [], humanTimestamp( $accountRequest->lastUpdated, $language ));
 		$row .= Html::rawElement('td', [], linkToScratchProfile($accountRequest->username));
 		$row .= Html::element('td', ['class' => 'mw-scratch-confirmaccount-requestnotestablecell'], truncate($accountRequest->requestNotes, self::REQUEST_NOTES_TABLE_CELL_MAX_LENGTH));
 		$row .= Html::rawElement(
 			'td',
 			[],
-			$this->linkRenderer->makeKnownLink(
+			$linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor('ConfirmAccounts', $accountRequest->id),
 				wfMessage('scratch-confirmaccount-view')->text()
 			)
@@ -179,7 +181,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function requestTable($username, $status) {
 		$linkRenderer = $this->getLinkRenderer();
 
-		$pager = new AccountRequestPager($username, $status, $linkRenderer, $this->getLanguage());
+		$pager = new AccountRequestPager($username, $status, $this);
 
 		if ($pager->getNumRows() == 0) {
 			return Html::element('p', [], wfMessage('scratch-confirmaccount-norequests')->text());
