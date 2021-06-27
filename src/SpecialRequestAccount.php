@@ -300,7 +300,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$session = $request->getSession();
 
 		if (isCSRF($session, $request->getText('csrftoken'))) {
-			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->parse());
+			return $this->requestForm(wfMessage('scratch-confirmaccount-csrf')->parse());
 		}
 		
 		$dbw = getTransactableDatabase(__METHOD__);
@@ -309,7 +309,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$formData = $this->accountRequestFormData($error, $dbw);
 		if ($error != '') {
 			cancelTransaction($dbw, __METHOD__);
-			return $this->requestForm($request, $output, $session, $error);
+			return $this->requestForm($error);
 		}
 		
 		//now actually create the request and reset the verification code
@@ -374,7 +374,11 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 	}
 
-	function requestForm(&$request, &$output, &$session, $error = '') {
+	function requestForm($error = '') {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		$form = Html::openElement('form', [ 'method' => 'post', 'name' => 'requestaccount', 'action' => $this->getPageTitle()->getLocalUrl(), 'enctype' => 'multipart/form-data' ]);
 
 		//display errors if there are any relevant
@@ -526,7 +530,7 @@ class SpecialRequestAccount extends SpecialPage {
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output, $session);
 		} else if ($par == '') {
-			return $this->requestForm($request, $output, $session);
+			return $this->requestForm();
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
