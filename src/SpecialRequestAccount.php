@@ -16,8 +16,11 @@ class SpecialRequestAccount extends SpecialPage {
 		parent::__construct( 'RequestAccount' );
 	}
 
-	function accountRequestFormData(&$request, &$session, &$out_error, IDatabase $dbr) {
+	function accountRequestFormData(&$out_error, IDatabase $dbr) {
 		global $wgScratchAccountJoinedRequirement;
+
+		$request = $this->getRequest();
+		$session = $request->getSession();
 		
 		//if the user is IP banned, don't even consider anything else
 		if ($this->getUser()->isBlockedFromCreateAccount()) {
@@ -296,7 +299,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$dbw = getTransactableDatabase(__METHOD__);
 
 		//validate and sanitize the input
-		$formData = $this->accountRequestFormData($request, $session, $error, $dbw);
+		$formData = $this->accountRequestFormData($error, $dbw);
 		if ($error != '') {
 			cancelTransaction($dbw, __METHOD__);
 			return $this->requestForm($request, $output, $session, $error);
