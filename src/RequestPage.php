@@ -57,8 +57,152 @@ class RequestPage {
 		requestNotesDisplay($accountRequest, $this->pageContext);
 		requestHistoryDisplay($accountRequest, $history, $this->pageContext, $conflictTimestamp);
 		requestCheckUserDisplay($accountRequest, $this->userContext, $this->pageContext, $dbr);
-		requestActionsForm($accountRequest, $this->userContext, $hasBeenHandledByAdminBefore, $this->pageContext, $dbr->timestamp());
+		$this->requestActionsForm($accountRequest, $hasBeenHandledByAdminBefore, $dbr->timestamp());
 		emailConfirmationForm($accountRequest, $this->userContext, $this->pageContext);
+	}
+
+	private function requestActionsForm(AccountRequest &$accountRequest, bool $hasHandledBefore, $timestamp) {
+		global $wgUser;
+	
+		$output = $this->pageContext->getOutput();
+		$request = $this->pageContext->getRequest();
+		$session = $request->getSession();
+	
+		if (isActionableRequest($accountRequest, $this->userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
+			$disp = '';
+			$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+			
+			//show the header
+			$disp .= Html::element(
+				'h4',
+				[],
+				wfMessage(actionHeadingsByContext[$this->userContext])->text()
+			);
+			
+			$disp .= Html::openElement(
+				'form',
+				[
+					'action' => $this->pageContext->getPageTitle()->getLocalUrl(),
+					'method' => 'post',
+					'enctype' => 'multipart/form-data',
+					'class' => 'mw-scratch-confirmaccount-request-form'
+				]
+			);
+			
+			$disp .= Html::element('input', [
+				'type' => 'hidden',
+				'name' => 'csrftoken',
+				'value' => setCSRFToken($session)
+			]);
+			
+			$disp .= Html::rawElement(
+				'input',
+				[
+					'type' => 'hidden',
+					'name' => 'shouldOpenScratchPage',
+					'value' => $this->userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
+				]
+			);
+			
+			$disp .= Html::rawElement(
+				'input',
+				[
+					'type' => 'hidden',
+					'name' => 'requestid',
+					'value' => $accountRequest->id
+				]
+			);
+			
+			$disp .= Html::rawElement('input',
+				[
+					'type' => 'hidden',
+					'name' => 'loadtimestamp',
+					'value' => $timestamp
+				]
+			);
+			
+			//show the list of actions, or just a hidden element if there is only one available action
+			$temp_userContext = $this->userContext;
+			$usable_actions = array_filter(actions, function($action) use($temp_userContext) { return in_array($temp_userContext, $action['performers']); });
+	
+			if (sizeof($usable_actions) == 1) {
+				$disp .= Html::element(
+					'input',
+					[
+						'type' => 'hidden',
+						'name' => 'action',
+						'value' => array_keys($usable_actions)[0],
+						'required' => true
+					]
+				);
+			} else {
+				$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
+				
+				$selectedAction = $request->getText('action') ?? '';
+				
+				$disp .= implode(array_map(function($key, $val) use ($selectedAction) {
+					$row = Html::openElement('li');
+					$row .= Html::element(
+						'input',
+						[
+							'type' => 'radio',
+							'name' => 'action',
+							'id' => 'scratch-confirmaccount-action-' . $key,
+							'value' => $key,
+							'required' => true,
+							'checked' => $selectedAction === $key
+						]
+					);
+					$row .= Html::element(
+						'label',
+						['for' => 'scratch-confirmaccount-action-' . $key],
+						wfMessage($val['message'])->text()
+					);
+					$row .= Html::closeElement('li');
+					return $row;
+				}, array_keys($usable_actions), array_values($usable_actions)));
+				$disp .= Html::closeElement('ul');
+			}
+			
+			//display the common list of admin comments
+			if ($this->userContext == 'admin') {
+				$options = Xml::listDropDownOptions(
+					 wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(),
+					 [ 'other' => wfMessage( 'other' )->text() ]
+				 );
+				$disp .= Xml::listDropDown('scratch-confirmaccount-comment-dropdown', wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text(), '', 'mw-scratch-confirmaccount-bigselect');
+			}
+			
+			//display the comment box
+			$disp .= Html::openElement('p');
+			$disp .= Html::element(
+				'label',
+				['for' => 'scratch-confirmaccount-comment'],
+				wfMessage('scratch-confirmaccount-comment')->text()
+			);
+			$disp .= Html::element(
+				'textarea',
+				[
+					'class' => 'mw-scratch-confirmaccount-textarea',
+					'name' => 'comment',
+					'id' => 'scratch-confirmaccount-comment',
+					'required' => 'required'
+				],
+				$request->getText('comment') ?? ''
+			);
+			$disp .= Html::closeElement('p');
+			$disp .= Html::rawElement(
+				'p',
+				[],
+				Html::element('input', [
+					'type' => 'submit',
+					'value' => wfMessage('scratch-confirmaccount-submit')->parse()
+				])
+			);
+			$disp .= Html::closeElement('form');
+			
+			$output->addHTML($disp);
+		}
 	}
 
 	static function handleRequestActionSubmission(string $userContext, SpecialPage $pageContext) {
@@ -156,8 +300,6 @@ class RequestPage {
 	}
 }
 
-
-
 function loginPage($loginType, SpecialPage $pageContext, $extra = null) {
 	assert(!empty($loginType));
 
@@ -249,149 +391,6 @@ const actionHeadingsByContext = [
 	'user' => 'scratch-confirmaccount-leave-comment',
 	'admin' => 'scratch-confirmaccount-actions'
 ];
-
-function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, SpecialPage &$pageContext, $timestamp) {
-	global $wgUser;
-
-	$output = $pageContext->getOutput();
-	$request = $pageContext->getRequest();
-	$session = $request->getSession();
-
-	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
-		$disp = '';
-		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
-		
-		//show the header
-		$disp .= Html::element(
-			'h4',
-			[],
-			wfMessage(actionHeadingsByContext[$userContext])->text()
-		);
-		
-		$disp .= Html::openElement(
-			'form',
-			[
-				'action' => $pageContext->getPageTitle()->getLocalUrl(),
-				'method' => 'post',
-				'enctype' => 'multipart/form-data',
-				'class' => 'mw-scratch-confirmaccount-request-form'
-			]
-		);
-		
-		$disp .= Html::element('input', [
-			'type' => 'hidden',
-			'name' => 'csrftoken',
-			'value' => setCSRFToken($session)
-		]);
-		
-		$disp .= Html::rawElement(
-			'input',
-			[
-				'type' => 'hidden',
-				'name' => 'shouldOpenScratchPage',
-				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
-			]
-		);
-		
-		$disp .= Html::rawElement(
-			'input',
-			[
-				'type' => 'hidden',
-				'name' => 'requestid',
-				'value' => $accountRequest->id
-			]
-		);
-		
-		$disp .= Html::rawElement('input',
-			[
-				'type' => 'hidden',
-				'name' => 'loadtimestamp',
-				'value' => $timestamp
-			]
-		);
-		
-		//show the list of actions, or just a hidden element if there is only one available action
-		$usable_actions = array_filter(actions, function($action) use($userContext) { return in_array($userContext, $action['performers']); });
-
-		if (sizeof($usable_actions) == 1) {
-			$disp .= Html::element(
-				'input',
-				[
-					'type' => 'hidden',
-					'name' => 'action',
-					'value' => array_keys($usable_actions)[0],
-					'required' => true
-				]
-			);
-		} else {
-			$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
-			
-			$selectedAction = $request->getText('action') ?? '';
-			
-			$disp .= implode(array_map(function($key, $val) use ($selectedAction) {
-				$row = Html::openElement('li');
-				$row .= Html::element(
-					'input',
-					[
-						'type' => 'radio',
-						'name' => 'action',
-						'id' => 'scratch-confirmaccount-action-' . $key,
-						'value' => $key,
-						'required' => true,
-						'checked' => $selectedAction === $key
-					]
-				);
-				$row .= Html::element(
-					'label',
-					['for' => 'scratch-confirmaccount-action-' . $key],
-					wfMessage($val['message'])->text()
-				);
-				$row .= Html::closeElement('li');
-				return $row;
-			}, array_keys($usable_actions), array_values($usable_actions)));
-			$disp .= Html::closeElement('ul');
-		}
-		
-		//display the common list of admin comments
-		if ($userContext == 'admin') {
-			$options = Xml::listDropDownOptions(
-				 wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(),
-				 [ 'other' => wfMessage( 'other' )->text() ]
-			 );
-			$disp .= Xml::listDropDown('scratch-confirmaccount-comment-dropdown', wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text(), '', 'mw-scratch-confirmaccount-bigselect');
-		}
-		
-		//display the comment box
-		$disp .= Html::openElement('p');
-		$disp .= Html::element(
-			'label',
-			['for' => 'scratch-confirmaccount-comment'],
-			wfMessage('scratch-confirmaccount-comment')->text()
-		);
-		$disp .= Html::element(
-			'textarea',
-			[
-				'class' => 'mw-scratch-confirmaccount-textarea',
-				'name' => 'comment',
-				'id' => 'scratch-confirmaccount-comment',
-				'required' => 'required'
-			],
-			$request->getText('comment') ?? ''
-		);
-		$disp .= Html::closeElement('p');
-		$disp .= Html::rawElement(
-			'p',
-			[],
-			Html::element('input', [
-				'type' => 'submit',
-				'value' => wfMessage('scratch-confirmaccount-submit')->parse()
-			])
-		);
-		$disp .= Html::closeElement('form');
-		
-		$output->addHTML($disp);
-	}
-}
 
 function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, SpecialPage $pageContext) {
 	global $wgUser;
