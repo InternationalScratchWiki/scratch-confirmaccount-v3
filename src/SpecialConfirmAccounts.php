@@ -328,7 +328,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 	function handleFormSubmission(&$request, &$output, &$session) {
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('admin', $request, $output, $this, $session, $this->getLanguage());
+			handleRequestActionSubmission('admin', $this, $session, $this->getLanguage());
 		} else if ($request->getText('blockSubmit')) {
 			$this->handleBlockFormSubmission($request, $output, $session);
 		} else if ($request->getText('unblockSubmit')) {

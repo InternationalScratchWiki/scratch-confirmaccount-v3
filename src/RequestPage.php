@@ -554,14 +554,22 @@ function handleAccountCreation($accountRequest, SpecialPage $pageContext, IDatab
 	$output->addHTML(Html::element('p', [], wfMessage('scratch-confirmaccount-account-created')->text()));
 }
 
-function authenticateForViewingRequest($requestId, &$session) {
+function authenticateForViewingRequest($requestId, $session) {
+	assert(!empty($requestId));
+	assert(!empty($session));
+
 	$session->persist();
 	$session->set('requestId', $requestId);
 	$session->save();
 }
 
-function handleRequestActionSubmission($userContext, &$request, &$output, SpecialPage $pageContext, &$session, Language $language) {
+function handleRequestActionSubmission($userContext, SpecialPage $pageContext) {
 	global $wgUser;
+
+	$request = $pageContext->getRequest();
+	$output = $pageContext->getOutput();
+	$session = $request->getSession();
+	$language = $pageContext->getLanguage();
 
 	$requestId = $request->getText('requestid');
 
