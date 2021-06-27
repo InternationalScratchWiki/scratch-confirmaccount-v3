@@ -484,7 +484,7 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 	}
 }
 
-function requestPage($requestId, string $userContext, SpecialPage &$pageContext, $conflictTimestamp = null) {
+function requestPage($requestId, string $userContext, SpecialPage $pageContext, $conflictTimestamp = null) {
 	global $wgUser;
 
 	$output = $pageContext->getOutput();
@@ -522,8 +522,10 @@ function requestPage($requestId, string $userContext, SpecialPage &$pageContext,
 	emailConfirmationForm($accountRequest, $userContext, $pageContext);
 }
 
-function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
+function handleAccountCreation($accountRequest, SpecialPage $pageContext, IDatabase $dbw) {
 	global $wgUser, $wgAutoWelcomeNewUsers;
+
+	$output = $pageContext->getOutput();
 
 	if (userExists($accountRequest->username, $dbw)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
@@ -630,7 +632,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, Specia
 	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $wgUser->getName() : null, $request->getText('comment')]);
 	
 	if ($action == 'set-status-accepted') {
-		handleAccountCreation($accountRequest, $output, $dbw);
+		handleAccountCreation($accountRequest, $pageContext, $dbw);
 	} else {
 		$output->addHTML(Html::rawElement(
 			'p',
