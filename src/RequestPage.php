@@ -54,8 +54,8 @@ class RequestPage {
 		$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
 	
 		$this->requestMetadataDisplay($accountRequest);
-		$this->requestNotesDisplay($accountRequest, $this->pageContext);
-		requestHistoryDisplay($accountRequest, $history, $this->pageContext, $conflictTimestamp);
+		$this->requestNotesDisplay($accountRequest);
+		$this->requestHistoryDisplay($accountRequest, $history, $conflictTimestamp);
 		requestCheckUserDisplay($accountRequest, $this->userContext, $this->pageContext, $dbr);
 		$this->requestActionsForm($accountRequest, $hasBeenHandledByAdminBefore, $dbr->timestamp());
 		emailConfirmationForm($accountRequest, $this->userContext, $this->pageContext);
@@ -388,6 +388,64 @@ class RequestPage {
 		
 		$output->addHTML($disp);
 	}
+
+	private function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history, $conflictTimestamp = null) {
+		$output = $this->pageContext->getOutput();
+		$language = $this->pageContext->getLanguage();
+		
+		$disp = '';
+		
+		$disp .= Html::element(
+			'h4',
+			[],
+			wfMessage('scratch-confirmaccount-history')->text()
+		);
+		
+		$hasReachedConflictPoint = false;
+		
+		//display a row for each comment on the request
+		foreach ($history as $historyEntry) {
+			$row = '';
+			
+			//see if we have a "edit conflict"
+			$isConflicted = $conflictTimestamp != null && $historyEntry->timestamp > $conflictTimestamp;
+			
+			//if we see a conflict and this is the first conflicted entry we've seen, show a warning
+			if ($isConflicted && !$hasReachedConflictPoint) {
+				$row .= Html::rawElement(
+					'div', 
+					[
+						'class' => 'mw-scratch-confirmaccount-conflict-warning'
+					],
+					wfMessage('scratch-confirmaccount-request-action-conflict-warning')->parse()
+				);
+				$hasReachedConflictPoint = true;
+			}
+			
+			$row .= Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry' . ($isConflicted ? ' mw-scratch-confirmaccount-actionentry__conflict' : '')]); //highlight conflicted edits
+			
+			$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
+	
+			$row .= $language->pipeList([
+				Html::element('span', [], $historyEntry->performer ?: $accountRequest->username),
+				humanTimestamp($historyEntry->timestamp, $language),
+				Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text())
+			]);
+	
+			$row .= Html::closeElement('h5');
+			//format links for admin comments, but just show the comment as normal for requester comments
+			if ($historyEntry->performer === null) {
+				$row .= Html::element('p', [], $historyEntry->comment);
+			} else {
+				$row .= Html::rawElement('p', [], Linker::formatComment($historyEntry->comment));
+			}
+			$row .= Html::closeElement('div');
+	
+			$disp .= $row;
+		}
+		
+		$output->addHTML($disp);
+	}
 }
 
 function loginPage($loginType, SpecialPage $pageContext, $extra = null) {
@@ -481,64 +539,6 @@ const actionHeadingsByContext = [
 	'user' => 'scratch-confirmaccount-leave-comment',
 	'admin' => 'scratch-confirmaccount-actions'
 ];
-
-function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history, SpecialPage $pageContext, $conflictTimestamp = null) {
-	$output = $pageContext->getOutput();
-	$language = $pageContext->getLanguage();
-	
-	$disp = '';
-	
-	$disp .= Html::element(
-		'h4',
-		[],
-		wfMessage('scratch-confirmaccount-history')->text()
-	);
-	
-	$hasReachedConflictPoint = false;
-	
-	//display a row for each comment on the request
-	foreach ($history as $historyEntry) {
-		$row = '';
-		
-		//see if we have a "edit conflict"
-		$isConflicted = $conflictTimestamp != null && $historyEntry->timestamp > $conflictTimestamp;
-		
-		//if we see a conflict and this is the first conflicted entry we've seen, show a warning
-		if ($isConflicted && !$hasReachedConflictPoint) {
-			$row .= Html::rawElement(
-				'div', 
-				[
-					'class' => 'mw-scratch-confirmaccount-conflict-warning'
-				],
-				wfMessage('scratch-confirmaccount-request-action-conflict-warning')->parse()
-			);
-			$hasReachedConflictPoint = true;
-		}
-		
-		$row .= Html::openElement('div', ['class' => 'mw-scratch-confirmaccount-actionentry' . ($isConflicted ? ' mw-scratch-confirmaccount-actionentry__conflict' : '')]); //highlight conflicted edits
-		
-		$row .= Html::openElement('h5', ['class' => 'mw-scratch-confirmaccount-actionentry-heading']);
-
-		$row .= $language->pipeList([
-			Html::element('span', [], $historyEntry->performer ?: $accountRequest->username),
-			humanTimestamp($historyEntry->timestamp, $language),
-			Html::element('span', [], wfMessage(actions[$historyEntry->action]['message'])->text())
-		]);
-
-		$row .= Html::closeElement('h5');
-		//format links for admin comments, but just show the comment as normal for requester comments
-		if ($historyEntry->performer === null) {
-			$row .= Html::element('p', [], $historyEntry->comment);
-		} else {
-			$row .= Html::rawElement('p', [], Linker::formatComment($historyEntry->comment));
-		}
-		$row .= Html::closeElement('div');
-
-		$disp .= $row;
-	}
-	
-	$output->addHTML($disp);
-}
 
 function requestAltWarningDisplay(string $key, array &$usernames, SpecialPage $pageContext) {
 	$output = $pageContext->getOutput();
