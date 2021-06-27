@@ -366,7 +366,7 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission($request, $output, $session);
 		} else if ($request->getText('confirmEmail')) {
-			$this->handleConfirmEmailFormSubmission($request, $output, $session);
+			$this->handleConfirmEmailFormSubmission();
 		} else if ($request->getText('sendConfirmationEmail')) {
 			$this->handleSendConfirmEmailSubmission($request, $output, $session);
 		} else {
@@ -442,7 +442,11 @@ class SpecialRequestAccount extends SpecialPage {
 		return $matchingRequests;
 	}
 
-	function handleConfirmEmailFormSubmission(&$request, &$output, &$session) {
+	function handleConfirmEmailFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-confirm-email');
 		
 		$matchingRequests = $this->handleAuthenticationFormSubmission($dbw);
