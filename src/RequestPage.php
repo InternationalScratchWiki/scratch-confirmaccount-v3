@@ -6,9 +6,157 @@ require_once __DIR__ . '/common.php';
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
-function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
-	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
+class RequestPage {
+	private $pageContext;
+	private $userContext;
+	private $requestId;
+
+	public function __construct(int $requestId, SpecialPage $pageContext, string $userContext) {
+		$this->requestId = $requestId;
+		$this->pageContext = $pageContext;
+		$this->userContext = $userContext;
+	}
+
+	public function isAuthorizedToViewRequest() {
+		$session = $this->pageContext->getRequest()->getSession();
+		return $this->userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
+	}
+
+	function render($conflictTimestamp = null) {
+		global $wgUser;
+	
+		$output = $this->pageContext->getOutput();
+		$request = $this->pageContext->getRequest();
+		$session = $request->getSession();
+		$language = $this->pageContext->getLanguage();
+		
+		$dbr = getReadOnlyDatabase();
+		
+		if (!$this->isAuthorizedToViewRequest()) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
+			return;
+		}
+	
+		$accountRequest = getAccountRequestById($this->requestId, $dbr);
+		if (!$accountRequest) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
+			return;
+		}
+	
+		$output->addHTML(Html::element(
+			'h3',
+			[],
+			wfMessage('scratch-confirmaccount-accountrequest')->text()
+		));
+		
+		$history = getRequestHistory($accountRequest, $dbr);
+		
+		$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
+	
+		requestMetadataDisplay($accountRequest, $this->userContext, $this->pageContext);
+		requestNotesDisplay($accountRequest, $this->pageContext);
+		requestHistoryDisplay($accountRequest, $history, $this->pageContext, $conflictTimestamp);
+		requestCheckUserDisplay($accountRequest, $this->userContext, $this->pageContext, $dbr);
+		requestActionsForm($accountRequest, $this->userContext, $hasBeenHandledByAdminBefore, $this->pageContext, $dbr->timestamp());
+		emailConfirmationForm($accountRequest, $this->userContext, $this->pageContext);
+	}
+
+	static function handleRequestActionSubmission(string $userContext, SpecialPage $pageContext) {
+		global $wgUser;
+	
+		$request = $pageContext->getRequest();
+		$output = $pageContext->getOutput();
+		$session = $request->getSession();
+		$language = $pageContext->getLanguage();
+	
+		$requestId = $request->getText('requestid');
+
+		$requestPage = new self((int)$requestId, $pageContext, $userContext);
+	
+		if (!$requestPage->isAuthorizedToViewRequest()) {
+			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
+			return;
+		}
+	
+		$mutexId = 'scratch-confirmaccount-action-request-' . $requestId;
+	
+		$dbw = getTransactableDatabase($mutexId);
+		
+		//find the request
+		$accountRequest = getAccountRequestById($requestId, $dbw);
+		if (!$accountRequest) {
+			//request not found
+			cancelTransaction($dbw, $mutexId);
+			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
+			return;
+		}
+		
+		//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
+		$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
+		if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
+			$requestPage->render($submissionTimestamp);
+			cancelTransaction($dbw, $mutexId);
+			return;
+		}
+		
+		$action = $request->getText('action');
+		if (!isset(actions[$action])) {
+			//invalid action
+			cancelTransaction($dbw, $mutexId);
+			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
+			return;
+		}
+		
+		if (trim($request->getText('comment', '') == '')) {
+			cancelTransaction($dbw, $mutexId);
+			$output->showErrorPage('error', 'scratch-confirmaccount-empty-comment');
+			return;
+		}
+	
+		if ($accountRequest->status == 'accepted') {
+			//request was already accepted, so we can't act on it
+			cancelTransaction($dbw, $mutexId);
+			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
+			return;
+		}
+	
+		if ($userContext == 'user' && $accountRequest->status == 'rejected') {
+			cancelTransaction($dbw, $mutexId);
+			$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
+			return;
+		}
+	
+		if (!in_array($userContext, actions[$action]['performers'])) {
+			//admin does not have permission to perform this action
+			cancelTransaction($dbw, $mutexId);
+			$output->showErrorPage('error', 'scratch-confirmaccount-action-unauthorized');
+			return;
+		}
+		
+		$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
+	
+		actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser : null, $request->getText('comment'), $dbw);
+		
+		Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $wgUser->getName() : null, $request->getText('comment')]);
+		
+		if ($action == 'set-status-accepted') {
+			handleAccountCreation($accountRequest, $pageContext, $dbw);
+		} else {
+			$output->addHTML(Html::rawElement(
+				'p',
+				[],
+				wfMessage(actions[$action]['message'] . '-done', $accountRequest->id)->parse()
+			));
+		}
+		
+		commitTransaction($dbw, $mutexId);
+		
+		//also when someone acts on a request, add an option to clear out old account request passwords
+		JobQueueGroup::singleton()->push(new AccountRequestCleanupJob());
+	}
 }
+
+
 
 function loginPage($loginType, SpecialPage $pageContext, $extra = null) {
 	assert(!empty($loginType));
@@ -484,44 +632,6 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 	}
 }
 
-function requestPage($requestId, string $userContext, SpecialPage $pageContext, $conflictTimestamp = null) {
-	global $wgUser;
-
-	$output = $pageContext->getOutput();
-	$session = $pageContext->getRequest()->getSession();
-	$language = $pageContext->getLanguage();
-	
-	$dbr = getReadOnlyDatabase();
-	
-	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
-		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
-		return;
-	}
-
-	$accountRequest = getAccountRequestById($requestId, $dbr);
-	if (!$accountRequest) {
-		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
-		return;
-	}
-
-	$output->addHTML(Html::element(
-		'h3',
-		[],
-		wfMessage('scratch-confirmaccount-accountrequest')->text()
-	));
-	
-	$history = getRequestHistory($accountRequest, $dbr);
-	
-	$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
-
-	requestMetadataDisplay($accountRequest, $userContext, $pageContext);
-	requestNotesDisplay($accountRequest, $pageContext);
-	requestHistoryDisplay($accountRequest, $history, $pageContext, $conflictTimestamp);
-	requestCheckUserDisplay($accountRequest, $userContext, $pageContext, $dbr);
-	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $pageContext, $dbr->timestamp());
-	emailConfirmationForm($accountRequest, $userContext, $pageContext);
-}
-
 function handleAccountCreation($accountRequest, SpecialPage $pageContext, IDatabase $dbw) {
 	global $wgUser, $wgAutoWelcomeNewUsers;
 
@@ -561,96 +671,4 @@ function authenticateForViewingRequest($requestId, $session) {
 	$session->persist();
 	$session->set('requestId', $requestId);
 	$session->save();
-}
-
-function handleRequestActionSubmission($userContext, SpecialPage $pageContext) {
-	global $wgUser;
-
-	$request = $pageContext->getRequest();
-	$output = $pageContext->getOutput();
-	$session = $request->getSession();
-	$language = $pageContext->getLanguage();
-
-	$requestId = $request->getText('requestid');
-
-	if (!isAuthorizedToViewRequest($requestId, $userContext, $session)) {
-		$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
-		return;
-	}
-
-	$mutexId = 'scratch-confirmaccount-action-request-' . $requestId;
-
-	$dbw = getTransactableDatabase($mutexId);
-	
-	//find the request
-	$accountRequest = getAccountRequestById($requestId, $dbw);
-	if (!$accountRequest) {
-		//request not found
-		cancelTransaction($dbw, $mutexId);
-		$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
-		return;
-	}
-	
-	//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
-	$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
-	if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
-		requestPage($accountRequest->id, $userContext, $pageContext, $submissionTimestamp);
-		cancelTransaction($dbw, $mutexId);
-		return;
-	}
-	
-	$action = $request->getText('action');
-	if (!isset(actions[$action])) {
-		//invalid action
-		cancelTransaction($dbw, $mutexId);
-		$output->showErrorPage('error', 'scratch-confirmaccount-invalid-action');
-		return;
-	}
-	
-	if (trim($request->getText('comment', '') == '')) {
-		cancelTransaction($dbw, $mutexId);
-		$output->showErrorPage('error', 'scratch-confirmaccount-empty-comment');
-		return;
-	}
-
-	if ($accountRequest->status == 'accepted') {
-		//request was already accepted, so we can't act on it
-		cancelTransaction($dbw, $mutexId);
-		$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
-		return;
-	}
-
-	if ($userContext == 'user' && $accountRequest->status == 'rejected') {
-		cancelTransaction($dbw, $mutexId);
-		$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
-		return;
-	}
-
-	if (!in_array($userContext, actions[$action]['performers'])) {
-		//admin does not have permission to perform this action
-		cancelTransaction($dbw, $mutexId);
-		$output->showErrorPage('error', 'scratch-confirmaccount-action-unauthorized');
-		return;
-	}
-	
-	$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
-
-	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser : null, $request->getText('comment'), $dbw);
-	
-	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $wgUser->getName() : null, $request->getText('comment')]);
-	
-	if ($action == 'set-status-accepted') {
-		handleAccountCreation($accountRequest, $pageContext, $dbw);
-	} else {
-		$output->addHTML(Html::rawElement(
-			'p',
-			[],
-			wfMessage(actions[$action]['message'] . '-done', $accountRequest->id)->parse()
-		));
-	}
-	
-	commitTransaction($dbw, $mutexId);
-	
-	//also when someone acts on a request, add an option to clear out old account request passwords
-	JobQueueGroup::singleton()->push(new AccountRequestCleanupJob());
 }

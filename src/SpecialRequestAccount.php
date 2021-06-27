@@ -364,7 +364,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$request = $this->getRequest();
 
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('user', $this);
+			RequestPage::handleRequestActionSubmission('user', $this);
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
@@ -556,7 +556,8 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if ($par == 'FindRequest') {
 			return findRequestPage($this);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'user', $this, $language);
+			$requestPage = new RequestPage((int)$par, $this, 'user');
+			return $requestPage->render();
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}

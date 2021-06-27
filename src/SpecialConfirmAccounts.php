@@ -350,7 +350,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$request = $this->getRequest();
 
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('admin', $this);
+			RequestPage::handleRequestActionSubmission('admin', $this);
 		} else if ($request->getText('blockSubmit')) {
 			$this->handleBlockFormSubmission();
 		} else if ($request->getText('unblockSubmit')) {
@@ -436,7 +436,8 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $this);
+			$requestPage = new RequestPage((int)$par, $this, 'admin');
+			return $requestPage->render();
 		} else if (empty($par)) {
 			return $this->defaultPage();
 		} else {
