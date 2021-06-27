@@ -53,6 +53,9 @@ function passwordMinMax() {
 }
 
 function humanTimestamp($dbTimestamp, $language) {
+	assert(!empty($dbTimestamp));
+	assert(!empty($language));
+
 	$ts = new MWTimestamp($dbTimestamp);
 	return Html::element(
 		'span',

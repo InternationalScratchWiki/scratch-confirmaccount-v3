@@ -245,9 +245,12 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 	}
 }
 
-function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, Language $language, OutputPage &$output) {
+function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, SpecialPage $pageContext) {
 	global $wgUser;
-	
+
+	$output = $pageContext->getOutput();
+	$language = $pageContext->getLanguage();
+
 	$disp = '';
 	
 	$disp .= Html::element(
@@ -497,7 +500,7 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 	
 	$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
 
-	requestMetadataDisplay($accountRequest, $userContext, $language, $output);
+	requestMetadataDisplay($accountRequest, $userContext, $pageContext);
 	requestNotesDisplay($accountRequest, $output);
 	requestHistoryDisplay($accountRequest, $history, $language, $output, $conflictTimestamp);
 	requestCheckUserDisplay($accountRequest, $userContext, $output, $dbr);
