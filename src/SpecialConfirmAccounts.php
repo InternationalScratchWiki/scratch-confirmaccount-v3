@@ -232,12 +232,13 @@ class SpecialConfirmAccounts extends SpecialPage {
 			wfMessage('scratch-confirmaccount-confirm-header-' . $status)->text()
 		));
 
-		$table = $this->requestTable(null, $status, $linkRenderer);
+		$table = $this->requestTable(null, $status);
 
 		$output->addHTML($table);
 	}
 
-	function defaultPage(&$output) {
+	function defaultPage() {
+		$output = $this->getOutput();
 		$linkRenderer = $this->getLinkRenderer();
 
 		$disp = Html::element('h3', [], wfMessage('scratch-confirmaccount-request-options')->text());
@@ -424,7 +425,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (ctype_digit($par)) {
 			return requestPage($par, 'admin', $this, $language);
 		} else if (empty($par)) {
-			return $this->defaultPage($output);
+			return $this->defaultPage();
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
