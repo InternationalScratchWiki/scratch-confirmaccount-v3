@@ -54,7 +54,7 @@ class RequestPage {
 		$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
 	
 		$this->requestMetadataDisplay($accountRequest);
-		requestNotesDisplay($accountRequest, $this->pageContext);
+		$this->requestNotesDisplay($accountRequest, $this->pageContext);
 		requestHistoryDisplay($accountRequest, $history, $this->pageContext, $conflictTimestamp);
 		requestCheckUserDisplay($accountRequest, $this->userContext, $this->pageContext, $dbr);
 		$this->requestActionsForm($accountRequest, $hasBeenHandledByAdminBefore, $dbr->timestamp());
@@ -299,7 +299,7 @@ class RequestPage {
 		JobQueueGroup::singleton()->push(new AccountRequestCleanupJob());
 	}
 
-	function requestMetadataDisplay(AccountRequest &$accountRequest) {
+	private function requestMetadataDisplay(AccountRequest &$accountRequest) {
 		global $wgUser;
 	
 		$output = $this->pageContext->getOutput();
@@ -368,6 +368,26 @@ class RequestPage {
 		$output->addHTML($disp);
 	}
 	
+	private function requestNotesDisplay(AccountRequest &$accountRequest) {
+		$output = $this->pageContext->getOutput();
+	
+		$disp = '';
+		
+		$disp .= Html::element(
+			'h4', [],
+			wfMessage('scratch-confirmaccount-requestnotes')->text()
+		);
+		$disp .= Html::element(
+			'textarea',
+			[
+				'class' => 'mw-scratch-confirmaccount-textarea',
+				'readonly' => true
+			],
+			$accountRequest->requestNotes
+		);
+		
+		$output->addHTML($disp);
+	}
 }
 
 function loginPage($loginType, SpecialPage $pageContext, $extra = null) {
@@ -461,27 +481,6 @@ const actionHeadingsByContext = [
 	'user' => 'scratch-confirmaccount-leave-comment',
 	'admin' => 'scratch-confirmaccount-actions'
 ];
-
-function requestNotesDisplay(AccountRequest &$accountRequest, SpecialPage $pageContext) {
-	$output = $pageContext->getOutput();
-
-	$disp = '';
-	
-	$disp .= Html::element(
-		'h4', [],
-		wfMessage('scratch-confirmaccount-requestnotes')->text()
-	);
-	$disp .= Html::element(
-		'textarea',
-		[
-			'class' => 'mw-scratch-confirmaccount-textarea',
-			'readonly' => true
-		],
-		$accountRequest->requestNotes
-	);
-	
-	$output->addHTML($disp);
-}
 
 function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history, SpecialPage $pageContext, $conflictTimestamp = null) {
 	$output = $pageContext->getOutput();
