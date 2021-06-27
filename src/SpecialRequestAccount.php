@@ -294,7 +294,11 @@ class SpecialRequestAccount extends SpecialPage {
 		return $form;
 	}
 
-	function handleAccountRequestFormSubmission(&$request, &$output, &$session) {
+	private function handleAccountRequestFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->parse());
 		}
@@ -356,7 +360,7 @@ class SpecialRequestAccount extends SpecialPage {
 		commitTransaction($dbw, __METHOD__);
 	}
 
-	function handleFormSubmission(&$request, &$output, &$session) {
+	private function handleFormSubmission(&$request, &$output, &$session) {
 		if ($request->getText('action')) {
 			handleRequestActionSubmission('user', $this, $session, $this->getLanguage());
 		} else if ($request->getText('findRequest')) {
@@ -366,7 +370,7 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if ($request->getText('sendConfirmationEmail')) {
 			$this->handleSendConfirmEmailSubmission($request, $output, $session);
 		} else {
-			$this->handleAccountRequestFormSubmission($request, $output, $session);
+			$this->handleAccountRequestFormSubmission();
 		}
 	}
 
