@@ -414,7 +414,11 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 
-	function handleAuthenticationFormSubmission(&$request, &$output, &$session, IDatabase $dbr) {		
+	function handleAuthenticationFormSubmission(IDatabase $dbr) {		
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
 			return;
@@ -441,7 +445,7 @@ class SpecialRequestAccount extends SpecialPage {
 	function handleConfirmEmailFormSubmission(&$request, &$output, &$session) {
 		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-confirm-email');
 		
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbw);
+		$matchingRequests = $this->handleAuthenticationFormSubmission($dbw);
 		if ($matchingRequests === null) {
 			//TODO: actually show an error
 			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
@@ -476,7 +480,7 @@ class SpecialRequestAccount extends SpecialPage {
 	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
 		$dbr = getReadOnlyDatabase();
 		
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbr);
+		$matchingRequests = $this->handleAuthenticationFormSubmission($dbr);
 		if ($matchingRequests === null) return;
 
 		$requestId = $matchingRequests[0]->id;
