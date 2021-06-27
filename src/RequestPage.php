@@ -314,7 +314,9 @@ function requestMetadataDisplay(AccountRequest &$accountRequest, string $userCon
 	$output->addHTML($disp);
 }
 
-function requestNotesDisplay(AccountRequest &$accountRequest, OutputPage &$output) {
+function requestNotesDisplay(AccountRequest &$accountRequest, SpecialPage $pageContext) {
+	$output = $pageContext->getOutput();
+
 	$disp = '';
 	
 	$disp .= Html::element(
@@ -501,7 +503,7 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 	$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
 
 	requestMetadataDisplay($accountRequest, $userContext, $pageContext);
-	requestNotesDisplay($accountRequest, $output);
+	requestNotesDisplay($accountRequest, $pageContext);
 	requestHistoryDisplay($accountRequest, $history, $language, $output, $conflictTimestamp);
 	requestCheckUserDisplay($accountRequest, $userContext, $output, $dbr);
 	requestActionsForm($accountRequest, $userContext, $hasBeenHandledByAdminBefore, $pageContext, $dbr->timestamp());
