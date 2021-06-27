@@ -162,7 +162,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$output->addHTML(Html::closeElement('form'));
 	}
 
-	function blocksPage($par, &$request, &$output, &$session) {
+	function blocksPage($par) {
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}
@@ -414,7 +414,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output, $session);
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
-			return $this->blocksPage($par, $request, $output, $session);
+			return $this->blocksPage($par);
 		} else if ($request->getText('username')) {
 			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {
