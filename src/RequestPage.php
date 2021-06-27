@@ -469,12 +469,35 @@ class RequestPage {
 		function ($testUsername) use ($accountRequestWikiUsername) { return $testUsername != $accountRequestWikiUsername; });
 		
 		if (!empty($requestUsernames)) {
-			requestAltWarningDisplay('scratch-confirmaccount-ip-warning-request', $requestUsernames, $this->pageContext);
+			$this->requestAltWarningDisplay('scratch-confirmaccount-ip-warning-request', $requestUsernames);
 		}
 		
 		if (!empty($checkUserUsernames)) {
-			requestAltWarningDisplay('scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames, $this->pageContext);
+			$this->requestAltWarningDisplay('scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames);
 		}
+	}
+
+	function requestAltWarningDisplay(string $key, array &$usernames) {
+		$output = $this->pageContext->getOutput();
+	
+		$disp = Html::openElement('fieldset');
+		$disp .= Html::element(
+			'legend',
+			['class' => 'mw-scratch-confirmaccount-alt-warning'],
+			wfMessage('scratch-confirmaccount-ip-warning')->text()
+		);
+		$disp .= Html::element(
+			'strong',
+			[],
+			wfMessage($key)->text()
+		);
+		$disp .= Html::openElement('ul');
+		$disp .= implode('', array_map(function($value) {
+			return Html::element('li', [], $value);
+		}, $usernames));
+		$disp .= Html::closeElement('ul');
+		$disp .= Html::closeElement('fieldset');
+		$output->addHTML($disp);
 	}
 }
 
@@ -569,29 +592,6 @@ const actionHeadingsByContext = [
 	'user' => 'scratch-confirmaccount-leave-comment',
 	'admin' => 'scratch-confirmaccount-actions'
 ];
-
-function requestAltWarningDisplay(string $key, array &$usernames, SpecialPage $pageContext) {
-	$output = $pageContext->getOutput();
-
-	$disp = Html::openElement('fieldset');
-	$disp .= Html::element(
-		'legend',
-		['class' => 'mw-scratch-confirmaccount-alt-warning'],
-		wfMessage('scratch-confirmaccount-ip-warning')->text()
-	);
-	$disp .= Html::element(
-		'strong',
-		[],
-		wfMessage($key)->text()
-	);
-	$disp .= Html::openElement('ul');
-	$disp .= implode('', array_map(function($value) {
-		return Html::element('li', [], $value);
-	}, $usernames));
-	$disp .= Html::closeElement('ul');
-	$disp .= Html::closeElement('fieldset');
-	$output->addHTML($disp);
-}
 
 function emailConfirmationForm(AccountRequest &$accountRequest, string $userContext, SpecialPage &$pageContext) {
 	$output = $pageContext->getOutput();
