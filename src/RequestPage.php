@@ -53,7 +53,7 @@ class RequestPage {
 		
 		$hasBeenHandledByAdminBefore = sizeof(array_filter($history, function($historyEntry) { return isset(actionToStatus[$historyEntry->action]) && in_array('admin', actions[$historyEntry->action]['performers']); })) > 0;
 	
-		requestMetadataDisplay($accountRequest, $this->userContext, $this->pageContext);
+		$this->requestMetadataDisplay($accountRequest);
 		requestNotesDisplay($accountRequest, $this->pageContext);
 		requestHistoryDisplay($accountRequest, $history, $this->pageContext, $conflictTimestamp);
 		requestCheckUserDisplay($accountRequest, $this->userContext, $this->pageContext, $dbr);
@@ -298,6 +298,76 @@ class RequestPage {
 		//also when someone acts on a request, add an option to clear out old account request passwords
 		JobQueueGroup::singleton()->push(new AccountRequestCleanupJob());
 	}
+
+	function requestMetadataDisplay(AccountRequest &$accountRequest) {
+		global $wgUser;
+	
+		$output = $this->pageContext->getOutput();
+		$language = $this->pageContext->getLanguage();
+	
+		$disp = '';
+		
+		$disp .= Html::element(
+			'h4',
+			[],
+			wfMessage('scratch-confirmaccount-details')->text()
+		);
+		$disp .= Html::openElement('table', [ 'class' => 'wikitable' ]);
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-status')->text()
+		);
+		$disp .= Html::element(
+			'td',
+			[],
+			wfMessage(statuses[$accountRequest->status])->text()
+		);
+		$disp .= Html::closeElement('tr');
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-request-timestamp')->text()
+		);
+		$disp .= Html::rawElement(
+			'td',
+			[],
+			humanTimestamp($accountRequest->timestamp, $language)
+		);
+		$disp .= Html::closeElement('tr');
+		$disp .= Html::openElement('tr');
+		$disp .= Html::element(
+			'th',
+			[],
+			wfMessage('scratch-confirmaccount-scratchusername')->text()
+		);
+		$disp .= Html::rawElement(
+			'td',
+			[],
+			linkToScratchProfile($accountRequest->username)
+		);
+		$disp .= Html::closeElement('tr');
+		if ($this->userContext == 'admin' && CheckUserIntegration::isLoaded() && $wgUser->isAllowed('checkuser')) {
+			$disp .= Html::openElement('tr');
+			$disp .= Html::element(
+				'th',
+				[],
+				wfMessage('scratch-confirmaccount-ipaddress')->text()
+			);
+			$disp .= Html::element(
+				'td',
+				[],
+				$accountRequest->ip
+			);
+			$disp .= Html::closeElement('tr');
+		}
+		$disp .= Html::closeElement('table');
+		
+		$output->addHTML($disp);
+	}
+	
 }
 
 function loginPage($loginType, SpecialPage $pageContext, $extra = null) {
@@ -391,75 +461,6 @@ const actionHeadingsByContext = [
 	'user' => 'scratch-confirmaccount-leave-comment',
 	'admin' => 'scratch-confirmaccount-actions'
 ];
-
-function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, SpecialPage $pageContext) {
-	global $wgUser;
-
-	$output = $pageContext->getOutput();
-	$language = $pageContext->getLanguage();
-
-	$disp = '';
-	
-	$disp .= Html::element(
-		'h4',
-		[],
-		wfMessage('scratch-confirmaccount-details')->text()
-	);
-	$disp .= Html::openElement('table', [ 'class' => 'wikitable' ]);
-	$disp .= Html::openElement('tr');
-	$disp .= Html::element(
-		'th',
-		[],
-		wfMessage('scratch-confirmaccount-status')->text()
-	);
-	$disp .= Html::element(
-		'td',
-		[],
-		wfMessage(statuses[$accountRequest->status])->text()
-	);
-	$disp .= Html::closeElement('tr');
-	$disp .= Html::openElement('tr');
-	$disp .= Html::element(
-		'th',
-		[],
-		wfMessage('scratch-confirmaccount-request-timestamp')->text()
-	);
-	$disp .= Html::rawElement(
-		'td',
-		[],
-		humanTimestamp($accountRequest->timestamp, $language)
-	);
-	$disp .= Html::closeElement('tr');
-	$disp .= Html::openElement('tr');
-	$disp .= Html::element(
-		'th',
-		[],
-		wfMessage('scratch-confirmaccount-scratchusername')->text()
-	);
-	$disp .= Html::rawElement(
-		'td',
-		[],
-		linkToScratchProfile($accountRequest->username)
-	);
-	$disp .= Html::closeElement('tr');
-	if ($userContext == 'admin' && CheckUserIntegration::isLoaded() && $wgUser->isAllowed('checkuser')) {
-		$disp .= Html::openElement('tr');
-		$disp .= Html::element(
-			'th',
-			[],
-			wfMessage('scratch-confirmaccount-ipaddress')->text()
-		);
-		$disp .= Html::element(
-			'td',
-			[],
-			$accountRequest->ip
-		);
-		$disp .= Html::closeElement('tr');
-	}
-	$disp .= Html::closeElement('table');
-	
-	$output->addHTML($disp);
-}
 
 function requestNotesDisplay(AccountRequest &$accountRequest, SpecialPage $pageContext) {
 	$output = $pageContext->getOutput();
