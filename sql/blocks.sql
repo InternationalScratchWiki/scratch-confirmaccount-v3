@@ -8,7 +8,9 @@ CREATE TABLE IF NOT EXISTS /*_*/scratch_accountrequest_block (
 	-- the reason the user was blocked
 	block_reason TEXT,
 	-- timestamp for when the block was performed
-	block_timestamp VARBINARY(14) NOT NULL
+	block_timestamp VARBINARY(14) NOT NULL,
+	-- timestamp for when the block will expire, or null if it is infinite
+	block_expiration_timestamp VARBINARY(14)
 )/*$wgDBTableOptions*/;
 
 COMMIT;

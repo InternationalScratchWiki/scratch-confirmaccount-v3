@@ -1,3 +1,12 @@
+$(function () {
+    Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-expiration-timestamp'), el => {
+        const timestampTimeInput = el.form.expiration_timestamp_time;
+        timestampTimeInput.disabled = el.value !== 'othertime';
+        el.addEventListener('change', () => {
+            timestampTimeInput.disabled = el.value !== 'othertime';
+        });
+    });
+});
 
 $(function () {
     Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-request-form'), el => {
@@ -21,9 +30,12 @@ $(function () {
     });
   });
 
-$(function () { document.getElementById("mw-scratch-confirmaccount-click-copy").onclick = function() {
-  copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
-  }
+$(function () {
+    const elem = document.getElementById("mw-scratch-confirmaccount-click-copy");
+    if (!elem) return;
+    elem.onclick = function() {
+        copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
+    }
 });
 
 function copyToClipboard(temptext) {

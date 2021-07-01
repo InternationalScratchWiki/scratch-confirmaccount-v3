@@ -129,5 +129,11 @@
 	"scratch-confirmaccount-view-request": "Text with link to find submitted request",
 	"scratch-confirmaccount-dropdown-other": "No idea why this string exists",
 	"scratch-confirmaccount-common-admin-comments": "Default admin comments for requests",
-	"scratch-confirmaccount-request-action-conflict-warning": "The warning shown when there is an action conflict on a request"
+	"scratch-confirmaccount-request-action-conflict-warning": "The warning shown when there is an action conflict on a request",
+	"scratch-confirmaccount-block-infinite": "Label indicating a infinite block",
+	"scratch-confirmaccount-block-expiration-options": "Options for the duration of the account requesting block",
+	"scratch-confirmaccount-block-existing-infinite": "Option to keep the existing block duration (infinite)",
+	"scratch-confirmaccount-block-existing": "Option to keep the existing block duration - parameter 1 is the date and parameter 2 is the time",
+	"scratch-confirmaccount-block-othertime-op": "Option to specify time not listed using a text input",
+	"scratch-confirmaccount-block-expiration-time": "Label for expiration time field"
 }

@@ -90,7 +90,7 @@ class SpecialRequestAccount extends SpecialPage {
 				
 		//see if the username is blocked from submitting account requests (note that this is done after verifying the confirmation code so that we don't accidentally allow block information to be revealed)
 		$block = getSingleBlock($username, $dbr);
-		if ($block) {
+		if ($block && !blockExpired($block)) {
 			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $block->reason)->text();
 			// note : blocks are not publicly visible on scratch, so this needs to run after checking the verification code
 			return;
