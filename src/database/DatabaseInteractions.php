@@ -293,7 +293,13 @@ function canMakeRequestForUsername(string $username, IDatabase $dbr) : bool {
 }
 
 function getBlocks(IDatabase $dbr) : array {
-	$result = $dbr->select('scratch_accountrequest_block', ['block_username', 'block_reason', 'block_expiration_timestamp'], [], __METHOD__, ['ORDER BY' => 'block_timestamp ASC']);
+	$result = $dbr->select(
+		'scratch_accountrequest_block',
+		['block_username', 'block_reason', 'block_expiration_timestamp'],
+		['block_expiration_timestamp IS NULL OR block_expiration_timestamp >= ' . $dbr->timestamp()],
+		__METHOD__,
+		['ORDER BY' => 'block_timestamp ASC']
+	);
 
 	$blocks = [];
 	foreach ($result as $row) {
