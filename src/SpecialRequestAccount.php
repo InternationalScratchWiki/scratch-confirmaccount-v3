@@ -166,16 +166,19 @@ class SpecialRequestAccount extends SpecialPage {
 				new OOUI\FieldLayout(
 					new OOUI\TextInputWidget( [
 						'name' => 'scratchusername',
+						'required' => true,
+						'value' => $request->getText('scratchusername')
 					] ),
 					[
 						'label' => wfMessage('scratch-confirmaccount-scratchusername')->text(),
 						'align' => 'top',
-						'value' => $request->getText('scratchusername')
 					]
 				),
 				new OOUI\FieldLayout(
 					new OOUI\TextInputWidget( [
 						'name' => 'password',
+						'type' => 'password',
+						'required' => true
 					] ),
 					[
 						'label' => wfMessage('scratch-confirmaccount-password')->text(),
@@ -186,6 +189,8 @@ class SpecialRequestAccount extends SpecialPage {
 				new OOUI\FieldLayout(
 					new OOUI\TextInputWidget( [
 						'name' => 'password2',
+						'type' => 'password',
+						'required' => true
 					]),
 					[
 						'label' => wfMessage('scratch-confirmaccount-password2')->text(),
@@ -195,12 +200,12 @@ class SpecialRequestAccount extends SpecialPage {
 				new OOUI\FieldLayout(
 					new OOUI\TextInputWidget( [
 						'name' => 'email',
-						'type' => 'email'
+						'type' => 'email',
+						'value' => $request->getText('email')
 					] ),
 					[
 						'label' => wfMessage('scratch-confirmaccount-email')->text(),
 						'align' => 'top',
-						'value' => $request->getText('email')
 					]
 				),
 			]
@@ -230,7 +235,9 @@ class SpecialRequestAccount extends SpecialPage {
 		return $form;
 	}
 
-	function requestNotesArea(&$request) {
+	function requestNotesArea() {
+		$request = $this->getRequest();
+
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-requestnotes')->text());
 
 		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-requestnotes-explanation')->parse());
@@ -238,6 +245,8 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= new OOUI\FieldLayout(
 			new OOUI\MultilineTextInputWidget( [
 				'name' => 'requestnotes',
+				'required' => true,
+				'value' => $request->getText('requestnotes')
 			] ),
 			[
 				'label' => wfMessage('scratch-confirmaccount-requestnotes')->text(),
@@ -249,6 +258,8 @@ class SpecialRequestAccount extends SpecialPage {
 			new OOUI\CheckboxInputWidget([
 				'name' => 'agree',
 				'value' => 'true',
+				'required' => true,
+				'checked' => $request->getText('agree') == 'true'
 			]),
 			[
 				'label' => wfMessage('scratch-confirmaccount-checkbox-agree')->parse(),
@@ -372,7 +383,7 @@ class SpecialRequestAccount extends SpecialPage {
 			'value' => setCSRFToken($session)
 		]);
 
-		$form .= new OOUI\ButtonWidget([
+		$form .= new OOUI\ButtonInputWidget([
 			'type' => 'submit',
 			'flags' => 'primary',
 			'label' => wfMessage('scratch-confirmaccount-request-submit')->parse()
