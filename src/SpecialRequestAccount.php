@@ -259,7 +259,7 @@ class SpecialRequestAccount extends SpecialPage {
 				'name' => 'agree',
 				'value' => 'true',
 				'required' => true,
-				'checked' => $request->getText('agree') == 'true'
+				'selected' => $request->getText('agree') == 'true'
 			]),
 			[
 				'label' => wfMessage('scratch-confirmaccount-checkbox-agree')->parse(),
@@ -346,13 +346,13 @@ class SpecialRequestAccount extends SpecialPage {
 		if ($request->getText('action')) {
 			handleRequestActionSubmission('user', $request, $output, $this, $session, $this->getLanguage());
 		} else if ($request->getText('findRequest')) {
-			$this->handleFindRequestFormSubmission($request, $output, $session);
+			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
-			$this->handleConfirmEmailFormSubmission($request, $output, $session);
+			$this->handleConfirmEmailFormSubmission();
 		} else if ($request->getText('sendConfirmationEmail')) {
-			$this->handleSendConfirmEmailSubmission($request, $output, $session);
+			$this->handleSendConfirmEmailSubmission();
 		} else {
-			$this->handleAccountRequestFormSubmission($request, $output, $session);
+			$this->handleAccountRequestFormSubmission();
 		}
 	}
 
@@ -532,7 +532,7 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
-				$this);
+				$request, $output, $session);
 		} else if ($par == 'FindRequest') {
 			return findRequestPage($request, $output, $session);
 		} else if (ctype_digit($par)) {
