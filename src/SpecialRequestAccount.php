@@ -340,17 +340,19 @@ class SpecialRequestAccount extends SpecialPage {
 
 	private function handleFormSubmission() {
 		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
 
 		if ($request->getText('action')) {
-			RequestPage::handleRequestActionSubmission('user', $this);
+			handleRequestActionSubmission('user', $request, $output, $this, $session, $this->getLanguage());
 		} else if ($request->getText('findRequest')) {
-			$this->handleFindRequestFormSubmission();
+			$this->handleFindRequestFormSubmission($request, $output, $session);
 		} else if ($request->getText('confirmEmail')) {
-			$this->handleConfirmEmailFormSubmission();
+			$this->handleConfirmEmailFormSubmission($request, $output, $session);
 		} else if ($request->getText('sendConfirmationEmail')) {
-			$this->handleSendConfirmEmailSubmission();
+			$this->handleSendConfirmEmailSubmission($request, $output, $session);
 		} else {
-			$this->handleAccountRequestFormSubmission();
+			$this->handleAccountRequestFormSubmission($request, $output, $session);
 		}
 	}
 
@@ -532,10 +534,9 @@ class SpecialRequestAccount extends SpecialPage {
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
 				$this);
 		} else if ($par == 'FindRequest') {
-			return findRequestPage($this);
+			return findRequestPage($request, $output, $session);
 		} else if (ctype_digit($par)) {
-			$requestPage = new RequestPage((int)$par, $this, 'user');
-			return $requestPage->render();
+			return requestPage($par, 'user', $output, $this, $session, $language);
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
