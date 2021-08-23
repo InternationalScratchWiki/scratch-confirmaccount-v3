@@ -11,6 +11,8 @@ $(function () {
     });
 });
 
+console.log('test');
+
 $(function () {
     Array.prototype.forEach.call(document.getElementsByClassName('mw-scratch-confirmaccount-bigselect'), el => {
         el.onchange = function (event) {

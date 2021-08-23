@@ -40,7 +40,9 @@
 			"localBasePath": "resources"
 		},
 		"ext.scratchConfirmAccount.js": {
-			"scripts": "main.js",
+			"packageFiles": [
+				"main.js"
+			],
 			"localBasePath": "resources",
 			"messages": [
 				"scratch-confirmaccount-click-copy-alert"

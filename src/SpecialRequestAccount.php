@@ -387,7 +387,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		$form .= new OOUI\ButtonInputWidget([
 			'type' => 'submit',
-			'flags' => 'primary',
+			'flags' => ['primary', 'progressive'],
 			'label' => wfMessage('scratch-confirmaccount-request-submit')->parse()
 		]);
 
