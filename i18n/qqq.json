@@ -95,6 +95,7 @@
 	"scratch-confirmaccount-set-status-awaiting-user": "Action label for requesting comment",
 	"scratch-confirmaccount-set-status-awaiting-admin": "Action label for requesting admin comment",
 	"scratch-confirmaccount-password": "Label for password set field",
+	"scratch-confirmaccount-password-caption": "Caption for the password set field, explaining that the password is used for their request and shouldn't be their Scratch password",
 	"scratch-confirmaccount-password2": "Label for confirm password field",
 	"scratch-confirmaccount-incorrect-password": "Error when password and confirmation do not match",
 	"scratch-confirmaccount-password-min": "Error when password is not long enough",
