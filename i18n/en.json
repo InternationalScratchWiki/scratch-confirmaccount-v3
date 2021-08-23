@@ -100,6 +100,7 @@
 	"scratch-confirmaccount-set-status-awaiting-user": "Request user comment",
 	"scratch-confirmaccount-set-status-awaiting-admin": "Comment for admin",
 	"scratch-confirmaccount-password": "Password",
+	"scratch-confirmaccount-password-caption": "This password will be used to access your request and will also be your password if your request is accepted. Please do not use your Scratch password here.",
 	"scratch-confirmaccount-password2": "Password (confirm)",
 	"scratch-confirmaccount-incorrect-password": "Passwords do not match.",
 	"scratch-confirmaccount-password-min": "The password must be at least $1 letters long.",

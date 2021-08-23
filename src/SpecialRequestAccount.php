@@ -16,8 +16,11 @@ class SpecialRequestAccount extends SpecialPage {
 		parent::__construct( 'RequestAccount' );
 	}
 
-	function accountRequestFormData(&$request, &$session, &$out_error, IDatabase $dbr) {
+	function accountRequestFormData(&$out_error, IDatabase $dbr) {
 		global $wgScratchAccountJoinedRequirement;
+
+		$request = $this->getRequest();
+		$session = $request->getSession();
 		
 		//if the user is IP banned, don't even consider anything else
 		if ($this->getUser()->isBlockedFromCreateAccount()) {
@@ -138,7 +141,7 @@ class SpecialRequestAccount extends SpecialPage {
 		return 'login';
 	}
 
-	function formSectionHeader($name) {
+	function formSectionHeader(string $name) {
 		$form = Html::openElement('fieldset');
 		$form .= Html::openElement('legend');
 		$form .= $name;
@@ -151,80 +154,62 @@ class SpecialRequestAccount extends SpecialPage {
 		return Html::closeElement('fieldset');
 	}
 
-	function usernameAndVerificationArea(&$session, $request) {
+	function usernameAndVerificationArea() {
+		$request = $this->getRequest();
+		$session = $request->getSession();
+
 		global $wgScratchVerificationProjectID;
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-usernameverification')->text());
 
-		$form .= Html::openElement('table');
-
-		$form .= Html::openElement('tr');
-		$form .= Html::rawElement('td', [], Html::element(
-			'label',
-			['for' => 'scratch-confirmaccount-username'],
-			wfMessage('scratch-confirmaccount-scratchusername')->text()
-		));
-		$form .= Html::rawElement('td', [], Html::element(
-			'input',
-			[
-				'type' => 'text',
-				'name' => 'scratchusername',
-				'id' => 'scratch-confirmaccount-username',
-				'value' => $request->getText('scratchusername')
+		$form .= new OOUI\FieldsetLayout( [
+			'items' => [
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget( [
+						'name' => 'scratchusername',
+						'required' => true,
+						'value' => $request->getText('scratchusername')
+					] ),
+					[
+						'label' => wfMessage('scratch-confirmaccount-scratchusername')->text(),
+						'align' => 'top',
+					]
+				),
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget( [
+						'name' => 'password',
+						'type' => 'password',
+						'required' => true
+					] ),
+					[
+						'label' => wfMessage('scratch-confirmaccount-password')->text(),
+						'align' => 'top',
+						'notices' => [wfMessage('scratch-confirmaccount-password-caption')->parse()]
+					]
+				),
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget( [
+						'name' => 'password2',
+						'type' => 'password',
+						'required' => true
+					]),
+					[
+						'label' => wfMessage('scratch-confirmaccount-password2')->text(),
+						'align' => 'top',
+					]
+				),
+				new OOUI\FieldLayout(
+					new OOUI\TextInputWidget( [
+						'name' => 'email',
+						'type' => 'email',
+						'value' => $request->getText('email')
+					] ),
+					[
+						'label' => wfMessage('scratch-confirmaccount-email')->text(),
+						'align' => 'top',
+					]
+				),
 			]
-		));
-		$form .= Html::closeElement('tr');
-
-		$form .= Html::openElement('tr');
-		$form .= Html::rawElement('td', [], Html::element(
-			'label',
-			['for' => 'scratch-confirmaccount-password'],
-			wfMessage('scratch-confirmaccount-password')->text()
-		));
-		$form .= Html::rawElement('td', [], Html::element(
-			'input',
-			[
-				'type' => 'password',
-				'name' => 'password',
-				'id' => 'scratch-confirmaccount-password',
-				'value' => ''
-			]
-		));
-		$form .= Html::closeElement('tr');
-
-		$form .= Html::openElement('tr');
-		$form .= Html::rawElement('td', [], Html::element(
-			'label',
-			['for' => 'scratch-confirmaccount-password2'],
-			wfMessage('scratch-confirmaccount-password2')->text()
-		));
-		$form .= Html::rawElement('td', [], Html::element(
-			'input',
-			[
-				'type' => 'password',
-				'name' => 'password2',
-				'id' => 'scratch-confirmaccount-password2',
-				'value' => ''
-			]
-		));
-		$form .= Html::closeElement('tr');
-
-		$form .= Html::openElement('tr');
-		$form .= Html::rawElement('td', [], Html::element(
-			'label',
-			['for' => 'scratch-confirmaccount-email'],
-			wfMessage('scratch-confirmaccount-email')->text()
-		));
-		$form .= Html::rawElement('td', [], Html::element(
-			'input',
-			[
-				'type' => 'email',
-				'name' => 'email',
-				'id' => 'scratch-confirmaccount-email',
-				'value' => $request->getText('email')
-			]
-		));
-		$form .= Html::closeElement('tr');
-		$form .= Html::closeElement('table');
+		]);
 
 		$form .= Html::rawElement(
 			'p',
@@ -239,67 +224,70 @@ class SpecialRequestAccount extends SpecialPage {
 		  	],
 			ScratchVerification::sessionVerificationCode($session)
 		);
-		$form .= Html::element(
-			'button',
-			[
-				'class' => 'mw-scratch-confirmaccount-click-copy',
-				'id' => 'mw-scratch-confirmaccount-click-copy',
-				'type' => 'button'
-			],
-			wfMessage('scratch-confirmaccount-click-copy')->text()
-		);
+		$form .= new OOUI\ButtonWidget([
+			'id' => 'mw-scratch-confirmaccount-click-copy',
+			'classes' => ['mw-scratch-confirmaccount-click-copy'],
+			'label' => wfMessage('scratch-confirmaccount-click-copy')->text()
+		]);
+
 		$form .= $this->formSectionFooter();
 
 		return $form;
 	}
 
-	function requestNotesArea(&$request) {
+	function requestNotesArea() {
+		$request = $this->getRequest();
+
 		$form = $this->formSectionHeader(wfMessage('scratch-confirmaccount-requestnotes')->text());
 
 		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-requestnotes-explanation')->parse());
-		$form .= Html::rawElement(
-			'label',
-			['for' => 'scratch-confirmaccount-requestnotes'],
-			wfMessage('scratch-confirmaccount-requestnotes')->parse()
-		);
-		$form .= Html::element(
-			'textarea',
-			['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'requestnotes', 'required' => true, 'maxlength' => self::REQUEST_NOTES_MAX_LENGTH],
-			$request->getText('requestnotes')
+
+		$form .= new OOUI\FieldLayout(
+			new OOUI\MultilineTextInputWidget( [
+				'name' => 'requestnotes',
+				'required' => true,
+				'value' => $request->getText('requestnotes')
+			] ),
+			[
+				'label' => wfMessage('scratch-confirmaccount-requestnotes')->text(),
+				'align' => 'top',
+			]
 		);
 
-		$form .= Html::element('br');
-
-		$form .= Html::element('input', [
-			'type' => 'checkbox',
-			'name' => 'agree',
-			'value' => 'true',
-			'id' => 'scratch-confirmaccount-agree'
-		]);
-		$form .= Html::rawElement(
-			'label',
-			['for' => 'scratch-confirmaccount-agree'],
-			wfMessage('scratch-confirmaccount-checkbox-agree')->parse()
+		$form .= new OOUI\FieldLayout(
+			new OOUI\CheckboxInputWidget([
+				'name' => 'agree',
+				'value' => 'true',
+				'required' => true,
+				'selected' => $request->getText('agree') == 'true'
+			]),
+			[
+				'label' => wfMessage('scratch-confirmaccount-checkbox-agree')->parse(),
+				'align' => 'inline'
+			]
 		);
-		$form .= Html::element('br');
 
 		$form .= $this->formSectionFooter();
 
 		return $form;
 	}
 
-	function handleAccountRequestFormSubmission(&$request, &$output, &$session) {
+	private function handleAccountRequestFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		if (isCSRF($session, $request->getText('csrftoken'))) {
-			return $this->requestForm($request, $output, $session, wfMessage('scratch-confirmaccount-csrf')->parse());
+			return $this->requestForm(wfMessage('scratch-confirmaccount-csrf')->parse());
 		}
 		
 		$dbw = getTransactableDatabase(__METHOD__);
 
 		//validate and sanitize the input
-		$formData = $this->accountRequestFormData($request, $session, $error, $dbw);
+		$formData = $this->accountRequestFormData($error, $dbw);
 		if ($error != '') {
 			cancelTransaction($dbw, __METHOD__);
-			return $this->requestForm($request, $output, $session, $error);
+			return $this->requestForm($error);
 		}
 		
 		//now actually create the request and reset the verification code
@@ -350,21 +338,30 @@ class SpecialRequestAccount extends SpecialPage {
 		commitTransaction($dbw, __METHOD__);
 	}
 
-	function handleFormSubmission(&$request, &$output, &$session) {
+	private function handleFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		if ($request->getText('action')) {
 			handleRequestActionSubmission('user', $request, $output, $this, $session, $this->getLanguage());
 		} else if ($request->getText('findRequest')) {
-			$this->handleFindRequestFormSubmission($request, $output, $session);
+			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
-			$this->handleConfirmEmailFormSubmission($request, $output, $session);
+			$this->handleConfirmEmailFormSubmission();
 		} else if ($request->getText('sendConfirmationEmail')) {
-			$this->handleSendConfirmEmailSubmission($request, $output, $session);
+			$this->handleSendConfirmEmailSubmission();
 		} else {
-			$this->handleAccountRequestFormSubmission($request, $output, $session);
+			$this->handleAccountRequestFormSubmission();
 		}
 	}
 
-	function requestForm(&$request, &$output, &$session, $error = '') {
+	function requestForm($error = '') {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$output->enableOOUI();
+		$session = $request->getSession();
+
 		$form = Html::openElement('form', [ 'method' => 'post', 'name' => 'requestaccount', 'action' => $this->getPageTitle()->getLocalUrl(), 'enctype' => 'multipart/form-data' ]);
 
 		//display errors if there are any relevant
@@ -379,7 +376,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement('p', [], wfMessage('scratch-confirmaccount-view-request')->parse());
 
 		//form body
-		$form .= $this->usernameAndVerificationArea($session, $request);
+		$form .= $this->usernameAndVerificationArea();
 		$form .= $this->requestNotesArea($request);
 
 		$form .= Html::element('input', [
@@ -388,19 +385,22 @@ class SpecialRequestAccount extends SpecialPage {
 			'value' => setCSRFToken($session)
 		]);
 
-		$form .= Html::element('input',
-			[
-				'type' => 'submit',
-				'value' => wfMessage('scratch-confirmaccount-request-submit')->parse()
-			]
-		);
+		$form .= new OOUI\ButtonInputWidget([
+			'type' => 'submit',
+			'flags' => ['primary', 'progressive'],
+			'label' => wfMessage('scratch-confirmaccount-request-submit')->parse()
+		]);
 
 		$form .= Html::closeElement('form');
 
 		$output->addHTML($form);
 	}
 
-	function handleAuthenticationFormSubmission(&$request, &$output, &$session, IDatabase $dbr) {		
+	function handleAuthenticationFormSubmission(IDatabase $dbr) {		
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
 			return;
@@ -424,10 +424,14 @@ class SpecialRequestAccount extends SpecialPage {
 		return $matchingRequests;
 	}
 
-	function handleConfirmEmailFormSubmission(&$request, &$output, &$session) {
+	function handleConfirmEmailFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+
 		$dbw = getTransactableDatabase('scratch-confirmaccount-submit-confirm-email');
 		
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbw);
+		$matchingRequests = $this->handleAuthenticationFormSubmission($dbw);
 		if ($matchingRequests === null) {
 			//TODO: actually show an error
 			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
@@ -459,10 +463,14 @@ class SpecialRequestAccount extends SpecialPage {
 		commitTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 	}
 
-	function handleFindRequestFormSubmission(&$request, &$output, &$session) {
+	function handleFindRequestFormSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+		
 		$dbr = getReadOnlyDatabase();
 		
-		$matchingRequests = $this->handleAuthenticationFormSubmission($request, $output, $session, $dbr);
+		$matchingRequests = $this->handleAuthenticationFormSubmission($dbr);
 		if ($matchingRequests === null) return;
 
 		$requestId = $matchingRequests[0]->id;
@@ -472,7 +480,11 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->redirect(SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL());
 	}
 
-	function handleSendConfirmEmailSubmission(&$request, &$output, &$session) {
+	function handleSendConfirmEmailSubmission() {
+		$request = $this->getRequest();
+		$output = $this->getOutput();
+		$session = $request->getSession();
+		
 		$requestId = $request->getText('requestid');
 		if (!$session->exists('requestId') || $session->get('requestId') != $requestId) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
@@ -514,9 +526,9 @@ class SpecialRequestAccount extends SpecialPage {
 		$this->checkReadOnly();
 
 		if ($request->wasPosted()) {
-			return $this->handleFormSubmission($request, $output, $session);
+			return $this->handleFormSubmission();
 		} else if ($par == '') {
-			return $this->requestForm($request, $output, $session);
+			return $this->requestForm();
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
