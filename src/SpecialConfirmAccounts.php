@@ -278,10 +278,16 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$username = $request->getText('username');
 		$reason = $request->getText('reason');
 		$expirationTimestamp = $request->getText('expiration_timestamp');
-		if ($expirationTimestamp === 'othertime') {
-			$expirationTimestamp = $request->getText('expiration_timestamp_time');
+		if ($expirationTimestamp !== 'existing') {
+			if ($expirationTimestamp === 'infinite') {
+				$expirationTimestamp = null;
+			} else {
+				if ($expirationTimestamp === 'othertime') {
+					$expirationTimestamp = $request->getText('expiration_timestamp_time');
+				}
+				$expirationTimestamp = empty(trim($expirationTimestamp)) ? null : wfTimestamp(TS_MW, strtotime($expirationTimestamp));
+			}
 		}
-		$expirationTimestamp = empty(trim($expirationTimestamp)) ? null : wfTimestamp(TS_MW, strtotime($expirationTimestamp));
 		
 		// anti-CSRF
 		if (isCSRF($session, $request->getText('csrftoken'))) {
