@@ -24,25 +24,39 @@ function getReadOnlyDatabase() {
 }
 
 function getSingleBlock(string $username, IDatabase $dbr) {
-	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_username', 'block_reason'), ['LOWER(CONVERT(block_username using utf8))' => strtolower($username)], __METHOD__);
+	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_username', 'block_reason', 'block_expiration_timestamp'), ['LOWER(CONVERT(block_username using utf8))' => strtolower($username)], __METHOD__);
 	return $row ? AccountRequestUsernameBlock::fromRow($row) : false;
 }
 
-function addBlock(string $username, string $reason, User $blocker, IDatabase $dbw) {
+function addBlock(string $username, string $reason, ?string $expirationTimestamp, User $blocker, IDatabase $dbw) {
 	$dbw->insert('scratch_accountrequest_block', [
 		'block_username' => $username,
 		'block_reason' => $reason,
 		'block_blocker_user_id' => $blocker->getId(),
-		'block_timestamp' => $dbw->timestamp()
+		'block_timestamp' => $dbw->timestamp(),
+		'block_expiration_timestamp' => $expirationTimestamp ? $dbw->timestamp($expirationTimestamp) : null
 	], __METHOD__);
 }
 
-function updateBlock(string $username, string $reason, User $blocker, IDatabase $dbw) {
-	$dbw->update('scratch_accountrequest_block', [
+function updateBlock(string $username, string $reason, ?string $expirationTimestamp, User $blocker, IDatabase $dbw) {
+	$updates = [
 		'block_reason' => $reason,
 		'block_blocker_user_id' => $blocker->getId(),
 		'block_timestamp' => $dbw->timestamp()
-	], ['block_username' => $username], __METHOD__);
+	];
+	if ($expirationTimestamp !== 'existing') {
+		$updates['block_expiration_timestamp'] = $expirationTimestamp ? $dbw->timestamp($expirationTimestamp) : null;
+	}
+	$dbw->update('scratch_accountrequest_block', $updates, ['block_username' => $username], __METHOD__);
+}
+
+function purgeExpiredBlocks(IDatabase $dbw) {	
+	$dbw->delete('scratch_accountrequest_block',
+	[
+		'block_expiration_timestamp IS NOT NULL',
+		'block_expiration_timestamp < ' . $dbw->timestamp()
+	],
+	__METHOD__);
 }
 
 function deleteBlock(string $username, IDatabase $dbw) {
@@ -279,7 +293,13 @@ function canMakeRequestForUsername(string $username, IDatabase $dbr) : bool {
 }
 
 function getBlocks(IDatabase $dbr) : array {
-	$result = $dbr->select('scratch_accountrequest_block', ['block_username', 'block_reason'], [], __METHOD__, ['ORDER BY' => 'block_timestamp ASC']);
+	$result = $dbr->select(
+		'scratch_accountrequest_block',
+		['block_username', 'block_reason', 'block_expiration_timestamp'],
+		['block_expiration_timestamp IS NULL OR block_expiration_timestamp >= ' . $dbr->timestamp()],
+		__METHOD__,
+		['ORDER BY' => 'block_timestamp ASC']
+	);
 
 	$blocks = [];
 	foreach ($result as $row) {

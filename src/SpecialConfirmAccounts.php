@@ -76,6 +76,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$table .= Html::element('th', [], wfMessage('scratch-confirmaccount-scratchusername'));
 			$table .= Html::element('th', [], wfMessage('scratch-confirmaccount-blockreason'));
 			$table .= Html::element('th', [], wfMessage('scratch-confirmaccount-actions'));
+			$table .= Html::element('th', [], wfMessage('scratch-confirmaccount-block-expiration-time'));
 			$table .= Html::closeElement('tr');
 
 			//actual list of blocks
@@ -87,6 +88,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 					SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text() . '/' . $block->blockedUsername),
 					wfMessage('scratch-confirmaccount-view')->text()
 				));
+				$row .= Html::rawElement('td', [], humanTimestampOrInfinite($block->expirationTimestamp, $this->getLanguage()));
 				$row .= Html::closeElement('tr');
 
 				return $row;
@@ -140,6 +142,16 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$table .= Html::openElement('tr');
 		$table .= Html::element('th', [], wfMessage('scratch-confirmaccount-blockreason')->text());
 		$table .= Html::rawElement('td', [], Html::element('textarea', ['class' => 'mw-scratch-confirmaccount-textarea', 'name' => 'reason'], $block ? $block->reason : ''));
+		$table .= Html::closeElement('tr');
+
+		$table .= Html::openElement('tr');
+		$table .= Html::element('th', [], wfMessage('scratch-confirmaccount-block-expiration-time')->text());
+		$table .= Html::rawElement('td', [], blockExpirationForm(
+			$this->getLanguage(),
+			$this->getUser(),
+			$block !== false,
+			$block ? $block->expirationTimestamp : null
+		));
 		$table .= Html::closeElement('tr');
 
 		$table .= Html::closeElement('table');
@@ -265,6 +277,17 @@ class SpecialConfirmAccounts extends SpecialPage {
 		
 		$username = $request->getText('username');
 		$reason = $request->getText('reason');
+		$expirationTimestamp = $request->getText('expiration_timestamp');
+		if ($expirationTimestamp !== 'existing') {
+			if ($expirationTimestamp === 'infinite') {
+				$expirationTimestamp = null;
+			} else {
+				if ($expirationTimestamp === 'othertime') {
+					$expirationTimestamp = $request->getText('expiration_timestamp_time');
+				}
+				$expirationTimestamp = empty(trim($expirationTimestamp)) ? null : wfTimestamp(TS_MW, strtotime($expirationTimestamp));
+			}
+		}
 		
 		// anti-CSRF
 		if (isCSRF($session, $request->getText('csrftoken'))) {
@@ -286,14 +309,16 @@ class SpecialConfirmAccounts extends SpecialPage {
 		
 		$block = getSingleBlock($username, $dbw);
 		if ($block) {
-			updateBlock($username, $reason, $this->getUser(), $dbw);
+			updateBlock($username, $reason, $expirationTimestamp, $this->getUser(), $dbw);
 		} else {
-			addBlock($username, $reason, $this->getUser(), $dbw);
+			if ($expirationTimestamp === 'existing') $expirationTimestamp = null;
+			addBlock($username, $reason, $expirationTimestamp, $this->getUser(), $dbw);
 		}
 
 		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
 		
 		commitTransaction($dbw, $mutexId);
+		JobQueueGroup::singleton()->push(new ExpiredBlockCleanupJob());
 	}
 
 	function handleUnblockFormSubmission(&$request, &$output, &$session) {
@@ -324,6 +349,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
 		
 		commitTransaction($dbw, $mutexId);
+		JobQueueGroup::singleton()->push(new ExpiredBlockCleanupJob());
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {

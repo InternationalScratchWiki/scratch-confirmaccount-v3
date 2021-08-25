@@ -78,13 +78,15 @@ class AccountRequestHistoryEntry {
 class AccountRequestUsernameBlock {
 	var $blockedUsername;
 	var $reason;
+	var $expirationTimestamp;
 
-	function __construct($blockedUsername, $reason) {
+	function __construct($blockedUsername, $reason, $expirationTimestamp) {
 		$this->blockedUsername = $blockedUsername;
 		$this->reason = $reason;
+		$this->expirationTimestamp = $expirationTimestamp;
 	}
 
 	static function fromRow($row) {
-		return new AccountRequestUsernameBlock($row->block_username, $row->block_reason);
+		return new AccountRequestUsernameBlock($row->block_username, $row->block_reason, $row->block_expiration_timestamp);
 	}
 }

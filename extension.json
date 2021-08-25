@@ -18,6 +18,7 @@
 		"SpecialConfirmAccounts": "src/SpecialConfirmAccounts.php",
 		"ScratchConfirmAccountHooks": "src/ScratchConfirmAccountHooks.php",
 		"AccountRequestCleanupJob": "src/jobs/AccountRequestCleanupJob.php",
+		"ExpiredBlockCleanupJob": "src/jobs/ExpiredBlockCleanupJob.php",
 		"ScratchConfirmAccountPreAuthenticationProvider": "src/ScratchConfirmAccountPreAuthenticationProvider.php"
 	},
 	"SpecialPages": {
@@ -25,7 +26,8 @@
 		"ConfirmAccounts": "SpecialConfirmAccounts"
 	},
 	"JobClasses": {
-		"accountRequestCleanup": "AccountRequestCleanupJob"
+		"accountRequestCleanup": "AccountRequestCleanupJob",
+		"expiredBlockCleanup": "ExpiredBlockCleanupJob"
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates",

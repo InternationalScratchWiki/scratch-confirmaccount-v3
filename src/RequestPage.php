@@ -617,4 +617,6 @@ function handleRequestActionSubmission($userContext, &$request, &$output, Specia
 	
 	//also when someone acts on a request, add an option to clear out old account request passwords
 	JobQueueGroup::singleton()->push(new AccountRequestCleanupJob());
+	//And remove expired blocks
+	JobQueueGroup::singleton()->push(new ExpiredBlockCleanupJob());
 }

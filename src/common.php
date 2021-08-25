@@ -61,6 +61,24 @@ function humanTimestamp($dbTimestamp, $language) {
 	);
 }
 
+function humanTimestampOrInfinite($dbTimestamp, $language) {
+	if ($dbTimestamp === null) return Html::element('span', array(), wfMessage('scratch-confirmaccount-block-infinite')->text());
+	$ts = new MWTimestamp($dbTimestamp);
+	return Html::element(
+		'span',
+		['title' => $ts->getTimestamp(TS_DB) . ' (UTC)'],
+		$language->getHumanTimestamp($ts)
+	);
+}
+
+function blockExpired($block) {
+	// infinite block
+	if ($block->expirationTimestamp === null) return false;
+	$current = intval(wfTimestamp(TS_UNIX));
+	$expirationTimestamp = intval(wfTimestamp(TS_UNIX, $block->expirationTimestamp));
+	return $current > $expirationTimestamp;
+}
+
 function setCSRFToken(&$session) {
 	$session->persist();
 	$csrftoken = $session->getToken();
@@ -88,4 +106,47 @@ function linkToScratchProfile(string $username) : string {
 		],
 		$username
 	);
+}
+
+function blockExpirationForm($lang, $user, bool $showCurrent, ?string $current) : string {
+	$commonOptions = wfMessage( 'scratch-confirmaccount-block-expiration-options' )->inContentLanguage()->text();
+	$expiryOptions = [];
+	if ($showCurrent) {
+		if ( $current === null ) {
+			$existingExpiryMessage = wfMessage( 'scratch-confirmaccount-block-existing-infinite' );
+		} else {
+			$d = $lang->userDate( $current, $user );
+			$t = $lang->userTime( $current, $user );
+			$existingExpiryMessage = wfMessage( 'scratch-confirmaccount-block-existing' )
+				->params(
+					$d,
+					$t
+				);
+		}
+		$expiryOptions[$existingExpiryMessage->text()] = 'existing';
+	}
+	$expiryOptions[wfMessage( 'scratch-confirmaccount-block-othertime-op' )->text()] = 'othertime';
+	$expiryOptions = array_merge( $expiryOptions, XmlSelect::parseOptionsMessage( $commonOptions ) );
+	$output = '';
+	$output .= Html::openElement('select', [
+		'name' => 'expiration_timestamp',
+		'class' => 'mw-scratch-confirmaccount-expiration-timestamp'
+	]);
+	foreach ($expiryOptions as $name => $value) {
+		$attrs = [
+			'value' => $value
+		];
+		if ($value === 'existing' && $showCurrent) {
+			$attrs['selected'] = true;
+		} else if ($value === 'infinite' && !$showCurrent) {
+			$attrs['selected'] = true;
+		}
+		$output .= Html::element('option', $attrs, $name);
+	}
+	$output .= Html::closeElement('select');
+	$output .= Html::openElement('br');
+	$output .= Html::input('expiration_timestamp_time', '', 'text', [
+		'disabled' => true
+	]);
+	return $output;
 }

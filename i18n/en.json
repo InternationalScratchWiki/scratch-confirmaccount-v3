@@ -137,5 +137,11 @@
 	"scratch-confirmaccount-common-admin-comments": "* Accept reasons\n** Your request has been approved! You may log in with your chosen username and password at Special:UserLogin.\n** Thank you for the comment. I have approved your request. You may log in with your chosen username and password at Special:UserLogin\n* Decline reasons\n** I have declined your request because you did not meet the listed requirements on the request page. You may re-request when you meet them.\n** I have declined your request because you did not properly file the request form. You may re-request in ___ from today.\n* Comments\n** Can you please clarify what you mean by ___?\n** Can you add more details to the request?\n** Can you please provide more examples for ___?",
 	"scratch-confirmaccount-stale-awaiting-user-auto-reject-message": "Your account request has been automatically rejected because no response has been received for $1 {{PLURAL:$1|day|days}}.",
 	"scratch-confirmaccount-attempted-login-with-active-request": "You have an active account request. [[Special:RequestAccount/$1|Please click here to view the status of that request]].",
-	"scratch-confirmaccount-request-action-conflict-warning": "Someone else has acted or commented on this request since you last loaded the page. Please review their actions before continuing."
+	"scratch-confirmaccount-request-action-conflict-warning": "Someone else has acted or commented on this request since you last loaded the page. Please review their actions before continuing.",
+	"scratch-confirmaccount-block-infinite": "Infinite",
+	"scratch-confirmaccount-block-expiration-options": "1 day:1 day,1 week:1 week,2 weeks:2 weeks,1 month:1 month,3 months:3 months,6 months:6 months,1 year:1 year,infinite:infinite",
+	"scratch-confirmaccount-block-existing-infinite": "Existing expiration time: infinite",
+	"scratch-confirmaccount-block-existing": "Existing expiration time: $2, $1",
+	"scratch-confirmaccount-block-othertime-op": "other time",
+	"scratch-confirmaccount-block-expiration-time": "Expiration Time"
 }
