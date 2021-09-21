@@ -439,7 +439,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $output, $this, $session, $language);
+			return requestPage($par, 'admin', $this);
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
 		} else {

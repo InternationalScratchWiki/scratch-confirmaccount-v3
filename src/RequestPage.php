@@ -6,81 +6,87 @@ require_once __DIR__ . '/common.php';
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
-function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
+function isAuthorizedToViewRequest($requestId, $userContext, &$session) : bool {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
 }
 
-function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
-	$form = Html::openElement('form', [
+function loginPage($loginType, SpecialPage $pageContext, $extra = []) : void {
+	assert(in_array($loginType, ['findRequest', 'confirmEmail']), 'Illegal argument type ' . $loginType . ' passed to loginPage, expected findRequest or confirmEmail');
+
+	$request = $pageContext->getRequest();
+	$session = $request->getSession();
+	$output = $pageContext->getOutput();
+
+	$output->enableOOUI();
+
+	$fieldset = new OOUI\FieldsetLayout([
+		'items' => [
+			new OOUI\FieldLayout(
+				new OOUI\TextInputWidget( [
+					'name' => 'username',
+					'required' => true,
+					'value' => $request->getText('username')
+				] ),
+				[
+					'label' => wfMessage('scratch-confirmaccount-scratchusername')->text(),
+					'align' => 'top',
+				]
+			),
+			new OOUI\FieldLayout(
+				new OOUI\TextInputWidget( [
+					'name' => 'password',
+					'type' => 'password',
+					'required' => true
+				] ),
+				[
+					'label' => wfMessage('scratch-confirmaccount-findrequest-password-prompt')->text(),
+					'align' => 'top',
+				]
+			),
+			new OOUI\HiddenInputWidget([
+				'name' => 'csrftoken',
+				'value' => setCSRFToken($session)
+			]),
+			new OOUI\HiddenInputWidget([
+				'name' => $loginType,
+				'value' => '1'
+			])
+		]
+	]);
+
+	$fieldset->addItems(array_map(function($extraInputName, $extraInputValue) {
+		return new OOUI\HiddenInputWidget([
+			'name' => $extraInputName,
+			'value' => $extraInputValue
+		]);
+	}, array_keys($extra), array_values($extra)));
+
+	$fieldset->addItems([
+		new OOUI\FieldLayout(
+			new OOUI\ButtonInputWidget([
+				'type' => 'submit',
+				'flags' => ['primary', 'progressive'],
+				'label' => wfMessage('scratch-confirmaccount-request-submit')->parse()
+			])
+		)
+	]);
+
+	$output->addHTML(new OOUI\FormLayout([
+		'action' => SpecialPage::getTitleFor('RequestAccount')->getFullURL(),
 		'method' => 'post',
-		'action' => SpecialPage::getTitleFor('RequestAccount')->getFullURL()
-	]);
-	$form .= Html::element('input', [
-		'type' => 'hidden',
-		'name' => 'csrftoken',
-		'value' => setCSRFToken($session)
-	]);
-	$form .= Html::element('input', [
-		'type' => 'hidden',
-		'name' => $loginType,
-		'value' => '1'
-	]);
-	if ($extra) {
-		foreach ($extra as $extraInputName => $extraInputValue) {
-			$form .= Html::element('input', [
-				'type' => 'hidden',
-				'name' => $extraInputName,
-				'value' => $extraInputValue
-			]);
-		}
-	}
-	$form .= Html::openElement('table');
-	$form .= Html::openElement('tr');
-	$form .= Html::rawElement('td', [], Html::element(
-		'label',
-		['for' => 'scratch-confirmaccount-findrequest-username'],
-		wfMessage('scratch-confirmaccount-scratchusername')->text()
-	));
-	$form .= Html::rawElement('td', [], Html::element(
-		'input',
-		[
-			'type' => 'text',
-			'name' => 'username',
-			'id' => 'scratch-confirmaccount-findrequest-username'
-		]
-	));
-	$form .= Html::closeElement('tr');
-	$form .= Html::openElement('tr');
-	$form .= Html::rawElement('td', [], Html::element(
-		'label',
-		['for' => 'scratch-confirmaccount-findrequest-password'],
-		wfMessage('scratch-confirmaccount-findrequest-password-prompt')->text()
-	));
-	$form .= Html::rawElement('td', [], Html::element(
-		'input',
-		[
-			'type' => 'password',
-			'name' => 'password',
-			'id' => 'scratch-confirmaccount-findrequest-password'
-		]
-	));
-	$form .= Html::closeElement('tr');
-	$form .= Html::closeElement('table');
-	$form .= Html::element('input', [
-		'type' => 'submit',
-		'value' => wfMessage('scratch-confirmaccount-submit')->parse()
-	]);
-	$form .= Html::closeElement('table');
-
-	$output->addHTML($form);
+		'items' => [
+			$fieldset
+		],
+	]));
+	return;
 }
 
-function findRequestPage(&$request, &$output, &$session) {
-	loginPage('findRequest', $request, $output, $session);
+function findRequestPage(SpecialPage $pageContext) {
+	loginPage('findRequest', $pageContext);
 }
 
-function confirmEmailPage($token, &$request, &$output, &$session) {
-	loginPage('confirmEmail', $request, $output, $session, [
+function confirmEmailPage($token, SpecialPage $pageContext) {
+	loginPage('confirmEmail', $pageContext, [
 		'emailToken' => $token
 	]);
 }
@@ -99,6 +105,8 @@ const actionHeadingsByContext = [
 function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session, $timestamp) {
 	global $wgUser;
 
+	$output->enableOOUI();
+
 	$request = $pageContext->getRequest();
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
@@ -110,127 +118,99 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[],
 			wfMessage(actionHeadingsByContext[$userContext])->text()
 		);
-		
-		$disp .= Html::openElement(
-			'form',
-			[
-				'action' => $pageContext->getPageTitle()->getLocalUrl(),
-				'method' => 'post',
-				'enctype' => 'multipart/form-data',
-				'class' => 'mw-scratch-confirmaccount-request-form'
+
+		$fieldset = new OOUI\FieldsetLayout([
+			'items' => [
+				new OOUI\HiddenInputWidget([
+					'name' => 'csrftoken',
+					'value' => setCSRFToken($session)
+				]),
+				new OOUI\HiddenInputWidget([
+					'name' => 'shouldOpenScratchPage',
+					'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
+				]),
+				new OOUI\HiddenInputWidget([
+					'name' => 'requestid',
+					'value' => $accountRequest->id
+				]),
+				new OOUI\HiddenInputWidget([
+					'name' => 'loadtimestamp',
+					'value' => $timestamp
+				])
 			]
-		);
-		
-		$disp .= Html::element('input', [
-			'type' => 'hidden',
-			'name' => 'csrftoken',
-			'value' => setCSRFToken($session)
 		]);
-		
-		$disp .= Html::rawElement(
-			'input',
-			[
-				'type' => 'hidden',
-				'name' => 'shouldOpenScratchPage',
-				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
-			]
-		);
-		
-		$disp .= Html::rawElement(
-			'input',
-			[
-				'type' => 'hidden',
-				'name' => 'requestid',
-				'value' => $accountRequest->id
-			]
-		);
-		
-		$disp .= Html::rawElement('input',
-			[
-				'type' => 'hidden',
-				'name' => 'loadtimestamp',
-				'value' => $timestamp
-			]
-		);
-		
+
 		//show the list of actions, or just a hidden element if there is only one available action
 		$usable_actions = array_filter(actions, function($action) use($userContext) { return in_array($userContext, $action['performers']); });
-
+		
 		if (sizeof($usable_actions) == 1) {
-			$disp .= Html::element(
-				'input',
-				[
-					'type' => 'hidden',
+			$fieldset->addItems([
+				new OOUI\HiddenInputWidget([
 					'name' => 'action',
 					'value' => array_keys($usable_actions)[0],
-					'required' => true
-				]
-			);
+				])
+			]);
 		} else {
-			$disp .= Html::openElement('ul', ['class' => 'mw-scratch-confirmaccount-actions-list']);
-			
 			$selectedAction = $request->getText('action') ?? '';
-			
-			$disp .= implode(array_map(function($key, $val) use ($selectedAction) {
-				$row = Html::openElement('li');
-				$row .= Html::element(
-					'input',
-					[
-						'type' => 'radio',
-						'name' => 'action',
-						'id' => 'scratch-confirmaccount-action-' . $key,
-						'value' => $key,
-						'required' => true,
-						'checked' => $selectedAction === $key
-					]
-				);
-				$row .= Html::element(
-					'label',
-					['for' => 'scratch-confirmaccount-action-' . $key],
-					wfMessage($val['message'])->text()
-				);
-				$row .= Html::closeElement('li');
-				return $row;
-			}, array_keys($usable_actions), array_values($usable_actions)));
-			$disp .= Html::closeElement('ul');
+
+			//FIXME: show ths horizontally
+			$fieldset->addItems([
+				new OOUI\RadioSelectInputWidget([
+					'options' => array_map(function ($actionKey, $actionVal) use ($selectedAction) {
+						return [
+							'data' => '',
+							'label' => wfMessage($actionVal['message'])->text(),
+							'checked' => $selectedAction === $actionKey //FIXME: this shouldn't be shown by default for "comment"
+						];
+					}, array_keys($usable_actions), array_values($usable_actions))
+				])
+			]);
 		}
-		
-		//display the common list of admin comments
-		if ($userContext == 'admin') {
+
+		if ($userContext === 'admin') {
+			$dropdownOptions = [];
+
 			$options = Xml::listDropDownOptions(
-				 wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(),
-				 [ 'other' => wfMessage( 'other' )->text() ]
-			 );
-			$disp .= Xml::listDropDown('scratch-confirmaccount-comment-dropdown', wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text(), '', 'mw-scratch-confirmaccount-bigselect');
+				wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(),
+				[ 'other' => wfMessage( 'other' )->text() ]
+			);
+
+			//FIXME: show "other" properly and apply JS logic when selected
+			$fieldset->addItems([
+				new OOUI\DropdownInputWidget([
+					'options' => Xml::listDropDownOptionsOoui($options, wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text())
+				])
+			]);
 		}
+
+		$fieldset->addItems([
+			new OOUI\FieldLayout(
+				new OOUI\MultilineTextInputWidget( [
+					'name' => 'comment',
+					'required' => true,
+					'value' => $request->getText('requestnotes')
+				] ),
+				[
+					'label' => wfMessage('scratch-confirmaccount-comment')->text(),
+					'align' => 'top',
+				]
+			),
+			new OOUI\FieldLayout(
+				new OOUI\ButtonInputWidget([
+					'type' => 'submit',
+					'flags' => ['primary', 'progressive'],
+					'label' => wfMessage('scratch-confirmaccount-request-submit')->parse()
+				])
+			)
+		]);
 		
-		//display the comment box
-		$disp .= Html::openElement('p');
-		$disp .= Html::element(
-			'label',
-			['for' => 'scratch-confirmaccount-comment'],
-			wfMessage('scratch-confirmaccount-comment')->text()
-		);
-		$disp .= Html::element(
-			'textarea',
-			[
-				'class' => 'mw-scratch-confirmaccount-textarea',
-				'name' => 'comment',
-				'id' => 'scratch-confirmaccount-comment',
-				'required' => 'required'
-			],
-			$request->getText('comment') ?? ''
-		);
-		$disp .= Html::closeElement('p');
-		$disp .= Html::rawElement(
-			'p',
-			[],
-			Html::element('input', [
-				'type' => 'submit',
-				'value' => wfMessage('scratch-confirmaccount-submit')->parse()
-			])
-		);
-		$disp .= Html::closeElement('form');
+		$disp .= new OOUI\FormLayout([
+			'action' => $pageContext->getPageTitle()->getLocalUrl(),
+			'method' => 'post',
+			'items' => [
+				$fieldset
+			]
+		],);
 		
 		$output->addHTML($disp);
 	}
@@ -462,8 +442,13 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 	}
 }
 
-function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language, $conflictTimestamp = null) {
+function requestPage($requestId, string $userContext, SpecialPage $pageContext, $conflictTimestamp = null) {
 	global $wgUser;
+
+	$request = $pageContext->getRequest();
+	$output = $pageContext->getOutput();
+	$session = $request->getSession();
+	$language = $pageContext->getLanguage();
 	
 	$dbr = getReadOnlyDatabase();
 	
@@ -558,7 +543,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, Specia
 	//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
 	$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
 	if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
-		requestPage($accountRequest->id, $userContext, $output, $pageContext, $session, $language, $submissionTimestamp);
+		requestPage($accountRequest->id, $userContext, $pageContext, $submissionTimestamp);
 		cancelTransaction($dbw, $mutexId);
 		return;
 	}

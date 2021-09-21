@@ -532,11 +532,11 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
-				$request, $output, $session);
+				$this);
 		} else if ($par == 'FindRequest') {
-			return findRequestPage($request, $output, $session);
+			return findRequestPage($this);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'user', $output, $this, $session, $language);
+			return requestPage($par, 'user', $this);
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
