@@ -2,6 +2,7 @@
 require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/RequestPage.php';
+require_once __DIR__ . '/subpages/RequirementsBypassPage.php';
 
 function truncate(string $str, int $length) : string {
 	assert($length >= 0);
@@ -359,6 +360,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$this->handleBlockFormSubmission($request, $output, $session);
 		} else if ($request->getText('unblockSubmit')) {
 			$this->handleUnblockFormSubmission($request, $output, $session);
+		} else if ($request->getText('bypassAddUsername') || $request->getText('bypassRemoveUsername')) { //TODO: refactor to move all the subpages into their own files
+			$bypassPage = new RequirementsBypassPage($this);
+			$bypassPage->handleFormSubmission();
 		}
 	}
 
@@ -434,12 +438,15 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return $this->handleFormSubmission($request, $output, $session);
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
 			return $this->blocksPage($par, $request, $output, $session);
+		} else if (strpos($par, 'bypasses') === 0) { //TODO: use an interface message for this
+			$bypassPage = new RequirementsBypassPage($this);
+			return $bypassPage->render();
 		} else if ($request->getText('username')) {
 			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $output, $this, $session, $language);
+			return requestPage($par, 'admin', $this);
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
 		} else {
