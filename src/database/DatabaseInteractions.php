@@ -281,6 +281,15 @@ function userExists(string $username, IDatabase $dbr) : bool {
 	) > 0;
 }
 
+function getUsernameBypasses(IDatabase $dbr) {
+	return $dbr->selectFieldValues(
+		'scratch_accountrequest_requirements_bypass',
+		'bypass_username',
+		[],
+		__METHOD__
+	);
+}
+
 function hasUsernameRequirementsBypass(string $username, IDatabase $dbr) : bool {
 	return $dbr->selectRowCount(
 		'scratch_accountrequest_requirements_bypass', 
@@ -288,6 +297,27 @@ function hasUsernameRequirementsBypass(string $username, IDatabase $dbr) : bool 
 		['LOWER(CONVERT(bypass_username using utf8))' => strtolower($username)], 
 		__METHOD__
 	) > 0;
+}
+
+function addUsernameRequirementsBypass(string $username, IDatabase $dbw) {
+	$dbw->insert(
+		'scratch_accountrequest_requirements_bypass', 
+		[
+			'bypass_username' => $username
+		],
+		__METHOD__,
+		['IGNORE']
+	);
+}
+
+function removeUsernameRequirementsBypass(string $username, IDatabase $dbw) {
+	$dbw->delete(
+		'scratch_accountrequest_requirements_bypass', 
+		[
+			'bypass_username' => $username
+		],
+		__METHOD__
+	);
 }
 
 /**

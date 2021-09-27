@@ -9,7 +9,17 @@ class RequirementsBypassPage {
     }
 
     function handleFormSubmission() {
-        //TODO: implement this
+        $request = $request = $this->pageContext->getRequest();
+
+        $dbw = getTransactableDatabase('scratch-confirmaccount-bypasses');
+
+        if ($request->getText('bypassAddUsername')) {
+            addUsernameRequirementsBypass($request->getText('bypassAddUsername'), $dbw);
+        } else if ($request->getText('bypassRemoveUsername')) {
+            removeUsernameRequirementsBypass($request->getText('bypassRemoveUsername'), $dbw);
+        }
+
+        commitTransaction($dbw, 'scratch-confirmaccount-bypasses');
     }
 
     function showAddBypassForm() {
