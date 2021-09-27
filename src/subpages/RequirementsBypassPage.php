@@ -4,6 +4,12 @@ require_once __DIR__ . '/../database/DatabaseInteractions.php';
 class RequirementsBypassPage {
     private $pageContext;
 
+    //the mapping of (form field name => function to call with it)
+    const requestVariableActionMapping = [
+        'bypassAddUsername' => 'addUsernameRequirementsBypass',
+        'bypassRemoveUsername' => 'removeUsernameRequirementsBypass'
+    ];
+
     function __construct(SpecialPage $pageContext) {
         $this->pageContext = $pageContext;
     }
@@ -13,10 +19,10 @@ class RequirementsBypassPage {
 
         $dbw = getTransactableDatabase('scratch-confirmaccount-bypasses');
 
-        if ($request->getText('bypassAddUsername')) {
-            addUsernameRequirementsBypass($request->getText('bypassAddUsername'), $dbw);
-        } else if ($request->getText('bypassRemoveUsername')) {
-            removeUsernameRequirementsBypass($request->getText('bypassRemoveUsername'), $dbw);
+        foreach (self::requestVariableActionMapping as $fieldKey => $action) {
+            if ($request->getText($fieldKey)) {
+                $action($request->getText($fieldKey), $dbw);
+            }
         }
 
         commitTransaction($dbw, 'scratch-confirmaccount-bypasses');

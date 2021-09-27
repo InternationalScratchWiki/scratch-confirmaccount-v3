@@ -259,6 +259,9 @@ function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	$logId = $logEntry->insert();
 
 	$logEntry->publish($logId);
+
+	//if there was any requirements bypass, remove it
+	removeUsernameRequirementsBypass($request->username, $dbw);
 	
 	return $user;
 }
