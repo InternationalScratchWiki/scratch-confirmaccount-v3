@@ -281,6 +281,15 @@ function userExists(string $username, IDatabase $dbr) : bool {
 	) > 0;
 }
 
+function hasUsernameRequirementsBypass(string $username, IDatabase $dbr) : bool {
+	return $dbr->selectRowCount(
+		'scratch_accountrequest_requirements_bypass', 
+		'1',
+		['LOWER(CONVERT(bypass_username using utf8))' => strtolower($username)], 
+		__METHOD__
+	) > 0;
+}
+
 /**
  * Check if it is possible to make a request under a given username
  *

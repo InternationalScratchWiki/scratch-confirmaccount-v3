@@ -73,16 +73,18 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 		//verify the account's age and Scratcher status
-		$user_check_error = ScratchUserCheck::check($username);
-		switch ($user_check_error) {
-			case 'scratch-confirmaccount-new-scratcher':
-			case 'scratch-confirmaccount-profile-error':
-				$out_error = wfMessage($user_check_error)->text();
-				return;
-			case 'scratch-confirmaccount-joinedat':
-				$days = ceil($wgScratchAccountJoinedRequirement / (24 * 60 * 60));
-				$out_error = wfMessage($user_check_error, $days)->text();
-				return;
+		if (!hasUsernameRequirementsBypass($username, $dbr)) {
+			$user_check_error = ScratchUserCheck::check($username);
+			switch ($user_check_error) {
+				case 'scratch-confirmaccount-new-scratcher':
+				case 'scratch-confirmaccount-profile-error':
+					$out_error = wfMessage($user_check_error)->text();
+					return;
+				case 'scratch-confirmaccount-joinedat':
+					$days = ceil($wgScratchAccountJoinedRequirement / (24 * 60 * 60));
+					$out_error = wfMessage($user_check_error, $days)->text();
+					return;
+			}
 		}
 		
 		//also make sure there aren't any active requests under the given username
