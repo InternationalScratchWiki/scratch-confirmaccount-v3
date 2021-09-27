@@ -36,7 +36,7 @@ class RequirementsBypassPage {
         
         $output->addHTML(
             new OOUI\FormLayout([
-                'action' => SpecialPage::getTitleFor('ConfirmAccounts', 'bypasses')->getFullURL(), //TODO: use language key for subpage
+                'action' => SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text())->getFullURL(),
                 'method' => 'post',
                 'items' => [
                     new OOUI\ActionFieldLayout(
@@ -76,9 +76,9 @@ class RequirementsBypassPage {
             $table .= Html::element('td', [], $username);
 
             $table .= Html::openElement('td');
-            $table .= Html::openElement('form', ['action' => SpecialPage::getTitleFor('ConfirmAccounts', 'bypasses')->getFullURL(), 'method' => 'post']); //TODO: use localization key
+            $table .= Html::openElement('form', ['action' => SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text())->getFullURL(), 'method' => 'post']);
             $table .= Html::element('input', ['type' => 'hidden', 'name' => 'bypassRemoveUsername', 'value' => $username]);
-            $table .= Html::element('input', ['type' => 'submit', 'value' => 'Remove']);
+            $table .= Html::element('input', ['type' => 'submit', 'value' => wfMessage('scratch-confirmaccount-requirements-bypasses-remove')->text()]);
             $table .= Html::closeElement('form');
             $table .= Html::closeElement('td');
 

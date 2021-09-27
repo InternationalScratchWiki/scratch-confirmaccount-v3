@@ -438,7 +438,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return $this->handleFormSubmission($request, $output, $session);
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
 			return $this->blocksPage($par, $request, $output, $session);
-		} else if (strpos($par, 'bypasses') === 0) { //TODO: use an interface message for this
+		} else if (strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
 			$bypassPage = new RequirementsBypassPage($this);
 			return $bypassPage->render();
 		} else if ($request->getText('username')) {
