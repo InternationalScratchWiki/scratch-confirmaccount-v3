@@ -20,6 +20,8 @@ class RequirementsBypassPage {
         }
 
         commitTransaction($dbw, 'scratch-confirmaccount-bypasses');
+
+        $this->render();
     }
 
     function showAddBypassForm() {
