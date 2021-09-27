@@ -145,5 +145,7 @@
 	"scratch-confirmaccount-block-othertime-op": "other time",
 	"scratch-confirmaccount-block-expiration-time": "Expiration Time",
 	"scratch-confirmaccount-requirements-bypasses-url": "bypasses",
-	"scratch-confirmaccount-requirements-bypasses-remove": "Remove"
+	"scratch-confirmaccount-requirements-bypasses-remove": "Remove",
+	"scratch-confirmaccount-requirements-bypasses-admin-text": "Requirements Bypasses",
+	"scratch-confirmaccount-requirements-bypasses-add": "Add bypass"
 }

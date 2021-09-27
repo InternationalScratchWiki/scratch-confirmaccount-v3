@@ -48,7 +48,7 @@ class RequirementsBypassPage {
                         new OOUI\ButtonInputWidget([
                             'type' => 'submit',
                             'flags' => ['primary', 'progressive'],
-                            'label' => wfMessage('scratch-confirmaccount-request-submit')->parse()
+                            'label' => wfMessage('scratch-confirmaccount-requirements-bypasses-add')->parse()
                         ])
                     )
                 ],

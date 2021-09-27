@@ -407,6 +407,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 			);
 		}
 
+		$links[] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-requirements-bypasses-url')),
+			wfMessage('scratch-confirmaccount-requirements-bypasses-admin-text')->text()
+		);
+
 		$this->getOutput()->setSubtitle($this->getLanguage()->pipeList($links));
 	}
 
