@@ -8,6 +8,7 @@ class ScratchConfirmAccountHooks {
 		$updater->addExtensionTable('scratch_accountrequest_request', __DIR__ . '/../sql/requests.sql');
 		$updater->addExtensionTable('scratch_accountrequest_block', __DIR__ . '/../sql/blocks.sql');
 		$updater->addExtensionTable('scratch_accountrequest_history', __DIR__ . '/../sql/request_handling_history.sql');
+		$updater->addExtensionTable('scratch_accountrequest_requirements_bypass', __DIR__ . '/../sql/requirements_bypass.sql');
 		$updater->addExtensionField('scratch_accountrequest_request', 'request_active_username', __DIR__ . '/../sql/requests_activeusername.sql');
 		$updater->addExtensionField('scratch_accountrequest_block', 'block_expiration_timestamp', __DIR__ . '/../sql/block_expiration_timestamp.sql');
 	}

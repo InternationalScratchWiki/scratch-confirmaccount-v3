@@ -136,5 +136,9 @@
 	"scratch-confirmaccount-block-existing-infinite": "Option to keep the existing block duration (infinite)",
 	"scratch-confirmaccount-block-existing": "Option to keep the existing block duration - parameter 1 is the date and parameter 2 is the time",
 	"scratch-confirmaccount-block-othertime-op": "Option to specify time not listed using a text input",
-	"scratch-confirmaccount-block-expiration-time": "Label for expiration time field"
+	"scratch-confirmaccount-block-expiration-time": "Label for expiration time field",
+	"scratch-confirmaccount-requirements-bypasses-url": "The URL component of the subpage for requirements bypasses",
+	"scratch-confirmaccount-requirements-bypasses-remove": "The text for the \"Remove\" button on the requirements bypasses page",
+	"scratch-confirmaccount-requirements-bypasses-admin-text": "Title of the admin page for requirements bypasses",
+	"scratch-confirmaccount-requirements-bypasses-add": "The text for the button to add a bypass"
 }

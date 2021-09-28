@@ -2,6 +2,7 @@
 require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/RequestPage.php';
+require_once __DIR__ . '/subpages/RequirementsBypassPage.php';
 
 function truncate(string $str, int $length) : string {
 	assert($length >= 0);
@@ -359,6 +360,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$this->handleBlockFormSubmission($request, $output, $session);
 		} else if ($request->getText('unblockSubmit')) {
 			$this->handleUnblockFormSubmission($request, $output, $session);
+		} else if ($request->getText('bypassAddUsername') || $request->getText('bypassRemoveUsername')) { //TODO: refactor to move all the subpages into their own files
+			$bypassPage = new RequirementsBypassPage($this);
+			$bypassPage->handleFormSubmission();
 		}
 	}
 
@@ -403,6 +407,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 			);
 		}
 
+		$links[] = $linkRenderer->makeKnownLink(
+			SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-requirements-bypasses-url')),
+			wfMessage('scratch-confirmaccount-requirements-bypasses-admin-text')->text()
+		);
+
 		$this->getOutput()->setSubtitle($this->getLanguage()->pipeList($links));
 	}
 
@@ -434,6 +443,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return $this->handleFormSubmission($request, $output, $session);
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
 			return $this->blocksPage($par, $request, $output, $session);
+		} else if (strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
+			$bypassPage = new RequirementsBypassPage($this);
+			return $bypassPage->render();
 		} else if ($request->getText('username')) {
 			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {

@@ -259,6 +259,9 @@ function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	$logId = $logEntry->insert();
 
 	$logEntry->publish($logId);
+
+	//if there was any requirements bypass, remove it
+	removeUsernameRequirementsBypass($request->username, $dbw);
 	
 	return $user;
 }
@@ -279,6 +282,45 @@ function userExists(string $username, IDatabase $dbr) : bool {
 		['LOWER(CONVERT(user_name using utf8))' => strtolower($username)],
 		__METHOD__
 	) > 0;
+}
+
+function getUsernameBypasses(IDatabase $dbr) {
+	return $dbr->selectFieldValues(
+		'scratch_accountrequest_requirements_bypass',
+		'bypass_username',
+		[],
+		__METHOD__
+	);
+}
+
+function hasUsernameRequirementsBypass(string $username, IDatabase $dbr) : bool {
+	return $dbr->selectRowCount(
+		'scratch_accountrequest_requirements_bypass', 
+		'1',
+		['LOWER(CONVERT(bypass_username using utf8))' => strtolower($username)], 
+		__METHOD__
+	) > 0;
+}
+
+function addUsernameRequirementsBypass(string $username, IDatabase $dbw) {
+	$dbw->insert(
+		'scratch_accountrequest_requirements_bypass', 
+		[
+			'bypass_username' => $username
+		],
+		__METHOD__,
+		['IGNORE']
+	);
+}
+
+function removeUsernameRequirementsBypass(string $username, IDatabase $dbw) {
+	$dbw->delete(
+		'scratch_accountrequest_requirements_bypass', 
+		[
+			'bypass_username' => $username
+		],
+		__METHOD__
+	);
 }
 
 /**
