@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Mini Kostik"
+			"Mini Kostik",
+			"Naleksuh"
 		]
 	},
 	"scratch-confirmaccount": "Система запроса аккаунта Скретч",
@@ -35,6 +36,7 @@
 	"scratch-confirmaccount-lastupdated": "Последний раз изменено",
 	"scratch-confirmaccount-username": "Имя пользователя",
 	"scratch-confirmaccount-actions": "Действия",
+	"scratch-confirmaccount-leave-comment": "Leave a comment",
 	"scratch-confirmaccount-view": "Посмотреть",
 	"scratch-confirmaccount-blocks": "Блокировки",
 	"scratch-confirmaccount-unblock": "Разблокировать",
@@ -48,6 +50,7 @@
 	"scratch-confirmaccount-history": "История",
 	"scratch-confirmaccount-submit": "Подтвердить",
 	"scratch-confirmaccount-invalid-action": "Это действие недействительно.",
+	"scratch-confirmaccount-empty-comment": "You need to specify a comment.",
 	"scratch-confirmaccount-already-accepted": "Вы не можете рассмотреть заявки, которые уже были приняты.",
 	"scratch-confirmaccount-already-rejected": "Вы не можете комементировать на заявке, которая была отклонена.",
 	"scratch-confirmaccount-comment-done": "Комментарий отправлен. [[Special:ConfirmAccounts/$1|Вернуться к заявке]]",
@@ -74,10 +77,13 @@
 	"scratch-confirmaccount-request-exists": "Ваша заявка уже получена. Пожалуйста, дождитесь её рассмотрения администратором.",
 	"scratch-confirmaccount-verif-missing": "Пожалуйста, прокомментируйте проверочный код при входе в Скретч '$1'.",
 	"scratch-confirmaccount-user-blocked": "Вам нельзя запросить аккаунт по следующей причине: $1",
+	"scratch-confirmaccount-ip-blocked": "Your IP address has blocked from creating accounts.",
 	"scratch-confirmaccount-invalid-email": "Адрес электронной почты недействителен.",
 	"scratch-confirmaccount-disagree-tos": "Вы должны согласиться с Условиями предоставления услуг, чтобы запросить аккаунт.",
 	"scratch-confirmaccount-no-request-notes": "Заметки запроса не могут быть пустыми.",
+	"scratch-confirmaccount-request-notes-too-long": "Your request notes are too long. Please limit them to $1 characters.",
 	"scratch-confirmaccount-success": "Заявка была получена. Администраторы рассмотрят её и отправят ответ на [[Special:RequestAccount/$1|страницу запроса]].",
+	"scratch-confirmaccount-success-noid": "Account request has been received. The administrators will handle it and send a response on the [[Special:RequestAccount/FindRequest|request page]].",
 	"scratch-confirmaccount-waiting-request": "$1: $2",
 	"scratch-confirmaccount-new": "Новый",
 	"scratch-confirmaccount-awaiting-admin": "Ожидают администратора",
@@ -93,6 +99,7 @@
 	"scratch-confirmaccount-set-status-awaiting-user": "Запросить комментарий пользователя",
 	"scratch-confirmaccount-set-status-awaiting-admin": "Добавить комментарий для администратора",
 	"scratch-confirmaccount-password": "Пароль",
+	"scratch-confirmaccount-password-caption": "This password will be used to access your request and will also be your password if your request is accepted. Please do not use your Scratch password here.",
 	"scratch-confirmaccount-password2": "Подтверждение пароля",
 	"scratch-confirmaccount-incorrect-password": "Пароли не совпадают.",
 	"scratch-confirmaccount-password-min": "Ваш пароль должен состоять по крайней мере из $1 знаков.",
@@ -120,11 +127,24 @@
 
 	"scratch-confirmaccount-email-subject": "Пожалуйста, подтвердите адрес электронной почты для $1",
 	"scratch-confirmaccount-email-body": "Здравствуй, $1,\n\nкто-то запросил аккаунт на $2. Чтобы подтвердить адрес электронной почты, пожалуйста, откройте эту страницу:\n\n$3\n\nЭта ссылка истечёт $4. Заметьте, что вас попросят ввести имя пользователя и пароль во время процесса.\nПодтверждение адреса электронной почты необязательно, но это позволит сбросить пароль через почту. Если вы не запрашивали аккаунт на $2, пожалуйста, проигнорируйте это письмо.",
-	
+
 	"scratch-confirmaccount-open-scratch": "Откройте Скретч, перед тем как рассматривать заявки",
-	
+
 	"scratch-confirmaccount-request-account-login-notice": "Если вы хотите аккаунт, вы должны его [[Special:RequestAccount|запросить]].",
 	"scratch-confirmaccount-view-request": "Уже запросили? [[Special:RequestAccount/FindRequest|Посмотреть свою заявку]].",
 	"scratch-confirmaccount-dropdown-other": "Прочее",
-	"scratch-confirmaccount-common-admin-comments": "* Причины принятия\n** Ваша заявка была одобрена! Вы можете войти в свой аккаунт на Special:UserLogin.\n** Спасибо за комментарий. Я одобрил вашу заявку. Вы можете войти под своим логином и паролем на Special:UserLogin\n* Причины отклонения\n** Я отклонил вашу заявку, потому что вы не соблюли требования, указанные на странице запроса заявки. Вы можете запросить аккаунт ещё раз.\n** Я отклонил вашу завяку, потому что вы неправильно заполнили форму запроса. Вы можете запросить еще раз на ___ с сегодняшнего дня.\n* Комментарии\n** Не могли бы вы прояснить, что значит ___?\n** Не могли бы вы добавить больше деталей в свой запрос?\n** Не могли бы вы привести больше примеров для ___?"
+	"scratch-confirmaccount-common-admin-comments": "* Причины принятия\n** Ваша заявка была одобрена! Вы можете войти в свой аккаунт на Special:UserLogin.\n** Спасибо за комментарий. Я одобрил вашу заявку. Вы можете войти под своим логином и паролем на Special:UserLogin\n* Причины отклонения\n** Я отклонил вашу заявку, потому что вы не соблюли требования, указанные на странице запроса заявки. Вы можете запросить аккаунт ещё раз.\n** Я отклонил вашу завяку, потому что вы неправильно заполнили форму запроса. Вы можете запросить еще раз на ___ с сегодняшнего дня.\n* Комментарии\n** Не могли бы вы прояснить, что значит ___?\n** Не могли бы вы добавить больше деталей в свой запрос?\n** Не могли бы вы привести больше примеров для ___?",
+	"scratch-confirmaccount-stale-awaiting-user-auto-reject-message": "Your account request has been automatically rejected because no response has been received for $1 {{PLURAL:$1|day|days}}.",
+	"scratch-confirmaccount-attempted-login-with-active-request": "You have an active account request. [[Special:RequestAccount/$1|Please click here to view the status of that request]].",
+	"scratch-confirmaccount-request-action-conflict-warning": "Someone else has acted or commented on this request since you last loaded the page. Please review their actions before continuing.",
+	"scratch-confirmaccount-block-infinite": "Infinite",
+	"scratch-confirmaccount-block-expiration-options": "1 day:1 day,1 week:1 week,2 weeks:2 weeks,1 month:1 month,3 months:3 months,6 months:6 months,1 year:1 year,infinite:infinite",
+	"scratch-confirmaccount-block-existing-infinite": "Existing expiration time: infinite",
+	"scratch-confirmaccount-block-existing": "Existing expiration time: $2, $1",
+	"scratch-confirmaccount-block-othertime-op": "other time",
+	"scratch-confirmaccount-block-expiration-time": "Expiration Time",
+	"scratch-confirmaccount-requirements-bypasses-url": "bypasses",
+	"scratch-confirmaccount-requirements-bypasses-remove": "Remove",
+	"scratch-confirmaccount-requirements-bypasses-admin-text": "Requirements Bypasses",
+	"scratch-confirmaccount-requirements-bypasses-add": "Add bypass"
 }
