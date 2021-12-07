@@ -93,6 +93,7 @@
 	"scratch-confirmaccount-set-status-awaiting-user": "申請者待ち",
 	"scratch-confirmaccount-set-status-awaiting-admin": "管理者待ち",
 	"scratch-confirmaccount-password": "パスワード",
+	"scratch-confirmaccount-password-caption": "このパスワードは、アカウント申請を確認する時に使用します。また、アカウントの申請が承認された場合、アカウントのパスワードになります。Scratchで使用しているパスワードは、ここでは使用しないでください。",
 	"scratch-confirmaccount-password2": "パスワード (確認)",
 	"scratch-confirmaccount-incorrect-password": "パスワードが一致しません。",
 	"scratch-confirmaccount-password-min": "パスワードは$1文字以上でないといけません。",
@@ -124,5 +125,18 @@
 	"scratch-confirmaccount-request-account-login-notice": "アカウントを入手したい場合は、[[Special:RequestAccount|申請が必要]]です。",
 	"scratch-confirmaccount-view-request": "すでに申請しましたか? [[Special:RequestAccount/FindRequest|申請を見る]]",
 	"scratch-confirmaccount-dropdown-other": "その他",
-	"scratch-confirmaccount-common-admin-comments": "* 承認理由\n** 申請は承認されました! Special:UserLoginにてユーザー名とパスワードを入力してログインできます。\n** コメントありがとうございます。申請を承認しました。Special:UserLoginにてユーザー名とパスワードを入力してログインできます。\n* 却下理由\n** 申請ページに掲載された要件を満たさないため、申請を却下しました。要件を満たした後再申請できます。\n** 特記事項欄の内容に問題があるため申請は却下されました。___日後再申請できます。\n* コメント\n** __とはどういうことですか?\n** 詳細を教えてください。\n** ___の例をもっと教えてください。"
+	"scratch-confirmaccount-common-admin-comments": "* 承認理由\n** 申請は承認されました! Special:UserLoginにてユーザー名とパスワードを入力してログインできます。\n** コメントありがとうございます。申請を承認しました。Special:UserLoginにてユーザー名とパスワードを入力してログインできます。\n* 却下理由\n** 申請ページに掲載された要件を満たさないため、申請を却下しました。要件を満たした後再申請できます。\n** 特記事項欄の内容に問題があるため申請は却下されました。___日後再申請できます。\n* コメント\n** __とはどういうことですか?\n** 詳細を教えてください。\n** ___の例をもっと教えてください。",
+	"scratch-confirmaccount-stale-awaiting-user-auto-reject-message": "あなたの申請は、$1 {{PLURAL:$1|日|日間}}返信がなかったため、自動的に拒否されました。",
+	"scratch-confirmaccount-attempted-login-with-active-request": "アクティブな申請があります。 [[Special:RequestAccount/$1|ここをクリックして、申請を確認してください]]。",
+	"scratch-confirmaccount-request-action-conflict-warning": "誰かがあなたがこのページを最後に読み込んでから、コメントまたは処理を行なっています。コメントなどの動作を続行する前に、確認してください。",
+	"scratch-confirmaccount-block-infinite": "無期限",
+	"scratch-confirmaccount-block-expiration-options": "1 day:1日,1 week:1週間,2 weeks:2週間,1 month:1ヶ月,3 months:3ヶ月,6 months:6ヶ月,1 year:1年,infinite:無期限",
+	"scratch-confirmaccount-block-existing-infinite": "既存の有効期限:無制限",
+	"scratch-confirmaccount-block-existing": "既存の有効期限: $2, $1",
+	"scratch-confirmaccount-block-othertime-op": "その他の期限",
+	"scratch-confirmaccount-block-expiration-time": "期限",
+	"scratch-confirmaccount-requirements-bypasses-url": "バイパス",
+	"scratch-confirmaccount-requirements-bypasses-remove": "削除",
+	"scratch-confirmaccount-requirements-bypasses-admin-text": "バイパスされた申請",
+	"scratch-confirmaccount-requirements-bypasses-add": "バイパスの追加"
 }
