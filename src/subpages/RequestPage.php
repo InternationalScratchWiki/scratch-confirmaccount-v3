@@ -10,7 +10,11 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
 }
 
-function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
+function loginPage($loginType, &$pageContext, $extra = null) {
+	$request = $pageContext->getRequest();
+	$session = $request->getSession();
+	$output = $pageContext->getOutput();
+	
 	$form = Html::openElement('form', [
 		'method' => 'post',
 		'action' => SpecialPage::getTitleFor('RequestAccount')->getFullURL()
@@ -75,12 +79,12 @@ function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
 	$output->addHTML($form);
 }
 
-function findRequestPage(&$request, &$output, &$session) {
-	loginPage('findRequest', $request, $output, $session);
+function findRequestPage(&$pageContext) {
+	loginPage('findRequest', $pageContext);
 }
 
-function confirmEmailPage($token, &$request, &$output, &$session) {
-	loginPage('confirmEmail', $request, $output, $session, [
+function confirmEmailPage($token, &$pageContext) {
+	loginPage('confirmEmail', $pageContext, [
 		'emailToken' => $token
 	]);
 }
