@@ -538,7 +538,7 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if ($par == 'FindRequest') {
 			return findRequestPage($this);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'user', $output, $this, $session, $language);
+			return requestPage($par, 'user', $this, $language);
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
