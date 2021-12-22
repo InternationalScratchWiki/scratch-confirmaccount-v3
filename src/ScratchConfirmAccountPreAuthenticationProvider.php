@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
-require_once __DIR__ . '/RequestPage.php';
+require_once __DIR__ . '/subpages/RequestPage.php';
 
 use MediaWiki\MediaWikiServices;
 
