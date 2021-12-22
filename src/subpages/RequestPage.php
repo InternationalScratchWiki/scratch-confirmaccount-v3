@@ -10,9 +10,8 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
 }
 
-function loginPage($loginType, &$pageContext, $extra = null) {
+function loginPage($loginType, &$pageContext, $session, $extra = null) {
 	$request = $pageContext->getRequest();
-	$session = $request->getSession();
 	$output = $pageContext->getOutput();
 	
 	$form = Html::openElement('form', [
@@ -79,12 +78,12 @@ function loginPage($loginType, &$pageContext, $extra = null) {
 	$output->addHTML($form);
 }
 
-function findRequestPage(&$pageContext) {
-	loginPage('findRequest', $pageContext);
+function findRequestPage(&$pageContext, $session) {
+	loginPage('findRequest', $pageContext, $session);
 }
 
-function confirmEmailPage($token, &$pageContext) {
-	loginPage('confirmEmail', $pageContext, [
+function confirmEmailPage($token, &$pageContext, $session) {
+	loginPage('confirmEmail', $pageContext, $session, [
 		'emailToken' => $token
 	]);
 }
@@ -466,12 +465,11 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 	}
 }
 
-function requestPage($requestId, string $userContext, SpecialPage &$pageContext, $conflictTimestamp = null) {
+function requestPage($requestId, string $userContext, SpecialPage &$pageContext, $session, $conflictTimestamp = null) {
 	global $wgUser;
 	
 	$output = $pageContext->getOutput();
 	$request = $pageContext->getRequest();
-	$session = $request->getSession();
 	$language = $pageContext->getLanguage();
 	
 	$dbr = getReadOnlyDatabase();
@@ -541,12 +539,11 @@ function authenticateForViewingRequest($requestId, &$session) {
 	$session->save();
 }
 
-function handleRequestActionSubmission($userContext, SpecialPage $pageContext) {
+function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $session) {
 	global $wgUser;
 	
 	$request = $pageContext->getRequest();
 	$output = $pageContext->getOutput();
-	$session = $request->getSession();
 	$language = $pageContext->getLanguage();
 
 	$requestId = $request->getText('requestid');
@@ -572,7 +569,7 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext) {
 	//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
 	$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
 	if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
-		requestPage($accountRequest->id, $userContext, $pageContext, $submissionTimestamp);
+		requestPage($accountRequest->id, $userContext, $pageContext, $session, $submissionTimestamp);
 		cancelTransaction($dbw, $mutexId);
 		return;
 	}

@@ -346,7 +346,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$session = $request->getSession();
 
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('user', $this);
+			handleRequestActionSubmission('user', $this, $session);
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
@@ -534,11 +534,12 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
-				$this);
+				$this,
+				$request->getSession());
 		} else if ($par == 'FindRequest') {
-			return findRequestPage($this);
+			return findRequestPage($this, $request->getSession());
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'user', $this, $language);
+			return requestPage($par, 'user', $this, $request->getSession());
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}
