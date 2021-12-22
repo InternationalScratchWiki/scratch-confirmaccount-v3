@@ -3,7 +3,7 @@
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
 function confirmationToken($request_id, &$expiration, IDatabase $dbw) {
-	global $wgUserEmailConfirmationTokenExpiry;
+	global $wgUserEmailConfirmationTokenExpiry; //do not confuse with the deprecated wgUser, this is still in use
 	
 	$now = time();
 	$expires = $now + $wgUserEmailConfirmationTokenExpiry;
@@ -24,8 +24,8 @@ function getTokenUrl($request_id, &$expiration, IDatabase $dbw) {
 }
 
 function sendConfirmationEmail($request_id, IDatabase $dbw) {
-	global $wgLang, $wgUser, $wgSitename, $wgPasswordSender;
-	
+	global $wgLang, $wgSitename, $wgPasswordSender;
+	$user = RequestContext::getMain()->getUser();
 	$request = getAccountRequestById($request_id, $dbw);
 	if (!$request || empty($request->email) || $request->emailConfirmed) {
 		return false;
@@ -40,7 +40,7 @@ function sendConfirmationEmail($request_id, IDatabase $dbw) {
 		$request->username,
 		$wgSitename,
 		$url,
-		$wgLang->userTimeAndDate($expiration, $wgUser)
+		$wgLang->userTimeAndDate($expiration, $user)
 	)->text();
 	
 	$sender = new MailAddress($wgPasswordSender, wfMessage('emailsender')->text());

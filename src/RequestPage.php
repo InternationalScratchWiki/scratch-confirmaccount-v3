@@ -97,8 +97,7 @@ const actionHeadingsByContext = [
 ];
 
 function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session, $timestamp) {
-	global $wgUser;
-
+	$user = RequestContext::getMain()->getUser();
 	$request = $pageContext->getRequest();
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
@@ -132,7 +131,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[
 				'type' => 'hidden',
 				'name' => 'shouldOpenScratchPage',
-				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
+				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $user, 'scratch-confirmaccount-open-scratch')
 			]
 		);
 		
@@ -237,8 +236,8 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 }
 
 function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, Language $language, OutputPage &$output) {
-	global $wgUser;
-	
+	$user = RequestContext::getMain()->getUser();
+
 	$disp = '';
 	
 	$disp .= Html::element(
@@ -283,7 +282,7 @@ function requestMetadataDisplay(AccountRequest &$accountRequest, string $userCon
 		linkToScratchProfile($accountRequest->username)
 	);
 	$disp .= Html::closeElement('tr');
-	if ($userContext == 'admin' && CheckUserIntegration::isLoaded() && $wgUser->isAllowed('checkuser')) {
+	if ($userContext == 'admin' && CheckUserIntegration::isLoaded() && $user->isAllowed('checkuser')) {
 		$disp .= Html::openElement('tr');
 		$disp .= Html::element(
 			'th',
@@ -463,7 +462,7 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 }
 
 function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language, $conflictTimestamp = null) {
-	global $wgUser;
+	$user = RequestContext::getMain()->getUser();
 	
 	$dbr = getReadOnlyDatabase();
 	
@@ -497,24 +496,25 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 }
 
 function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
-	global $wgUser, $wgAutoWelcomeNewUsers;
+	global $wgAutoWelcomeNewUsers;
+	$user = RequestContext::getMain()->getUser();
 
 	if (userExists($accountRequest->username, $dbw)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
 		return;
 	}
 
-	$createdUser = createAccount($accountRequest, $wgUser, $dbw);
-	Hooks::run('ScratchConfirmAccountHooks::onCreateAccount', [$accountRequest, $wgUser->getName()]);
+	$createdUser = createAccount($accountRequest, $user, $dbw);
+	Hooks::run('ScratchConfirmAccountHooks::onCreateAccount', [$accountRequest, $user->getName()]);
 	
 	if ($wgAutoWelcomeNewUsers) {
 		$talkPage = new WikiPage($createdUser->getTalkPage());
-		$updater = $talkPage->newPageUpdater($wgUser);
+		$updater = $talkPage->newPageUpdater($user);
 		$updater->setContent(
 			SlotRecord::MAIN,
 			new WikitextContent('{{subst:MediaWiki:Scratch-confirmaccount-welcome}} ~~~~')
 		);
-		if ($wgUser->isAllowed('autopatrol')) {
+		if ($user->isAllowed('autopatrol')) {
 			$updater->setRcPatrolStatus(RecentChange::PRC_AUTOPATROLLED);
 		}
 		$updater->saveRevision(
@@ -533,7 +533,7 @@ function authenticateForViewingRequest($requestId, &$session) {
 }
 
 function handleRequestActionSubmission($userContext, &$request, &$output, SpecialPage $pageContext, &$session, Language $language) {
-	global $wgUser;
+	$user = RequestContext::getMain()->getUser();
 
 	$requestId = $request->getText('requestid');
 
@@ -599,9 +599,9 @@ function handleRequestActionSubmission($userContext, &$request, &$output, Specia
 	
 	$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
 
-	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser : null, $request->getText('comment'), $dbw);
+	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $user : null, $request->getText('comment'), $dbw);
 	
-	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $wgUser->getName() : null, $request->getText('comment')]);
+	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $user->getName() : null, $request->getText('comment')]);
 	
 	if ($action == 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output, $dbw);
