@@ -5,7 +5,7 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/objects/AccountRequest.php';
 require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/email.php';
-require_once __DIR__ . '/RequestPage.php';
+require_once __DIR__ . '/subpages/RequestPage.php';
 
 use MediaWiki\MediaWikiServices;
 
@@ -346,7 +346,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$session = $request->getSession();
 
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('user', $request, $output, $this, $session, $this->getLanguage());
+			handleRequestActionSubmission('user', $this, $session);
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
@@ -534,11 +534,12 @@ class SpecialRequestAccount extends SpecialPage {
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
-				$request, $output, $session);
+				$this,
+				$request->getSession());
 		} else if ($par == 'FindRequest') {
-			return findRequestPage($request, $output, $session);
+			return findRequestPage($this, $request->getSession());
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'user', $output, $this, $session, $language);
+			return requestPage($par, 'user', $this, $request->getSession());
 		} else {
 			$output->showErrorPage('error', 'scratch-confirmaccount-nosuchrequest');
 		}

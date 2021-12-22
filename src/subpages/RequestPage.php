@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/database/DatabaseInteractions.php';
-require_once __DIR__ . '/database/CheckUserIntegration.php';
-require_once __DIR__ . '/common.php';
+require_once __DIR__ . '/../database/DatabaseInteractions.php';
+require_once __DIR__ . '/../database/CheckUserIntegration.php';
+require_once __DIR__ . '/../common.php';
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
@@ -10,7 +10,10 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
 }
 
-function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
+function loginPage($loginType, &$pageContext, $session, $extra = null) {
+	$request = $pageContext->getRequest();
+	$output = $pageContext->getOutput();
+	
 	$form = Html::openElement('form', [
 		'method' => 'post',
 		'action' => SpecialPage::getTitleFor('RequestAccount')->getFullURL()
@@ -75,12 +78,12 @@ function loginPage($loginType, &$request, &$output, &$session, $extra = null) {
 	$output->addHTML($form);
 }
 
-function findRequestPage(&$request, &$output, &$session) {
-	loginPage('findRequest', $request, $output, $session);
+function findRequestPage(&$pageContext, $session) {
+	loginPage('findRequest', $pageContext, $session);
 }
 
-function confirmEmailPage($token, &$request, &$output, &$session) {
-	loginPage('confirmEmail', $request, $output, $session, [
+function confirmEmailPage($token, &$pageContext, $session) {
+	loginPage('confirmEmail', $pageContext, $session, [
 		'emailToken' => $token
 	]);
 }
@@ -462,8 +465,12 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 	}
 }
 
-function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language, $conflictTimestamp = null) {
+function requestPage($requestId, string $userContext, SpecialPage &$pageContext, $session, $conflictTimestamp = null) {
 	global $wgUser;
+	
+	$output = $pageContext->getOutput();
+	$request = $pageContext->getRequest();
+	$language = $pageContext->getLanguage();
 	
 	$dbr = getReadOnlyDatabase();
 	
@@ -532,8 +539,12 @@ function authenticateForViewingRequest($requestId, &$session) {
 	$session->save();
 }
 
-function handleRequestActionSubmission($userContext, &$request, &$output, SpecialPage $pageContext, &$session, Language $language) {
+function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $session) {
 	global $wgUser;
+	
+	$request = $pageContext->getRequest();
+	$output = $pageContext->getOutput();
+	$language = $pageContext->getLanguage();
 
 	$requestId = $request->getText('requestid');
 
@@ -558,7 +569,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, Specia
 	//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
 	$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
 	if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
-		requestPage($accountRequest->id, $userContext, $output, $pageContext, $session, $language, $submissionTimestamp);
+		requestPage($accountRequest->id, $userContext, $pageContext, $session, $submissionTimestamp);
 		cancelTransaction($dbw, $mutexId);
 		return;
 	}
