@@ -14,7 +14,7 @@ class ScratchConfirmAccountHooks {
 	}
 
 	public static function pendingRequestNotice(OutputPage &$out, Skin &$skin) {
-		$user = RequestContext::getMain()->getUser();
+		$user = SpecialPage::getUser();
 		//don't show if the user doesn't have permission to create accounts
 		if (!$user->isAllowed('createaccount')) {
 			return true;

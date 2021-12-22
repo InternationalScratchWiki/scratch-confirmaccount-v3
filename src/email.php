@@ -25,7 +25,7 @@ function getTokenUrl($request_id, &$expiration, IDatabase $dbw) {
 
 function sendConfirmationEmail($request_id, IDatabase $dbw) {
 	global $wgLang, $wgSitename, $wgPasswordSender;
-	$user = RequestContext::getMain()->getUser();
+	$user = 	$user = SpecialPage::getUser();
 	$request = getAccountRequestById($request_id, $dbw);
 	if (!$request || empty($request->email) || $request->emailConfirmed) {
 		return false;

@@ -97,7 +97,7 @@ const actionHeadingsByContext = [
 ];
 
 function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session, $timestamp) {
-	$user = RequestContext::getMain()->getUser();
+	$user = SpecialPage::getUser();
 	$request = $pageContext->getRequest();
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
@@ -236,7 +236,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 }
 
 function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, Language $language, OutputPage &$output) {
-	$user = RequestContext::getMain()->getUser();
+	$user = SpecialPage::getUser();
 
 	$disp = '';
 	
@@ -462,7 +462,7 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 }
 
 function requestPage($requestId, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session, Language &$language, $conflictTimestamp = null) {
-	$user = RequestContext::getMain()->getUser();
+	$user = SpecialPage::getUser();
 	
 	$dbr = getReadOnlyDatabase();
 	
@@ -497,7 +497,7 @@ function requestPage($requestId, string $userContext, OutputPage &$output, Speci
 
 function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
 	global $wgAutoWelcomeNewUsers;
-	$user = RequestContext::getMain()->getUser();
+	$user = SpecialPage::getUser();
 
 	if (userExists($accountRequest->username, $dbw)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
@@ -533,7 +533,7 @@ function authenticateForViewingRequest($requestId, &$session) {
 }
 
 function handleRequestActionSubmission($userContext, &$request, &$output, SpecialPage $pageContext, &$session, Language $language) {
-	$user = RequestContext::getMain()->getUser();
+	$user = SpecialPage::getUser();
 
 	$requestId = $request->getText('requestid');
 
