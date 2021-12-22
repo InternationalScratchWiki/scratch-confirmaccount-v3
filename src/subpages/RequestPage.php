@@ -541,8 +541,13 @@ function authenticateForViewingRequest($requestId, &$session) {
 	$session->save();
 }
 
-function handleRequestActionSubmission($userContext, &$request, &$output, SpecialPage $pageContext, &$session, Language $language) {
+function handleRequestActionSubmission($userContext, SpecialPage $pageContext) {
 	global $wgUser;
+	
+	$request = $pageContext->getRequest();
+	$output = $pageContext->getOutput();
+	$session = $request->getSession();
+	$language = $pageContext->getLanguage();
 
 	$requestId = $request->getText('requestid');
 
@@ -567,7 +572,7 @@ function handleRequestActionSubmission($userContext, &$request, &$output, Specia
 	//make sure that the request wasn't modified between the time that the submitter loaded the page and submitted the form
 	$submissionTimestamp = $request->getText('loadtimestamp') ?? wfTimestamp();
 	if ($accountRequest->lastUpdated > $submissionTimestamp) { //we got a conflict, so show the request page again
-		requestPage($accountRequest->id, $pageContext, $submissionTimestamp);
+		requestPage($accountRequest->id, $userContext, $pageContext, $submissionTimestamp);
 		cancelTransaction($dbw, $mutexId);
 		return;
 	}
