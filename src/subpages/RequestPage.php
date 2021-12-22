@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/database/DatabaseInteractions.php';
-require_once __DIR__ . '/database/CheckUserIntegration.php';
-require_once __DIR__ . '/common.php';
+require_once __DIR__ . '/../database/DatabaseInteractions.php';
+require_once __DIR__ . '/../database/CheckUserIntegration.php';
+require_once __DIR__ . '/../common.php';
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
