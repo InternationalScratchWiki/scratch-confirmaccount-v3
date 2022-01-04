@@ -362,7 +362,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			$this->handleUnblockFormSubmission($request, $output, $session);
 		} else if ($request->getText('bypassAddUsername') || $request->getText('bypassRemoveUsername')) { //TODO: refactor to move all the subpages into their own files
 			$bypassPage = new RequirementsBypassPage($this);
-			$bypassPage->handleFormSubmission();
+			$bypassPage->handleFormSubmission($session);
 		}
 	}
 
@@ -445,7 +445,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return $this->blocksPage($par, $request, $output, $session);
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
 			$bypassPage = new RequirementsBypassPage($this);
-			return $bypassPage->render();
+			return $bypassPage->render($session);
 		} else if ($request->getText('username')) {
 			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {
