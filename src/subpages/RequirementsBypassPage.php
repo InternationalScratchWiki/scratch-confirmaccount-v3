@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../database/DatabaseInteractions.php';
+require_once __DIR__ . '/../common.php';
+
+use MediaWiki\Session\Session;
 
 class RequirementsBypassPage {
     private $pageContext;
@@ -14,8 +17,13 @@ class RequirementsBypassPage {
         $this->pageContext = $pageContext;
     }
 
-    function handleFormSubmission() {
-        $request = $request = $this->pageContext->getRequest();
+    function handleFormSubmission(Session &$session) {
+        $request = $this->pageContext->getRequest();
+        
+        if (isCSRF($session, $request->getText('csrftoken'))) {
+    			$this->pageContext->getOutput()->showErrorPage('error', 'scratch-confirmaccount-csrf');
+    			return;
+    		}
 
         $dbw = getTransactableDatabase('scratch-confirmaccount-bypasses');
 
@@ -27,10 +35,10 @@ class RequirementsBypassPage {
 
         commitTransaction($dbw, 'scratch-confirmaccount-bypasses');
 
-        $this->render();
+        $this->render($session);
     }
 
-    function showAddBypassForm() {
+    function showAddBypassForm(Session &$session) {
         $output = $this->pageContext->getOutput();
         $request = $this->pageContext->getRequest();
         
@@ -39,6 +47,10 @@ class RequirementsBypassPage {
                 'action' => SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text())->getFullURL(),
                 'method' => 'post',
                 'items' => [
+                    new OOUI\HiddenInputWidget([
+                        'name' => 'csrftoken',
+                        'value' => setCSRFToken($session)
+                    ]),
                     new OOUI\ActionFieldLayout(
                         new OOUI\TextInputWidget( [
                             'name' => 'bypassAddUsername',
@@ -56,7 +68,7 @@ class RequirementsBypassPage {
         );
     }
 
-    function showBypassesList() {
+    function showBypassesList(Session &$session) {
         $output = $this->pageContext->getOutput();
 
         $dbr = getReadOnlyDatabase();
@@ -77,6 +89,7 @@ class RequirementsBypassPage {
 
             $table .= Html::openElement('td');
             $table .= Html::openElement('form', ['action' => SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text())->getFullURL(), 'method' => 'post']);
+            $table .= Html::element('input', ['type' => 'hidden', 'name' => 'csrftoken', 'value' => setCSRFToken($session)]);
             $table .= Html::element('input', ['type' => 'hidden', 'name' => 'bypassRemoveUsername', 'value' => $username]);
             $table .= Html::element('input', ['type' => 'submit', 'value' => wfMessage('scratch-confirmaccount-requirements-bypasses-remove')->text()]);
             $table .= Html::closeElement('form');
@@ -90,12 +103,12 @@ class RequirementsBypassPage {
         $output->addHTML($table);
     }
 
-    function render() {
+    function render(Session &$session) {
         $output = $this->pageContext->getOutput();
 
         $output->enableOOUI();
 
-        $this->showAddBypassForm();
-        $this->showBypassesList();
+        $this->showAddBypassForm($session);
+        $this->showBypassesList($session);
     }
 }
