@@ -132,7 +132,7 @@ function blockExpirationForm($lang, $user, bool $showCurrent, ?string $current) 
 		'name' => 'expiration_timestamp',
 		'class' => 'mw-scratch-confirmaccount-expiration-timestamp'
 	]);
-	foreach ($expiryOptions as $name => $value) {
+	foreach ($expiryOptions as $value => $displayName) {
 		$attrs = [
 			'value' => $value
 		];
@@ -141,7 +141,7 @@ function blockExpirationForm($lang, $user, bool $showCurrent, ?string $current) 
 		} else if ($value === 'infinite' && !$showCurrent) {
 			$attrs['selected'] = true;
 		}
-		$output .= Html::element('option', $attrs, $name);
+		$output .= Html::element('option', $attrs, $displayName);
 	}
 	$output .= Html::closeElement('select');
 	$output .= Html::openElement('br');
