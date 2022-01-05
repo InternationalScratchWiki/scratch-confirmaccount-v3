@@ -19,7 +19,7 @@ $specialPageAliases['en'] = [
 
 // French
 $specialPageAliases['fr'] = [
-  'RequestAccount' => [ 'Demander un compte', 'DemenderUnCompte' ],
+  'RequestAccount' => [ 'Demander un compte', 'DemanderUnCompte' ],
   'ConfirmAccounts' => [ 'Confirmer des demandes de compte', 'ConfirmerDesDemandesDeCompte' ]
 ];
 
