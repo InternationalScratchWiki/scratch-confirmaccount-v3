@@ -18,7 +18,7 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		return 'login';
 	}
 	
-	function passwordResetForm() {
+	function passwordResetForm($error = '') {
 		global $wgScratchVerificationProjectID;
 		
 		$request = $this->getRequest();
@@ -26,6 +26,10 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		$session = $request->getSession();
 		
 		$output->enableOOUI();
+		
+		if ($error != '') {
+			$output->addHTML(Html::element('p', ['class' => 'errorbox'], $error));
+		}
 		
 		$form = Html::openElement('form', [ 'method' => 'post', 'name' => 'requestaccount', 'action' => $this->getPageTitle()->getLocalUrl(), 'enctype' => 'multipart/form-data' ]);
 		
@@ -121,17 +125,14 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		$password = $request->getText('password');
 		$password2 = $request->getText('password2');
 		if ($password != $password2) {
-			echo 'passwords do not match';
+			$this->passwordResetForm(wfMessage('scratch-confirmaccount-incorrect-password'));
 			cancelTransaction($dbw, __METHOD__);
 			return;
 		}
 		
 		//do scratch verification
 		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) !== $username) {
-			// TODO: show errors
-			echo ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) . "\n";
-			echo $username . "\n";
-			echo 'code not commented';
+			$this->passwordResetForm(wfMessage('scratch-confirmaccount-verif-missing', $username)->text());
 			cancelTransaction($dbw, __METHOD__);
 			return;
 		}
@@ -139,7 +140,7 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		//find any matching requests
 		$requests = getAccountRequestsByUsername($username, $dbw);
 		if (empty($requests)) {
-			echo 'no such request';
+			$this->passwordResetForm(wfMessage('scratch-confirmaccount-verif-missing', $username)->text());
 			cancelTransaction($dbw, __METHOD__);
 			return;
 		}
