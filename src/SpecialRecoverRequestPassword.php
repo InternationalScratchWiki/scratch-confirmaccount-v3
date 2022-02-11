@@ -105,27 +105,70 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 	}
 	
 	function handleFormSubmission() {
+		$dbw = getTransactableDatabase(__METHOD__);
+		
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$session = $request->getSession();
 
 		if (isCSRF($session, $request->getText('csrftoken'))) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-csrf');
+			cancelTransaction($dbw, __METHOD__);
 			return;
 		}
 		
-		$username = $request->getText('username');
+		$username = $request->getText('scratchusername');
 		$password = $request->getText('password');
+		$password2 = $request->getText('password2');
+		if ($password != $password2) {
+			echo 'passwords do not match';
+			cancelTransaction($dbw, __METHOD__);
+			return;
+		}
 		
-		//TODO: find any matching requests
+		//do scratch verification
+		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) !== $username) {
+			// TODO: show errors
+			echo ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) . "\n";
+			echo $username . "\n";
+			echo 'code not commented';
+			cancelTransaction($dbw, __METHOD__);
+			return;
+		}
 		
-		//TODO: do scratch verification
+		//find any matching requests
+		$requests = getAccountRequestsByUsername($username, $dbw);
+		if (empty($requests)) {
+			echo 'no such request';
+			cancelTransaction($dbw, __METHOD__);
+			return;
+		}
+		usort($requests, function ($req1, $req2) { return $req2->timestamp - $req1->timestamp; }); // sort in DESCENDING order based on timestamp
+		$applicableRequest = $requests[0];
 		
-		//TODO: reset the password
+		// we need to check the join date in case the user was renamed
+		$accountJoinedBeforeRequest = ScratchUserCheck::joinedBefore($username, $applicableRequest->timestamp);
+		if ($accountJoinedBeforeRequest === null) {
+			echo 'network error';
+			cancelTransaction($dbw, __METHOD__);
+			return;
+		}
 		
-		$dbw = getTransactableDatabase(__METHOD__);
+		if (!$accountJoinedBeforeRequest) { 
+			echo 'joined too late';
+			cancelTransaction($dbw, __METHOD__);
+			return;
+		}
 		
+		//reset the password
+		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
+		$passwordHash = $passwordFactory->newFromPlaintext($password)->toString();
+		resetAccountRequestPassword($applicableRequest, $passwordHash, $dbw);
+				
 		commitTransaction($dbw, __METHOD__);
+		
+		//TODO: show a success message
+		echo 'success';
 	}
 
 	function execute( $par ) {

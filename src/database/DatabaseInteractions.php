@@ -89,6 +89,10 @@ function createAccountRequest(string $username, string $passwordHash, string $re
 	return $dbw->insertID();
 }
 
+function resetAccountRequestPassword(AccountRequest $request, string $passwordHash, IDatabase $dbw) {
+	$dbw->update('scratch_accountrequest_request', ['password_hash' => $passwordHash], ['request_id' => $request->id], __METHOD__);
+}
+
 abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 	private $criteria;
 	function __construct($username, $status) {

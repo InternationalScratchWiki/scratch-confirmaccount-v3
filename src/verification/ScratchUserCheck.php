@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../common.php';
 
+use Wikimedia\Timestamp\ConvertibleTimestamp;
+
 class ScratchUserCheck {
 	const PROFILE_URL = 'https://scratch.mit.edu/users/%s/';
 	const STATUS_REGEX = '/<span class=\"group\">[\s]*([\w]{3})/';
@@ -50,6 +52,26 @@ class ScratchUserCheck {
 		}
 		if ((intval(wfTimestamp(TS_UNIX)) - intval($joinedAt)) < $joinedAtRequirement) {
 			return 'scratch-confirmaccount-joinedat';
+		}
+	}
+	
+	public static function joinedBefore($username, $wfTimestamp) {
+		$isScratcher = null;
+		$joinedAt = null;
+		$error = '';
+		self::fetchProfile($username, $isScratcher, $joinedAt, $error);
+		if ($error) {
+			return null;
+		}
+		
+		$scratchTimestamp = new ConvertibleTimestamp($joinedAt);
+		$wikiTimestamp = new ConvertibleTimestamp($wfTimestamp);
+		$diff = $scratchTimestamp->diff($wikiTimestamp);
+				
+		if (!$diff->invert) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 }
