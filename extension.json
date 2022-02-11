@@ -16,6 +16,7 @@
 	"AutoloadClasses": {
 		"SpecialRequestAccount": "src/SpecialRequestAccount.php",
 		"SpecialConfirmAccounts": "src/SpecialConfirmAccounts.php",
+		"SpecialRecoverRequestPassword": "src/SpecialRecoverRequestPassword.php",
 		"ScratchConfirmAccountHooks": "src/ScratchConfirmAccountHooks.php",
 		"AccountRequestCleanupJob": "src/jobs/AccountRequestCleanupJob.php",
 		"ExpiredBlockCleanupJob": "src/jobs/ExpiredBlockCleanupJob.php",
@@ -23,7 +24,8 @@
 	},
 	"SpecialPages": {
 		"RequestAccount": "SpecialRequestAccount",
-		"ConfirmAccounts": "SpecialConfirmAccounts"
+		"ConfirmAccounts": "SpecialConfirmAccounts",
+		"RecoverRequestPassword": "SpecialRecoverRequestPassword"
 	},
 	"JobClasses": {
 		"accountRequestCleanup": "AccountRequestCleanupJob",
