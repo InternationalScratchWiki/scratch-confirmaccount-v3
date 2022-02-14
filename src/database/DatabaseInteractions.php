@@ -89,8 +89,14 @@ function createAccountRequest(string $username, string $passwordHash, string $re
 	return $dbw->insertID();
 }
 
-function resetAccountRequestPassword(AccountRequest $request, string $passwordHash, IDatabase $dbw) {
-	$dbw->update('scratch_accountrequest_request', ['password_hash' => $passwordHash], ['request_id' => $request->id], __METHOD__);
+function resetAccountRequestPassword(AccountRequest $request, string $passwordHash, bool $reactivateOldRequests, IDatabase $dbw) {
+	$fields = ['password_hash' => $passwordHash];
+	
+	if ($reactivateOldRequests && $request->isExpired()) {
+		$fields['request_expiry'] = $dbw->timestamp(time() + 86400 * $wgScratchAccountRequestRejectCooldownDays);
+	}
+	
+	$dbw->update('scratch_accountrequest_request', $fields, ['request_id' => $request->id], __METHOD__);
 }
 
 abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {

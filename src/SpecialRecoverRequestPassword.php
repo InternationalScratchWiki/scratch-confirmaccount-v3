@@ -100,7 +100,7 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		$form .= new OOUI\ButtonInputWidget([
 			'type' => 'submit',
 			'flags' => ['primary', 'progressive'],
-			'label' => wfMessage('scratch-confirmaccount-request-submit')->parse()
+			'label' => wfMessage('scratch-confirmaccount-resetpassword-submit')->parse()
 		]);
 		
 		$form .= Html::closeElement('form');
@@ -140,7 +140,7 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		//find any matching requests
 		$requests = getAccountRequestsByUsername($username, $dbw);
 		if (empty($requests)) {
-			$this->passwordResetForm(wfMessage('scratch-confirmaccount-verif-missing', $username)->text());
+			$this->passwordResetForm(wfMessage('scratch-confirmaccount-resetpassword-no-matching-requests', $username)->text());
 			cancelTransaction($dbw, __METHOD__);
 			return;
 		}
@@ -150,13 +150,13 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		// we need to check the join date in case the user was renamed
 		$accountJoinedBeforeRequest = ScratchUserCheck::joinedBefore($username, $applicableRequest->timestamp);
 		if ($accountJoinedBeforeRequest === null) {
-			echo 'network error';
+			$this->passwordResetForm(wfMessage('scratch-confirmaccount-profile-error')->text());
 			cancelTransaction($dbw, __METHOD__);
 			return;
 		}
 		
 		if (!$accountJoinedBeforeRequest) { 
-			echo 'joined too late';
+			$this->passwordResetForm(wfMessage('scratch-confirmaccount-resetpassword-no-matching-requests', $username)->text());
 			cancelTransaction($dbw, __METHOD__);
 			return;
 		}
@@ -164,12 +164,11 @@ class SpecialRecoverRequestPassword extends SpecialPage {
 		//reset the password
 		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
 		$passwordHash = $passwordFactory->newFromPlaintext($password)->toString();
-		resetAccountRequestPassword($applicableRequest, $passwordHash, $dbw);
+		resetAccountRequestPassword($applicableRequest, $passwordHash, true, $dbw);
 				
 		commitTransaction($dbw, __METHOD__);
 		
-		//TODO: show a success message
-		echo 'success';
+		$output->addHTML(wfMessage('scratch-confirmaccount-resetpassword-success')->parse());
 	}
 
 	function execute( $par ) {

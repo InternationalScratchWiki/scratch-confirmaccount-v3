@@ -147,5 +147,9 @@
 	"scratch-confirmaccount-requirements-bypasses-url": "bypasses",
 	"scratch-confirmaccount-requirements-bypasses-remove": "Remove",
 	"scratch-confirmaccount-requirements-bypasses-admin-text": "Requirements Bypasses",
-	"scratch-confirmaccount-requirements-bypasses-add": "Add bypass"
+	"scratch-confirmaccount-requirements-bypasses-add": "Add bypass",
+	"scratch-confirmaccount-resetpassword-submit": "Reset Password",
+	"recoverrequestpassword": "Recover account request password",
+	"scratch-confirmaccount-resetpassword-no-matching-requests": "No matching requests were found for the username $1",
+	"scratch-confirmaccount-resetpassword-success": "Your account request password has been reset! You can now [[Special:RequestAccount/FindRequest|view your request]]."
 }
