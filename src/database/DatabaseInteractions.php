@@ -90,6 +90,8 @@ function createAccountRequest(string $username, string $passwordHash, string $re
 }
 
 function resetAccountRequestPassword(AccountRequest $request, string $passwordHash, bool $reactivateOldRequests, IDatabase $dbw) {
+	global $wgScratchAccountRequestRejectCooldownDays;
+	
 	$fields = ['password_hash' => $passwordHash];
 	
 	if ($reactivateOldRequests && $request->isExpired()) {
