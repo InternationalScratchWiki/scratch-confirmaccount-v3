@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/database/DatabaseInteractions.php';
-require_once __DIR__ . '/RequestPage.php';
+require_once __DIR__ . '/subpages/RequestPage.php';
 require_once __DIR__ . '/subpages/RequirementsBypassPage.php';
 
 function truncate(string $str, int $length) : string {
@@ -355,14 +355,14 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 	function handleFormSubmission(&$request, &$output, &$session) {
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('admin', $request, $output, $this, $session, $this->getLanguage());
+			handleRequestActionSubmission('admin', $this, $session);
 		} else if ($request->getText('blockSubmit')) {
 			$this->handleBlockFormSubmission($request, $output, $session);
 		} else if ($request->getText('unblockSubmit')) {
 			$this->handleUnblockFormSubmission($request, $output, $session);
 		} else if ($request->getText('bypassAddUsername') || $request->getText('bypassRemoveUsername')) { //TODO: refactor to move all the subpages into their own files
 			$bypassPage = new RequirementsBypassPage($this);
-			$bypassPage->handleFormSubmission();
+			$bypassPage->handleFormSubmission($session);
 		}
 	}
 
@@ -445,13 +445,13 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return $this->blocksPage($par, $request, $output, $session);
 		} else if (strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
 			$bypassPage = new RequirementsBypassPage($this);
-			return $bypassPage->render();
+			return $bypassPage->render($session);
 		} else if ($request->getText('username')) {
 			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
 		} else if (ctype_digit($par)) {
-			return requestPage($par, 'admin', $output, $this, $session, $language);
+			return requestPage($par, 'admin', $this, $request->getSession());
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
 		} else {
