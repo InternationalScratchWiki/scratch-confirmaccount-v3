@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"apple502j"
+			"apple502j",
+			"T-taku"
 		]
 	},
 	"scratch-confirmaccount": "Scratchアカウント申請システム",
@@ -77,8 +78,11 @@
 	"scratch-confirmaccount-invalid-email": "メールアドレスが無効です。",
 	"scratch-confirmaccount-disagree-tos": "利用規約に同意しない場合はアカウントが申請できません。",
 	"scratch-confirmaccount-no-request-notes": "特記事項欄を記入してください。",
+	"scratch-confirmaccount-ip-blocked": "あなたのIPアドレスは、アカウント作成からブロックされています。 理由は次のとおりです: $1",
 	"scratch-confirmaccount-success": "申請を受け付けました。管理者が確認し、[[Special:RequestAccount/$1|申請ページ]]にて返信します。",
+	"scratch-confirmaccount-success-noid": "申請を受け付けました。管理者が処理を行い、[[Special:RequestAccount/FindRequest|申請ページ]]にて返信します。",
 	"scratch-confirmaccount-waiting-request": "$1: $2",
+	"scratch-confirmaccount-request-notes-too-long": "あなたの特記事項は長すぎます。 $1文字以内に収めてください。",
 	"scratch-confirmaccount-new": "未確認",
 	"scratch-confirmaccount-awaiting-admin": "管理者待ち",
 	"scratch-confirmaccount-awaiting-user": "申請者待ち",
@@ -116,6 +120,8 @@
 	"scratch-confirmaccount-requests-awaiting": "<b>$2</b>個の$1$3管理者待ちです。<b>確認してください!</b>",
 	"scratch-confirmaccount-requests-awaiting-linktext": "申請",
 	"scratch-confirmaccount-requests-awaiting-isare": "が",
+	"scratch-confirmaccount-click-copy": "クリップボードにコピー",
+	"scratch-confirmaccount-click-copy-alert":"認証コードがクリップボードにコピーされました。",
 
 	"scratch-confirmaccount-email-subject": "$1のメールアドレスを確認してください",
 	"scratch-confirmaccount-email-body": "$1さんこんにちは。\n\n$2にてこのメールアドレスでアカウントが申請されました。メールアドレスを認証するには、以下のページをブラウザーで開いてください:\n\n$3\n\nこのリンクは$4まで有効です。手続き中申請時のユーザー名とパスワードを入力する必要があります。\n認証は任意ですが、認証後はパスワードをメールでリセットできます。$2にてアカウントを申請していない場合は、このメールは無視して大丈夫です。",
@@ -133,7 +139,7 @@
 	"scratch-confirmaccount-block-expiration-options": "1 day:1日,1 week:1週間,2 weeks:2週間,1 month:1ヶ月,3 months:3ヶ月,6 months:6ヶ月,1 year:1年,infinite:無期限",
 	"scratch-confirmaccount-block-existing-infinite": "既存の有効期限:無制限",
 	"scratch-confirmaccount-block-existing": "既存の有効期限: $2, $1",
-	"scratch-confirmaccount-block-othertime-op": "その他の期限",
+	"scratch-confirmaccount-block-othertime-op": "その他の期間",
 	"scratch-confirmaccount-block-expiration-time": "期限",
 	"scratch-confirmaccount-requirements-bypasses-url": "バイパス",
 	"scratch-confirmaccount-requirements-bypasses-remove": "削除",
