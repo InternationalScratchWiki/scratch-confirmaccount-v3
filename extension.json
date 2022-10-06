@@ -1,4 +1,5 @@
 {
+	"manifest_version": 2,
 	"name": "Scratch Account Request System",
 	"descriptionmsg": "scratch-confirmaccount-desc",
 	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j", "Kenny2scratch", "ahmetlii"],
