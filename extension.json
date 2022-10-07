@@ -1,8 +1,14 @@
 {
-	"manifest_version": 1,
+	"manifest_version": 2,
 	"name": "Scratch Account Request System",
 	"descriptionmsg": "scratch-confirmaccount-desc",
-	"author": ["Jacob G. (jvvg)", "Naleksuh", "apple502j", "Kenny2scratch", "ahmetlii"],
+	"author": [
+		"Jacob G. (jvvg)",
+		"Naleksuh",
+		"apple502j",
+		"Kenny2scratch",
+		"ahmetlii"
+	],
 	"url": "https://github.com/InternationalScratchWiki/scratch-confirmaccount-v3",
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
@@ -51,24 +57,38 @@
 				"scratch-confirmaccount-click-copy-alert"
 			],
 			"dependencies": [
-			 	"mediawiki.util",
-			 	"mediawiki.api",
-			 	"mediawiki.confirmCloseWindow",
-			 	"jquery.textSelection",
-			 	"jquery.spinner",
-			 	"oojs-ui-core",
-			 	"oojs-ui-widgets"
+				"mediawiki.util",
+				"mediawiki.api",
+				"mediawiki.confirmCloseWindow",
+				"jquery.textSelection",
+				"jquery.spinner",
+				"oojs-ui-core",
+				"oojs-ui-widgets"
 			]
 		}
 	},
 	"config": {
-		"ScratchVerificationProjectID": "10135908",
-		"ScratchVerificationProjectAuthor": "ModShare",
-		"ScratchAccountRequestRejectCooldownDays": 7,
-		"ScratchAccountCheckDisallowNewScratcher": false,
-		"ScratchAccountJoinedRequirement": 0,
-		"ScratchAccountAutoRejectStaleAwaitingUserRequestDays": 30,
-		"AutoWelcomeNewUsers": true
+		"ScratchVerificationProjectID": {
+			"value": "10135908"
+		},
+		"ScratchVerificationProjectAuthor": {
+			"value": "ModShare"
+		},
+		"ScratchAccountRequestRejectCooldownDays": {
+			"value": 7
+		},
+		"ScratchAccountCheckDisallowNewScratcher": {
+			"value": false
+		},
+		"ScratchAccountJoinedRequirement": {
+			"value": 0
+		},
+		"ScratchAccountAutoRejectStaleAwaitingUserRequestDays": {
+			"value": 30
+		},
+		"AutoWelcomeNewUsers": {
+			"value": true
+		}
 	},
 	"DefaultUserOptions": {
 		"scratch-confirmaccount-open-scratch": true
@@ -80,5 +100,8 @@
 				"sort": 10
 			}
 		}
+	},
+	"requires": {
+		"MediaWiki": ">= 1.29.0"
 	}
 }
