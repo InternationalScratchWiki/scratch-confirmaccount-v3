@@ -310,7 +310,7 @@ class SpecialRequestAccount extends SpecialPage {
 		ScratchVerification::generateNewCodeForSession($session);
 		if ($requestId != null) { //only send the verification email if this request actually created the request
 			if ($formData['email']) {
-				$sentEmail = sendConfirmationEmail($requestId, $dbw);
+				$sentEmail = sendConfirmationEmail($this->getUser(), $this->getLanguage(), $requestId, $dbw);
 			}
 			
 			authenticateForViewingRequest($requestId, $session);
@@ -502,7 +502,7 @@ class SpecialRequestAccount extends SpecialPage {
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			return;
 		}
-		$sentEmail = sendConfirmationEmail($requestId, $dbw);
+		$sentEmail = sendConfirmationEmail($this->getUser(), $this->getLanguage(), $requestId, $dbw);
 		if (!$sentEmail) {
 			cancelTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-email-unregistered');

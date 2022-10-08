@@ -14,10 +14,10 @@ class ScratchConfirmAccountHooks {
 	}
 
 	public static function pendingRequestNotice(OutputPage &$out, Skin &$skin) {
-		global $wgUser;
+		$user = $out->getUser();
 
 		//don't show if the user doesn't have permission to create accounts
-		if (!$wgUser->isAllowed('createaccount')) {
+		if (!$user->isAllowed('createaccount')) {
 			return true;
 		}
 
@@ -31,7 +31,7 @@ class ScratchConfirmAccountHooks {
 		$out->addModuleStyles('ext.scratchConfirmAccount.css');
 		
 		$reqCounts = getNumberOfRequestsByStatus(['new'], $dbr)['new'];
-		$reqCounts += getNumberOfRequestsByStatusAndUser(['awaiting-admin'], $wgUser->getId(), $dbr)['awaiting-admin'];
+		$reqCounts += getNumberOfRequestsByStatusAndUser(['awaiting-admin'], $user->getId(), $dbr)['awaiting-admin'];
 		if ($reqCounts > 0) {
 			$reqCountText = Html::openElement('div', [
 				'class' => 'mw-scratch-confirmaccount-rc-awaiting'
