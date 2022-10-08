@@ -4,8 +4,9 @@ require_once __DIR__ . '/../common.php';
 
 use MediaWiki\MediaWikiServices;
 
-function getTransactableDatabase(string $mutexId) : IDatabase {	
-	$dbw = wfGetDB( DB_MASTER );
+function getTransactableDatabase(string $mutexId) : IDatabase {
+	// TODO switch after 1.39 update
+	$dbw = wfGetDB( defined('DB_PRIMARY') ? DB_PRIMARY : DB_MASTER );
 	$dbw->startAtomic( $mutexId );
 	
 	return $dbw;
