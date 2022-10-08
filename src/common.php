@@ -123,9 +123,9 @@ function blockExpirationForm($lang, $user, bool $showCurrent, ?string $current) 
 					$t
 				);
 		}
-		$expiryOptions[$existingExpiryMessage->text()] = 'existing';
+		$expiryOptions['existing'] = $existingExpiryMessage->text();
 	}
-	$expiryOptions[wfMessage( 'scratch-confirmaccount-block-othertime-op' )->text()] = 'othertime';
+	$expiryOptions['othertime'] = wfMessage( 'scratch-confirmaccount-block-othertime-op' )->text();
 	$expiryOptions = array_merge( $expiryOptions, XmlSelect::parseOptionsMessage( $commonOptions ) );
 	$output = '';
 	$output .= Html::openElement('select', [
