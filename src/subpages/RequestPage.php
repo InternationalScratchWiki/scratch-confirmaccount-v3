@@ -418,7 +418,7 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 	//for the checkuser usernames, remove any entries that match the username on the request (which may happen after the request is accepted and the user is editing)
 	$accountRequestWikiUsername = User::getCanonicalName($accountRequest->username);
 	$checkUserUsernames = array_filter(CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $dbr), 
-	function ($testUsername) use ($accountRequestWikiUsername) { return $testUsername != $accountRequestWikiUsername; });
+	function ($testUsername) use ($accountRequestWikiUsername) { return !empty($testUsername) && $testUsername !== $accountRequestWikiUsername; });
 	
 	if (!empty($requestUsernames)) {
 		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-request', $requestUsernames);
