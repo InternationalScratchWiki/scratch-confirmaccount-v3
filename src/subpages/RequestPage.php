@@ -531,7 +531,7 @@ function handleAccountCreation($accountRequest, OutputPage &$output, IDatabase $
 
 function authenticateForViewingRequest($requestId, &$session) {
 	$session->persist();
-	$session->set('requestId', $requestId);
+	$session->set('requestId', (string)$requestId);
 	$session->save();
 }
 
