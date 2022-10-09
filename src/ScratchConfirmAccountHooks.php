@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
-use ScratchConfirmAccount\Hook\AccountRequestActionHook;
-
 use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
@@ -10,7 +8,7 @@ use MediaWiki\Hook\PersonalUrlsHook;
 use MediaWiki\SpecialPage\Hook\AuthChangeFormFieldsHook;
 use MediaWiki\MediaWikiServices;
 
-class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, PersonalUrlsHook, AuthChangeFormFieldsHook, AccountRequestActionHook {
+class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, PersonalUrlsHook, AuthChangeFormFieldsHook {
 	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$updater->addExtensionTable('scratch_accountrequest_request', __DIR__ . '/../sql/requests.sql');
 		$updater->addExtensionTable('scratch_accountrequest_block', __DIR__ . '/../sql/blocks.sql');
@@ -106,9 +104,5 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 			'weight' => 180
 		];
 		return true;
-	}
-
-	public function onAccountRequestAction($accountRequest, string $action, ?string $actorUsername, string $comment) {
-		error_log("[$action] $actorUsername $comment");
 	}
 }

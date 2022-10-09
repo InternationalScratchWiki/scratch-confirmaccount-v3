@@ -49,8 +49,7 @@
 		"BeforePageDisplay": "main",
 		"GetPreferences": "main",
 		"PersonalUrls": "main",
-		"AuthChangeFormFields": "main",
-		"AccountRequestAction": "main"
+		"AuthChangeFormFields": "main"
 	},
 	"ResourceModules": {
 		"ext.scratchConfirmAccount.css": {
