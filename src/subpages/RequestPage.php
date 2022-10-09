@@ -3,6 +3,8 @@ require_once __DIR__ . '/../database/DatabaseInteractions.php';
 require_once __DIR__ . '/../database/CheckUserIntegration.php';
 require_once __DIR__ . '/../common.php';
 
+use ScratchConfirmAccount\Hook\HookRunner;
+
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
@@ -512,7 +514,8 @@ function handleAccountCreation($accountRequest, OutputPage &$output, IDatabase $
 	}
 
 	$createdUser = createAccount($accountRequest, $user, $dbw);
-	Hooks::run('ScratchConfirmAccountHooks::onCreateAccount', [$accountRequest, $user->getName()]);
+	$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
+	$hookRunner->onRequestedAccountCreated($accountRequest, $user->getName());
 	
 	if ($wgAutoWelcomeNewUsers) {
 		$talkPage = new WikiPage($createdUser->getTalkPage());
@@ -611,7 +614,8 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 
 	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $user : null, $request->getText('comment'), $dbw);
 	
-	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $user->getName() : null, $request->getText('comment')]);
+	$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
+	$hookRunner->onAccountRequestAction($accountRequest, $action, $userContext == 'admin' ? $user->getName() : null, $request->getText('comment'));
 	
 	if ($action == 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output, $dbw);

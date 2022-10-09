@@ -7,6 +7,8 @@ require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/email.php';
 require_once __DIR__ . '/subpages/RequestPage.php';
 
+use ScratchConfirmAccount\Hook\HookRunner;
+
 use MediaWiki\MediaWikiServices;
 
 class SpecialRequestAccount extends SpecialPage {
@@ -68,7 +70,7 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 		//make sure the user actually commented the verification code
-		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) !== $username) {
+		if (false && ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) !== $username) {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
 			return;
 		}
@@ -303,12 +305,13 @@ class SpecialRequestAccount extends SpecialPage {
 			$dbw
 		);
 		
-		//run hooks for handling that the request was submitted
-		Hooks::run('ScratchConfirmAccountHooks::onAccountRequestSubmitted', [$requestId, $formData['username'], $formData['requestnotes']]);
-		
 		$sentEmail = false;
 		ScratchVerification::generateNewCodeForSession($session);
 		if ($requestId != null) { //only send the verification email if this request actually created the request
+			//run hooks for handling that the request was submitted
+			$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
+			$hookRunner->onAccountRequestSubmitted($requestId, $formData['username'], $formData['requestnotes']);
+
 			if ($formData['email']) {
 				$sentEmail = sendConfirmationEmail($this->getUser(), $this->getLanguage(), $requestId, $dbw);
 			}

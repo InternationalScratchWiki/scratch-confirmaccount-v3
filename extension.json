@@ -28,6 +28,9 @@
 		"ExpiredBlockCleanupJob": "src/jobs/ExpiredBlockCleanupJob.php",
 		"ScratchConfirmAccountPreAuthenticationProvider": "src/ScratchConfirmAccountPreAuthenticationProvider.php"
 	},
+	"AutoloadNamespaces": {
+		"ScratchConfirmAccount\\Hook\\": "src/hooks/"
+	},
 	"SpecialPages": {
 		"RequestAccount": "SpecialRequestAccount",
 		"ConfirmAccounts": "SpecialConfirmAccounts"
@@ -36,12 +39,18 @@
 		"accountRequestCleanup": "AccountRequestCleanupJob",
 		"expiredBlockCleanup": "ExpiredBlockCleanupJob"
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "ScratchConfirmAccountHooks"
+		}
+	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": "ScratchConfirmAccountHooks::onLoadExtensionSchemaUpdates",
-		"BeforePageDisplay": "ScratchConfirmAccountHooks::pendingRequestNotice",
-		"GetPreferences": "ScratchConfirmAccountHooks::onGetPreferences",
-		"PersonalUrls": "ScratchConfirmAccountHooks::onPersonalUrls",
-		"AuthChangeFormFields": "ScratchConfirmAccountHooks::onAuthChangeFormFields"
+		"LoadExtensionSchemaUpdates": "main",
+		"BeforePageDisplay": "main",
+		"GetPreferences": "main",
+		"PersonalUrls": "main",
+		"AuthChangeFormFields": "main",
+		"AccountRequestAction": "main"
 	},
 	"ResourceModules": {
 		"ext.scratchConfirmAccount.css": {

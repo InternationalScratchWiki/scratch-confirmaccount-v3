@@ -1,10 +1,17 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
+use ScratchConfirmAccount\Hook\AccountRequestActionHook;
+
+use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
+use MediaWiki\Hook\BeforePageDisplayHook;
+use MediaWiki\Preferences\Hook\GetPreferencesHook;
+use MediaWiki\Hook\PersonalUrlsHook;
+use MediaWiki\SpecialPage\Hook\AuthChangeFormFieldsHook;
 use MediaWiki\MediaWikiServices;
 
-class ScratchConfirmAccountHooks {
-	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
+class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, PersonalUrlsHook, AuthChangeFormFieldsHook, AccountRequestActionHook {
+	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$updater->addExtensionTable('scratch_accountrequest_request', __DIR__ . '/../sql/requests.sql');
 		$updater->addExtensionTable('scratch_accountrequest_block', __DIR__ . '/../sql/blocks.sql');
 		$updater->addExtensionTable('scratch_accountrequest_history', __DIR__ . '/../sql/request_handling_history.sql');
@@ -13,17 +20,17 @@ class ScratchConfirmAccountHooks {
 		$updater->addExtensionField('scratch_accountrequest_block', 'block_expiration_timestamp', __DIR__ . '/../sql/block_expiration_timestamp.sql');
 	}
 
-	public static function pendingRequestNotice(OutputPage &$out, Skin &$skin) {
+	public function onBeforePageDisplay($out, $skin) : void {
 		$user = $out->getUser();
 
 		//don't show if the user doesn't have permission to create accounts
 		if (!$user->isAllowed('createaccount')) {
-			return true;
+			return;
 		}
 
 		//only show on Special:RecentChanges
 		if(!$out->getContext()->getTitle()->isSpecial('Recentchanges')){
-			return true;
+			return;
 		}
 		
 		$dbr = getReadOnlyDatabase();
@@ -56,11 +63,9 @@ class ScratchConfirmAccountHooks {
 			$reqCountText .= Html::closeElement('div');
 			$out->prependHTML($reqCountText);
 		}
-
-		return true;
 	}
 	
-	public static function onGetPreferences($user, &$preferences) {
+	public function onGetPreferences($user, &$preferences) {
 		//don't show if the user doesn't have permission to create accounts
 		if (!$user->isAllowed('createaccount')) {
 			return true;
@@ -74,7 +79,7 @@ class ScratchConfirmAccountHooks {
 		return true;
 	}
 	
-	public static function onPersonalUrls(&$personal_urls, $title, $skin) {
+	public function onPersonalUrls(&$personal_urls, &$title, $skin) : void {
 		# Add a link to Special:RequestAccount if a link exists for login
 		if (isset($personal_urls['login'])) {
 			$personal_urls['createaccount'] = [
@@ -82,10 +87,9 @@ class ScratchConfirmAccountHooks {
 				'href' => SpecialPage::getTitleFor('RequestAccount')->getLocalUrl()
 			];
 		}
-		return true;
 	}
 	
-	public static function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
+	public function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
 		if ($action != 'login') return;
 		$formDescriptor['requestAccount'] = [
 			'type' => 'info',
@@ -102,5 +106,9 @@ class ScratchConfirmAccountHooks {
 			'weight' => 180
 		];
 		return true;
+	}
+
+	public function onAccountRequestAction($accountRequest, string $action, ?string $actorUsername, string $comment) {
+		error_log("[$action] $actorUsername $comment");
 	}
 }
