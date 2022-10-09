@@ -72,7 +72,7 @@ function deleteBlock(string $username, IDatabase $dbw) {
  * @param email The email address (may be empty) for the request
  * @param ip The IP from which the request was submitted
  * @param dbw A writeable database instance
- * @return The ID of the request if creating the request succeeded, or null if creating the request failed due to there already being an active request under that username
+ * @return ?int The ID of the request if creating the request succeeded, or null if creating the request failed due to there already being an active request under that username
  */
 function createAccountRequest(string $username, string $passwordHash, string $requestNotes, string $email, string $ip, IDatabase $dbw) : ?int {
 	$dbw->insert('scratch_accountrequest_request', [
@@ -329,7 +329,7 @@ function removeUsernameRequirementsBypass(string $username, IDatabase $dbw) {
  *
  * @param username The username of of the user being requested
  * @param dbr A readable database
- * @return true if it is possible to create a request under the given username, false if there is already an active request under that username
+ * @return bool true if it is possible to create a request under the given username, false if there is already an active request under that username
  */
 function canMakeRequestForUsername(string $username, IDatabase $dbr) : bool {
 	return !$dbr->selectField('scratch_accountrequest_request', '1', ['request_active_username' => strtolower($username)], __METHOD__, []);
@@ -385,7 +385,7 @@ function setRequestEmailConfirmed($request_id, IDatabase $dbw) {
  * @param usernameToIgnore Do not return any users with this username (case-insensitive)
  * @param dbr A readable database connection
  *
- * @return An array of usernames with account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
+ * @return string[] An array of usernames with account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
  */
 function getRequestUsernamesFromIP($ip, string $usernameToIgnore, IDatabase $dbr) : array {
 	return $dbr->selectFieldValues(

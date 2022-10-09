@@ -14,7 +14,7 @@ class CheckUserIntegration {
 	 *
 	 * @param ip The IP address being locked up
 	 * @param dbr A readable database connection
-	 * @return An array of usernames with checkuser records from \p ip, or empty if checkuser is not installed
+	 * @return string[] An array of usernames with checkuser records from \p ip, or empty if checkuser is not installed
 	 */
     public static function getCUUsernamesFromIP ($ip, IDatabase $dbr) : array {
         if (!self::isLoaded()) {

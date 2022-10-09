@@ -94,7 +94,7 @@ function isCSRF(&$session, $csrftoken) {
  * Return a HTML-formatted link to a user's Scratch profile-link
  *
  * @param username The Scratch username whose profile is being linked to
- * @return A simple <a> link to the user's profile with the contents also being the username
+ * @return string A simple <a> link to the user's profile with the contents also being the username
  */
 function linkToScratchProfile(string $username) : string {
 	return Html::element(
