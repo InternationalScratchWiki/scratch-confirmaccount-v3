@@ -27,7 +27,7 @@ class SpecialRequestAccount extends SpecialPage {
 		//if the user is IP banned, don't even consider anything else
 		if ($this->getUser()->isBlockedFromCreateAccount()) {
 			$block = $this->getUser()->getBlock();
-			$out_error = wfMessage('scratch-confirmaccount-ip-blocked', $block->getReason())->text();
+			$out_error = wfMessage('scratch-confirmaccount-ip-blocked', $block->getReasonComment()->text)->text();
 			return;
 		}
 		
