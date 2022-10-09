@@ -6,7 +6,6 @@ use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
 use MediaWiki\Hook\PersonalUrlsHook;
 use MediaWiki\SpecialPage\Hook\AuthChangeFormFieldsHook;
-use MediaWiki\MediaWikiServices;
 
 class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, PersonalUrlsHook, AuthChangeFormFieldsHook {
 	public function onLoadExtensionSchemaUpdates( $updater ) {

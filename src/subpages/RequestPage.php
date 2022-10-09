@@ -13,7 +13,6 @@ function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
 }
 
 function loginPage($loginType, &$pageContext, $session, $extra = null) {
-	$request = $pageContext->getRequest();
 	$output = $pageContext->getOutput();
 	
 	$form = Html::openElement('form', [
@@ -201,10 +200,6 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		
 		//display the common list of admin comments
 		if ($userContext == 'admin') {
-			$options = Xml::listDropDownOptions(
-				 wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(),
-				 [ 'other' => wfMessage( 'other' )->text() ]
-			 );
 			$disp .= Xml::listDropDown('scratch-confirmaccount-comment-dropdown', wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text(), '', 'mw-scratch-confirmaccount-bigselect');
 		}
 		
@@ -467,9 +462,7 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 }
 
 function requestPage($requestId, string $userContext, SpecialPage &$pageContext, $session, $conflictTimestamp = null) {
-	$user = $pageContext->getUser();
 	$output = $pageContext->getOutput();
-	$request = $pageContext->getRequest();
 	$language = $pageContext->getLanguage();
 	
 	$dbr = getReadOnlyDatabase();
@@ -546,7 +539,6 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 	$user = $pageContext->getUser();
 	$request = $pageContext->getRequest();
 	$output = $pageContext->getOutput();
-	$language = $pageContext->getLanguage();
 
 	$requestId = $request->getText('requestid');
 

@@ -242,8 +242,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function defaultPage(&$output) {
-		$linkRenderer = $this->getLinkRenderer();
-
 		$disp = Html::element('h3', [], wfMessage('scratch-confirmaccount-request-options')->text());
 		$disp .= Html::openElement('form', [
 			'action' => '',
@@ -418,7 +416,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function execute( $par ) {		
 		$request = $this->getRequest();
 		$output = $this->getOutput();
-		$language = $this->getLanguage();
 		
 		$output->setPageTitle( $this->msg( "confirmaccounts" )->escaped() );
 		

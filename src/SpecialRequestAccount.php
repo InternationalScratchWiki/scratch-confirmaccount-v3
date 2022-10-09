@@ -346,7 +346,6 @@ class SpecialRequestAccount extends SpecialPage {
 
 	private function handleFormSubmission() {
 		$request = $this->getRequest();
-		$output = $this->getOutput();
 		$session = $request->getSession();
 
 		if ($request->getText('action')) {
@@ -519,14 +518,12 @@ class SpecialRequestAccount extends SpecialPage {
 	function execute( $par ) {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
-		$language = $this->getLanguage();
 		
 		$output->setPageTitle( $this->msg( "requestaccount" )->escaped() );
 		
 		$output->addModules('ext.scratchConfirmAccount.js');
 		$output->addModuleStyles('ext.scratchConfirmAccount.css');
-		
-		$session = $request->getSession();
+
 		$this->setHeaders();
 		
 		$this->checkReadOnly();
