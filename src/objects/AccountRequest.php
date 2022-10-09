@@ -53,7 +53,7 @@ class AccountRequest {
 	}
 	
 	function isExpired() : bool {
-		return $this->expiry != null && $this->expiry < wfTimestampNow();
+		return $this->expiry !== null && $this->expiry < wfTimestampNow();
 	}
 }
 

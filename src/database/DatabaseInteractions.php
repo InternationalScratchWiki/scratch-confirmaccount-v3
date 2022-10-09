@@ -94,10 +94,10 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 	private $criteria;
 	function __construct($username, $status) {
 		$this->criteria = [];
-		if ($status != null) {
+		if ($status !== null) {
 			$this->criteria['request_status'] = $status;
 		}
-		if ($username != null) {
+		if ($username !== null && $username !== '') {
 			$this->criteria['LOWER(CONVERT(request_username using utf8))'] = strtolower($username);
 		}
 
@@ -185,7 +185,7 @@ function actionRequest(AccountRequest $request, bool $updateStatus, string $acti
 		'history_request_id' => $request->id,
 		'history_action' => $action,
 		'history_comment' => $comment,
-		'history_performer' => $userPerformingAction == null ? null : $userPerformingAction->getId(),
+		'history_performer' => $userPerformingAction ?? $userPerformingAction->getId(),
 		'history_timestamp' => $dbw->timestamp()
 	], __METHOD__);
 

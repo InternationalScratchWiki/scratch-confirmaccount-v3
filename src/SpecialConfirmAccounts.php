@@ -185,7 +185,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function requestTable($username, $status, &$linkRenderer) {
 		$pager = new AccountRequestPager($username, $status, $linkRenderer, $this->getLanguage());
 
-		if ($pager->getNumRows() == 0) {
+		if ($pager->getNumRows() === 0) {
 			return Html::element('p', [], wfMessage('scratch-confirmaccount-norequests')->text());
 		}
 

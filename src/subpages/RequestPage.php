@@ -9,7 +9,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
 function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
-	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
+	return $userContext === 'admin' || ($session->exists('requestId') && $session->get('requestId') === $requestId);
 }
 
 function loginPage($loginType, &$pageContext, $session, $extra = null) {
@@ -91,7 +91,7 @@ function confirmEmailPage($token, &$pageContext, $session) {
 
 //return if a request can actually be acted on in a given context
 function isActionableRequest(AccountRequest &$accountRequest, string $userContext) {
-	return $accountRequest->status != 'accepted' && !($accountRequest->status == 'rejected' && ($userContext == 'user' || $accountRequest->isExpired()));
+	return $accountRequest->status !== 'accepted' && !($accountRequest->status === 'rejected' && ($userContext === 'user' || $accountRequest->isExpired()));
 }
 
 //the headings to show in the actions section for each context
@@ -135,7 +135,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[
 				'type' => 'hidden',
 				'name' => 'shouldOpenScratchPage',
-				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $user, 'scratch-confirmaccount-open-scratch')
+				'value' => $userContext === 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $user, 'scratch-confirmaccount-open-scratch')
 			]
 		);
 		
@@ -159,7 +159,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		//show the list of actions, or just a hidden element if there is only one available action
 		$usable_actions = array_filter(actions, function($action) use($userContext) { return in_array($userContext, $action['performers']); });
 
-		if (sizeof($usable_actions) == 1) {
+		if (sizeof($usable_actions) === 1) {
 			$disp .= Html::element(
 				'input',
 				[
@@ -199,7 +199,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		}
 		
 		//display the common list of admin comments
-		if ($userContext == 'admin') {
+		if ($userContext === 'admin') {
 			$disp .= Xml::listDropDown('scratch-confirmaccount-comment-dropdown', wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text(), '', 'mw-scratch-confirmaccount-bigselect');
 		}
 		
@@ -282,7 +282,7 @@ function requestMetadataDisplay(AccountRequest &$accountRequest, string $userCon
 		linkToScratchProfile($accountRequest->username)
 	);
 	$disp .= Html::closeElement('tr');
-	if ($userContext == 'admin' && CheckUserIntegration::isLoaded() && $user->isAllowed('checkuser')) {
+	if ($userContext === 'admin' && CheckUserIntegration::isLoaded() && $user->isAllowed('checkuser')) {
 		$disp .= Html::openElement('tr');
 		$disp .= Html::element(
 			'th',
@@ -336,7 +336,7 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		$row = '';
 		
 		//see if we have a "edit conflict"
-		$isConflicted = $conflictTimestamp != null && $historyEntry->timestamp > $conflictTimestamp;
+		$isConflicted = $conflictTimestamp !== null && $historyEntry->timestamp > $conflictTimestamp;
 		
 		//if we see a conflict and this is the first conflicted entry we've seen, show a warning
 		if ($isConflicted && !$hasReachedConflictPoint) {
@@ -405,7 +405,7 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
  * @param dbr A readable database connection reference
  */
 function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, IDatabase $dbr) : void {
-	if ($userContext != 'admin') {
+	if ($userContext !== 'admin') {
 		return;
 	}
 	
@@ -427,7 +427,7 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 }
 
 function emailConfirmationForm(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session) {
-	if ($userContext == 'user' && $accountRequest->status !='accepted' && $accountRequest->status !='rejected') {
+	if ($userContext === 'user' && $accountRequest->status !== 'accepted' && $accountRequest->status !== 'rejected') {
 		$disp = '';
 		if (!empty($accountRequest->email) && !$accountRequest->emailConfirmed) {
 			$disp .= Html::openElement('form', [
@@ -576,20 +576,20 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 		return;
 	}
 	
-	if (trim($request->getText('comment', '') == '')) {
+	if (trim($request->getText('comment', '')) === '') {
 		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-empty-comment');
 		return;
 	}
 
-	if ($accountRequest->status == 'accepted') {
+	if ($accountRequest->status === 'accepted') {
 		//request was already accepted, so we can't act on it
 		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
 		return;
 	}
 
-	if ($userContext == 'user' && $accountRequest->status == 'rejected') {
+	if ($userContext === 'user' && $accountRequest->status === 'rejected') {
 		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
 		return;
@@ -602,14 +602,14 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 		return;
 	}
 	
-	$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
+	$updateStatus = $userContext === 'admin' || $accountRequest->status !== 'new';
 
-	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $user : null, $request->getText('comment'), $dbw);
+	actionRequest($accountRequest, $updateStatus, $action, $userContext === 'admin' ? $user : null, $request->getText('comment'), $dbw);
 	
 	$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
-	$hookRunner->onAccountRequestAction($accountRequest, $action, $userContext == 'admin' ? $user->getName() : null, $request->getText('comment'));
+	$hookRunner->onAccountRequestAction($accountRequest, $action, $userContext === 'admin' ? $user->getName() : null, $request->getText('comment'));
 	
-	if ($action == 'set-status-accepted') {
+	if ($action === 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output, $dbw);
 	} else {
 		$output->addHTML(Html::rawElement(

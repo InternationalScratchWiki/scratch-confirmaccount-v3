@@ -15,7 +15,7 @@ class ScratchUserCheck {
 			$isScratcher = null; // can't tell Scratcher status
 			$error = 'scratch-confirmaccount-profile-error';
 		} else {
-			$isScratcher = $status_matches[1] != 'New';
+			$isScratcher = $status_matches[1] !== 'New';
 		}
 		$joined_matches = array();
 		preg_match(self::JOINED_REGEX, $html, $joined_matches);
@@ -34,7 +34,7 @@ class ScratchUserCheck {
 		global $wgScratchAccountCheckDisallowNewScratcher, $wgScratchAccountJoinedRequirement;
 		$disallowNewScratcher = $wgScratchAccountCheckDisallowNewScratcher;
 		$joinedAtRequirement = $wgScratchAccountJoinedRequirement;
-		if (!$disallowNewScratcher && $joinedAtRequirement == 0) {
+		if (!$disallowNewScratcher && $joinedAtRequirement === 0) {
 			return; // no need to check, both disabled
 		}
 

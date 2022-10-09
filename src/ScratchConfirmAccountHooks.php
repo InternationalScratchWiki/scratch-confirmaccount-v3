@@ -87,7 +87,7 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 	}
 	
 	public function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
-		if ($action != 'login') return;
+		if ($action !== 'login') return;
 		$formDescriptor['requestAccount'] = [
 			'type' => 'info',
 			'raw' => true,

@@ -7,11 +7,11 @@ use MediaWiki\MediaWikiServices;
 class ScratchConfirmAccountPreAuthenticationProvider extends MediaWiki\Auth\AbstractPreAuthenticationProvider {
 	public function testForAuthentication(array $reqs) {
 		foreach ($reqs as $authRequest) {
-			if (get_class($authRequest) == 'MediaWiki\Auth\PasswordAuthenticationRequest') {
+			if (get_class($authRequest) === 'MediaWiki\Auth\PasswordAuthenticationRequest') {
 				//ignore any non-password authentication requests (like "remember me" or whatever)
 				$response = $this->handlePasswordAuthenticationRequest($authRequest);
 				
-				if ($response != null) {
+				if ($response) {
 					return $response;
 				}
 			}
@@ -28,7 +28,7 @@ class ScratchConfirmAccountPreAuthenticationProvider extends MediaWiki\Auth\Abst
 		//find active but non-accepted requests under the username that have the password specified in the request
 		$activeRequestsUnderUsername = array_filter(getAccountRequestsByUsername($authRequest->username, $dbr), 
 			function (AccountRequest $accountRequest) use ($passwordFactory, $authRequest) { 
-				return !$accountRequest->isExpired() && $accountRequest->status != 'accepted' && $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($authRequest->password); 
+				return !$accountRequest->isExpired() && $accountRequest->status !== 'accepted' && $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($authRequest->password); 
 			});
 		
 		if (!empty($activeRequestsUnderUsername)) {

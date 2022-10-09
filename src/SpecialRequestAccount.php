@@ -34,7 +34,7 @@ class SpecialRequestAccount extends SpecialPage {
 		//verify that the username is valid
 		$username = $request->getText('scratchusername');
 
-		if ($username == '' || !ScratchVerification::isValidScratchUsername($username)) {
+		if ($username === '' || !ScratchVerification::isValidScratchUsername($username)) {
 			$out_error = wfMessage('scratch-confirmaccount-invalid-username')->text();
 			return;
 		}
@@ -42,7 +42,7 @@ class SpecialRequestAccount extends SpecialPage {
 		//check that the passwords match
 		$password = $request->getText('password');
 		$password2 = $request->getText('password2');
-		if ($password != $password2) {
+		if ($password !== $password2) {
 			// It just compares two user input, no need to prevent timing attack
 			$out_error = wfMessage('scratch-confirmaccount-incorrect-password')->text();
 			return;
@@ -106,13 +106,13 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//make sure that the email is valid
 		$email = $request->getText('email');
-		if ($email != '' && !Sanitizer::validateEmail($email)) {
+		if ($email !== '' && !Sanitizer::validateEmail($email)) {
 			$out_error = wfMessage('scratch-confirmaccount-invalid-email')->text();
 			return;
 		}
 
 		//make sure that the user agreed to the ToS
-		if($request->getText('agree') != "true"){
+		if($request->getText('agree') !== "true"){
 			$out_error = wfMessage('scratch-confirmaccount-disagree-tos')->text();
 			return;
 		}
@@ -120,7 +120,7 @@ class SpecialRequestAccount extends SpecialPage {
 		//make sure the request notes are non-empty
 		$request_notes = $request->getText('requestnotes');
 
-		if($request_notes == ""){
+		if($request_notes === ''){
 			$out_error = wfMessage('scratch-confirmaccount-no-request-notes')->text();
 			return;
 		}
@@ -264,7 +264,7 @@ class SpecialRequestAccount extends SpecialPage {
 				'name' => 'agree',
 				'value' => 'true',
 				'required' => true,
-				'selected' => $request->getText('agree') == 'true'
+				'selected' => $request->getText('agree') === 'true'
 			]),
 			[
 				'label' => wfMessage('scratch-confirmaccount-checkbox-agree')->parse(),
@@ -290,7 +290,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//validate and sanitize the input
 		$formData = $this->accountRequestFormData($error, $dbw);
-		if ($error != '') {
+		if ($error) {
 			cancelTransaction($dbw, __METHOD__);
 			return $this->requestForm($error);
 		}
@@ -307,7 +307,7 @@ class SpecialRequestAccount extends SpecialPage {
 		
 		$sentEmail = false;
 		ScratchVerification::generateNewCodeForSession($session);
-		if ($requestId != null) { //only send the verification email if this request actually created the request
+		if ($requestId !== null) { //only send the verification email if this request actually created the request
 			//run hooks for handling that the request was submitted
 			$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
 			$hookRunner->onAccountRequestSubmitted($requestId, $formData['username'], $formData['requestnotes']);
@@ -370,7 +370,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$form = Html::openElement('form', [ 'method' => 'post', 'name' => 'requestaccount', 'action' => $this->getPageTitle()->getLocalUrl(), 'enctype' => 'multipart/form-data' ]);
 
 		//display errors if there are any relevant
-		if ($error != '') {
+		if ($error) {
 			$form .= Html::element('p', ['class' => 'errorbox'], $error);
 		}
 
@@ -456,7 +456,7 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 		
-		if ($accountRequest->status == 'accepted') {
+		if ($accountRequest->status === 'accepted') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
@@ -491,7 +491,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$session = $request->getSession();
 		
 		$requestId = $request->getText('requestid');
-		if (!$session->exists('requestId') || $session->get('requestId') != $requestId) {
+		if (!$session->exists('requestId') || $session->get('requestId') !== $requestId) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nopermission');
 			return;
 		}
@@ -499,7 +499,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$dbw = getTransactableDatabase('scratch-confirmaccount-send-confirm-email');
 		
 		$accountRequest = getAccountRequestById($requestId, $dbw);
-		if ($accountRequest->status == 'accepted') {
+		if ($accountRequest->status === 'accepted') {
 			cancelTransaction($dbw, 'scratch-confirmaccount-send-confirm-email');
 			$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted-email');
 			return;
@@ -530,14 +530,14 @@ class SpecialRequestAccount extends SpecialPage {
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission();
-		} else if ($par == '') {
+		} else if ($par === '') {
 			return $this->requestForm();
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
 				explode('/', $par)[1], // ConfirmEmail/TOKENPARTHERE
 				$this,
 				$request->getSession());
-		} else if ($par == 'FindRequest') {
+		} else if ($par === 'FindRequest') {
 			return findRequestPage($this, $request->getSession());
 		} else if (ctype_digit($par)) {
 			return requestPage($par, 'user', $this, $request->getSession());
