@@ -6,7 +6,8 @@ use MediaWiki\MediaWikiServices;
 
 function getTransactableDatabase(string $mutexId) : IDatabase {
 	// TODO switch after 1.39 update
-	$dbw = wfGetDB( defined('DB_PRIMARY') ? DB_PRIMARY : DB_MASTER );
+	$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
+	$dbw = $loadBalancer->getConnection( defined('DB_PRIMARY') ? DB_PRIMARY : DB_MASTER );
 	$dbw->startAtomic( $mutexId );
 	
 	return $dbw;
@@ -21,7 +22,8 @@ function cancelTransaction(IDatabase $dbw, string $mutexId) : void {
 }
 
 function getReadOnlyDatabase() {
-	return wfGetDB( DB_REPLICA );
+	$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
+	return $loadBalancer->getConnection( DB_REPLICA );
 }
 
 function getSingleBlock(string $username, IDatabase $dbr) {
