@@ -411,8 +411,6 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
-		$linkRenderer = $this->getLinkRenderer();
-
 		$username = $request->getText('username');
 		$password = $request->getText('password');
 
@@ -530,7 +528,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission();
-		} else if ($par === '') {
+		} else if ($par === null || $par === '') {
 			return $this->requestForm();
 		} else if (strpos($par, 'ConfirmEmail/') === 0) { // starts with ConfirmEmail/
 			return confirmEmailPage(
