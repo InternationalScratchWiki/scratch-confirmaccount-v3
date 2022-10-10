@@ -9,13 +9,19 @@ require_once __DIR__ . '/subpages/RequestPage.php';
 
 use ScratchConfirmAccount\Hook\HookRunner;
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\HookContainer\HookContainer;
 
 class SpecialRequestAccount extends SpecialPage {
 	const REQUEST_NOTES_MAX_LENGTH = 5000;
+
+	private PasswordFactory $passwordFactory;
+	private HookContainer $hookContainer;
 	
-	function __construct() {
+	function __construct(PasswordFactory $passwordFactory, HookContainer $hookContainer) {
 		parent::__construct( 'RequestAccount' );
+
+		$this->passwordFactory = $passwordFactory;
+		$this->hookContainer = $hookContainer;
 	}
 
 	function accountRequestFormData(&$out_error, IDatabase $dbr) {
@@ -130,9 +136,8 @@ class SpecialRequestAccount extends SpecialPage {
 			return;
 		}
 
-		// Create password hash
-		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
-		$passwordHash = $passwordFactory->newFromPlaintext($password)->toString();
+		// Create password hash;
+		$passwordHash = $this->passwordFactory->newFromPlaintext($password)->toString();
 
 		return [
 			'username' => $username,
@@ -309,7 +314,7 @@ class SpecialRequestAccount extends SpecialPage {
 		ScratchVerification::generateNewCodeForSession($session);
 		if ($requestId !== null) { //only send the verification email if this request actually created the request
 			//run hooks for handling that the request was submitted
-			$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
+			$hookRunner = new HookRunner($this->hookContainer);
 			$hookRunner->onAccountRequestSubmitted($requestId, $formData['username'], $formData['requestnotes']);
 
 			if ($formData['email']) {
@@ -415,7 +420,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$password = $request->getText('password');
 
 		//see if there are any requests with the given password
-		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
+		$passwordFactory = $this->passwordFactory;
 		$requests = getAccountRequestsByUsername($username, $dbr);
 		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
 

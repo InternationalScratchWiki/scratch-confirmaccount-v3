@@ -32,7 +32,13 @@
 		"ScratchConfirmAccount\\Hook\\": "src/hooks/"
 	},
 	"SpecialPages": {
-		"RequestAccount": "SpecialRequestAccount",
+		"RequestAccount": {
+			"class": "SpecialRequestAccount",
+			"services": [
+				"PasswordFactory",
+				"HookContainer"
+			]
+		},
 		"ConfirmAccounts": "SpecialConfirmAccounts"
 	},
 	"JobClasses": {
@@ -105,7 +111,10 @@
 		"preauth": {
 			"ScratchConfirmAccountPreAuthenticationProvider": {
 				"class": "ScratchConfirmAccountPreAuthenticationProvider",
-				"sort": 10
+				"sort": 10,
+				"services": [
+					"PasswordFactory"
+				]
 			}
 		}
 	},
