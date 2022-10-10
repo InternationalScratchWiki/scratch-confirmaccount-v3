@@ -70,6 +70,7 @@
 	"scratch-confirmaccount-ipaddress": "IP address",
 	"scratch-confirmaccount-ip-warning": "Warning",
 	"scratch-confirmaccount-ip-warning-request": "The following accounts have made account requests from the same IP address as this user:",
+	"scratch-confirmaccount-ip-warning-request-time": "$1 (last requested at $2, status: $3)",
 	"scratch-confirmaccount-ip-warning-checkuser": "The following accounts have made edits from the same IP address as this user:",
 	"scratch-confirmaccount-ip-warning-checkuser-time": "$1 (last edited at $2)",
 	"scratch-confirmaccount-welcome": "Welcome to the wiki!",

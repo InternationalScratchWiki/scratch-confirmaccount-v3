@@ -26,12 +26,13 @@ class CheckUserIntegration {
             [
                 'user_name' => 'user_name', 
                 'cuc_timestamp' => 'MAX(cuc_timestamp)',
-                'user_id' => 'user_id'
+                'user_id' => 'MAX(user_id)'
             ],
             ['cuc_ip_hex' => IP::toHex($ip)],
             __METHOD__,
             [
-                'GROUP BY' => 'user_name'
+                'GROUP BY' => 'user_name',
+                'ORDER BY' => 'cuc_timestamp DESC'
             ],
             ['user' => ['LEFT JOIN', 'user_id=cuc_user']]
         );

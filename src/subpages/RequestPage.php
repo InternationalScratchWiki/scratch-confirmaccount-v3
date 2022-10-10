@@ -376,6 +376,7 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 }
 
 function requestAltWarningDisplay(OutputPage &$output, string $key, array &$usernames) {
+	$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 	$disp = Html::openElement('fieldset');
 	$disp .= Html::element(
 		'legend',
@@ -388,7 +389,7 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
 		wfMessage($key)->text()
 	);
 	$disp .= Html::openElement('ul');
-	$disp .= implode('', array_map(function($value) use($output) {
+	$disp .= implode('', array_map(function($value) use($output, $linkRenderer) {
 		if ($value instanceof CheckUserEntry) {
 			return Html::rawElement(
 				'li',
@@ -396,6 +397,17 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
 				wfMessage('scratch-confirmaccount-ip-warning-checkuser-time')->rawParams(
 					Linker::userLink($value->userId, $value->username) . Linker::userToolLinks($value->userId, $value->username),
 					humanTimestamp($value->lastTimestamp, $output->getLanguage())
+				)->parse()
+			);
+		} elseif ($value instanceof AccountRequest) {
+			return Html::rawElement(
+				'li',
+				[],
+				wfMessage('scratch-confirmaccount-ip-warning-request-time')->rawParams(
+					$linkRenderer->makeKnownLink(SpecialPage::getTitleFor('ConfirmAccounts', (string)$value->id), $value->username),
+					humanTimestamp($value->timestamp, $output->getLanguage())
+				)->params(
+					wfMessage(statuses[$value->status])->text()
 				)->parse()
 			);
 		}

@@ -387,18 +387,40 @@ function setRequestEmailConfirmed($request_id, IDatabase $dbw) {
  * @param usernameToIgnore Do not return any users with this username (case-insensitive)
  * @param dbr A readable database connection
  *
- * @return string[] An array of usernames with account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
+ * @return array An array of account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
  */
 function getRequestUsernamesFromIP($ip, string $usernameToIgnore, IDatabase $dbr) : array {
-	return $dbr->selectFieldValues(
+	// Why not DISTINCT?
+	// Well, DISTINCT does not really work well with multiple columns - neither does GROUP BY.
+	// Rather than building a complex query we just let it query all and have PHP filter.
+	$results = $dbr->select(
 		'scratch_accountrequest_request',
-		'DISTINCT request_username',
+		[
+			'request_username',
+			'request_id',
+			'request_timestamp',
+			'request_status',
+		],
 		[
 			'request_ip' => $ip,
 			'LOWER(CONVERT(request_username using utf8)) != ' . $dbr->addQuotes(strtolower($usernameToIgnore))
 		],
-		__METHOD__
+		__METHOD__,
+		[
+			'ORDER BY' => 'request_timestamp DESC'
+		]		
 	);
+
+	$entries = [];
+	$usernames = [];
+
+    foreach ($results as $row) {
+		if (in_array($row->request_username, $usernames)) continue;
+		$usernames[] = $row->request_username;
+    	$entries[] = AccountRequest::fromCompactRow($row);
+    }
+
+    return $entries;
 }
 
 
