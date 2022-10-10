@@ -84,7 +84,6 @@
 	"scratch-confirmaccount-ip-blocked": "あなたのIPアドレスは、アカウント作成からブロックされています。 理由は次のとおりです: $1",
 	"scratch-confirmaccount-success": "申請を受け付けました。管理者が確認し、[[Special:RequestAccount/$1|申請ページ]]にて返信します。",
 	"scratch-confirmaccount-success-noid": "申請を受け付けました。管理者が処理を行い、[[Special:RequestAccount/FindRequest|申請ページ]]にて返信します。",
-	"scratch-confirmaccount-waiting-request": "$1: $2",
 	"scratch-confirmaccount-request-notes-too-long": "あなたの特記事項は長すぎます。 $1文字以内に収めてください。",
 	"scratch-confirmaccount-new": "未確認",
 	"scratch-confirmaccount-awaiting-admin": "管理者待ち",

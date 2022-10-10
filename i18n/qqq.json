@@ -84,7 +84,6 @@
 	"scratch-confirmaccount-no-request-notes": "Error when request notes are empty",
 	"scratch-confirmaccount-success": "Success message after request is submitted",
 	"scratch-confirmaccount-success-noid": "Success message after request is submitted but there is no request ID",
-	"scratch-confirmaccount-waiting-request": "Literally no idea what this is",
 	"scratch-confirmaccount-new": "Status string: new request",
 	"scratch-confirmaccount-awaiting-admin": "Status string: request is awaiting an admin response",
 	"scratch-confirmaccount-awaiting-user": "Status string: request is awaiting the user's response",

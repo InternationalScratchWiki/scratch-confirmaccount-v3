@@ -78,7 +78,6 @@
 	"scratch-confirmaccount-disagree-tos": "Bir hesap istemek için kullanım koşullarını kabul etmelisiniz.",
 	"scratch-confirmaccount-no-request-notes": "İstek notları boş olamaz.",
 	"scratch-confirmaccount-success": "Hesap isteği alındı. Hizmetliler isteği gözden geçirecek ve cevap verecekler.",
-	"scratch-confirmaccount-waiting-request": "$1: $2",
 	"scratch-confirmaccount-new": "Yeni",
 	"scratch-confirmaccount-awaiting-admin": "Bekleyen hizmetli",
 	"scratch-confirmaccount-awaiting-user": "Bekleyen kullanıcı",

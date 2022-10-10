@@ -84,7 +84,6 @@
 	"scratch-confirmaccount-request-notes-too-long": "La note dans votre demande est trop longue. Veuillez la limiter à $1 caractères.",
 	"scratch-confirmaccount-success": "Votre demande de compte a été reçue. Les administrateurs vont la gérer et envoyer une réponse sur la [[Special:RequestAccount/$1|page de la demande]].",
 	"scratch-confirmaccount-success-noid": "Votre demande de compte a été reçue. Les administrateurs vont la gérer et envoyer une réponse sur la [[Special:RequestAccount/FindRequest|request page]].",
-	"scratch-confirmaccount-waiting-request": "$1 : $2",
 	"scratch-confirmaccount-new": "Nouveau",
 	"scratch-confirmaccount-awaiting-admin": "En attente d'un admin",
 	"scratch-confirmaccount-awaiting-user": "En attente de l'utilisateur",
