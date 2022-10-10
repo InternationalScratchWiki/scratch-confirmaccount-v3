@@ -132,7 +132,7 @@
 
 	"scratch-confirmaccount-request-account-login-notice": "Text added to login form with link to [[Special:RequestAccount]]",
 	"scratch-confirmaccount-view-request": "Text with link to find submitted request",
-	"scratch-confirmaccount-dropdown-other": "No idea why this string exists",
+	"scratch-confirmaccount-dropdown-other": "Dropdown menu option to enter custom value",
 	"scratch-confirmaccount-common-admin-comments": "Default admin comments for requests",
 	"scratch-confirmaccount-stale-awaiting-user-auto-reject-message": "Rejection message text used for requesters that do not respond to comments",
 	"scratch-confirmaccount-attempted-login-with-active-request": "Message shown when trying to log in as a user while the account request is still active",
