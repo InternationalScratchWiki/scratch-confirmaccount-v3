@@ -464,7 +464,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$emailToken = md5($request->getText('emailToken'));
 		$requestURL = SpecialPage::getTitleFor('RequestAccount', $requestId)->getFullURL();
 
-		if (empty($emailToken) || $accountRequest->emailToken !== $emailToken || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
+		if (empty($emailToken) || !hash_equals($accountRequest->emailToken, $emailToken) || $accountRequest->emailExpiry <= wfTimestamp(TS_MW)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-invalid-email-token', $requestURL);
 			cancelTransaction($dbw, 'scratch-confirmaccount-submit-confirm-email');
 			return;
