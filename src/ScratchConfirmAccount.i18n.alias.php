@@ -40,4 +40,3 @@ $specialPageAliases['tr'] = [
   'RequestAccount' => [ 'Bir hesap iste', 'BirHesapIste' ],
   'ConfirmAccounts' => [ 'Hesap isteklerini onayla', 'HesapIstekleriniOnayla' ]
 ];
-
