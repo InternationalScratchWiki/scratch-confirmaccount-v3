@@ -80,6 +80,7 @@
 	"scratch-confirmaccount-request-exists": "Error when request is already submitted",
 	"scratch-confirmaccount-verif-missing": "Error when verification code is not commented",
 	"scratch-confirmaccount-user-blocked": "Error when user is blocked",
+	"scratch-confirmaccount-user-blocked-duration": "Message showing the block expiry date",
 	"scratch-confirmaccount-ip-blocked": "Error when IP address is blocked",
 	"scratch-confirmaccount-invalid-email": "Error when email is invalid",
 	"scratch-confirmaccount-disagree-tos": "Error when ToS is not agreed to",

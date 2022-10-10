@@ -33,7 +33,7 @@ class SpecialRequestAccount extends SpecialPage {
 		//if the user is IP banned, don't even consider anything else
 		if ($this->getUser()->isBlockedFromCreateAccount()) {
 			$block = $this->getUser()->getBlock();
-			$out_error = wfMessage('scratch-confirmaccount-ip-blocked', $block->getReasonComment()->text)->text();
+			$out_error = wfMessage('scratch-confirmaccount-ip-blocked', $block->getReasonComment()->text)->parse();
 			return;
 		}
 		
@@ -41,7 +41,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$username = $request->getText('scratchusername');
 
 		if ($username === '' || !ScratchVerification::isValidScratchUsername($username)) {
-			$out_error = wfMessage('scratch-confirmaccount-invalid-username')->text();
+			$out_error = wfMessage('scratch-confirmaccount-invalid-username')->parse();
 			return;
 		}
 
@@ -50,7 +50,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$password2 = $request->getText('password2');
 		if ($password !== $password2) {
 			// It just compares two user input, no need to prevent timing attack
-			$out_error = wfMessage('scratch-confirmaccount-incorrect-password')->text();
+			$out_error = wfMessage('scratch-confirmaccount-incorrect-password')->parse();
 			return;
 		}
 
@@ -61,23 +61,23 @@ class SpecialRequestAccount extends SpecialPage {
 		$passwordMax = $passwordRequirement[1];
 		$passwordLen = strlen($password);
 		if ($passwordLen < $passwordMin) {
-			$out_error = wfMessage('scratch-confirmaccount-password-min', $passwordMin)->text();
+			$out_error = wfMessage('scratch-confirmaccount-password-min', $passwordMin)->parse();
 			return;
 		}
 		if ($passwordLen > $passwordMax) {
-			$out_error = wfMessage('scratch-confirmaccount-password-max', $passwordMax)->text();
+			$out_error = wfMessage('scratch-confirmaccount-password-max', $passwordMax)->parse();
 			return;
 		}
 
 		//check that there isn't already a registered user with this username (importantly we have to use our own function rather than a MediaWiki one for case sensitivity reasons)
 		if (userExists($username, $dbr)) {
-			$out_error = wfMessage('scratch-confirmaccount-user-exists')->text();
+			$out_error = wfMessage('scratch-confirmaccount-user-exists')->parse();
 			return;
 		}
 
 		//make sure the user actually commented the verification code
 		if (false && ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) !== $username) {
-			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->text();
+			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->parse();
 			return;
 		}
 
@@ -87,25 +87,32 @@ class SpecialRequestAccount extends SpecialPage {
 			switch ($user_check_error) {
 				case 'scratch-confirmaccount-new-scratcher':
 				case 'scratch-confirmaccount-profile-error':
-					$out_error = wfMessage($user_check_error)->text();
+					$out_error = wfMessage($user_check_error)->parse();
 					return;
 				case 'scratch-confirmaccount-joinedat':
 					$days = ceil($wgScratchAccountJoinedRequirement / (24 * 60 * 60));
-					$out_error = wfMessage($user_check_error, $days)->text();
+					$out_error = wfMessage($user_check_error, $days)->parse();
 					return;
 			}
 		}
 		
 		//also make sure there aren't any active requests under the given username
 		if (!canMakeRequestForUsername($username, $dbr)) {
-			$out_error = wfMessage('scratch-confirmaccount-request-exists')->text();
+			$out_error = wfMessage('scratch-confirmaccount-request-exists')->parse();
 			return;
 		}
 				
 		//see if the username is blocked from submitting account requests (note that this is done after verifying the confirmation code so that we don't accidentally allow block information to be revealed)
 		$block = getSingleBlock($username, $dbr);
 		if ($block && !blockExpired($block)) {
-			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $block->reason)->text();
+			$out_error = wfMessage('scratch-confirmaccount-user-blocked', $block->reason)->parse();
+			if ($block->expirationTimestamp !== null) {
+				$out_error .= Html::openElement('br');
+				$out_error .= wfMessage(
+					'scratch-confirmaccount-user-blocked-duration',
+					$this->getContext()->getLanguage()->formatExpiry($block->expirationTimestamp)
+				)->parse();
+			}
 			// note : blocks are not publicly visible on scratch, so this needs to run after checking the verification code
 			return;
 		}
@@ -113,13 +120,13 @@ class SpecialRequestAccount extends SpecialPage {
 		//make sure that the email is valid
 		$email = $request->getText('email');
 		if ($email !== '' && !Sanitizer::validateEmail($email)) {
-			$out_error = wfMessage('scratch-confirmaccount-invalid-email')->text();
+			$out_error = wfMessage('scratch-confirmaccount-invalid-email')->parse();
 			return;
 		}
 
 		//make sure that the user agreed to the ToS
 		if($request->getText('agree') !== "true"){
-			$out_error = wfMessage('scratch-confirmaccount-disagree-tos')->text();
+			$out_error = wfMessage('scratch-confirmaccount-disagree-tos')->parse();
 			return;
 		}
 
@@ -127,12 +134,12 @@ class SpecialRequestAccount extends SpecialPage {
 		$request_notes = $request->getText('requestnotes');
 
 		if($request_notes === ''){
-			$out_error = wfMessage('scratch-confirmaccount-no-request-notes')->text();
+			$out_error = wfMessage('scratch-confirmaccount-no-request-notes')->parse();
 			return;
 		}
 		
 		if (strlen($request_notes) > self::REQUEST_NOTES_MAX_LENGTH) {
-			$out_error = wfMessage('scratch-confirmaccount-request-notes-too-long', self::REQUEST_NOTES_MAX_LENGTH)->text();
+			$out_error = wfMessage('scratch-confirmaccount-request-notes-too-long', self::REQUEST_NOTES_MAX_LENGTH)->parse();
 			return;
 		}
 
@@ -387,7 +394,7 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//display errors if there are any relevant
 		if ($error) {
-			$form .= Html::element('p', ['class' => 'errorbox'], $error);
+			$form .= Html::rawElement('p', ['class' => 'errorbox'], $error);
 		}
 
 		if ($this->getUser()->isRegistered()) {

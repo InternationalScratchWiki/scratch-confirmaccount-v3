@@ -80,6 +80,7 @@
 	"scratch-confirmaccount-request-exists": "申請は既に確認中です。管理者が確認するまでお待ちください。",
 	"scratch-confirmaccount-verif-missing": "Scratchアカウント '$1' にログインし、以下のコードをコメントしてください。",
 	"scratch-confirmaccount-user-blocked": "あなたはアカウントを申請できません。理由: $1",
+	"scratch-confirmaccount-user-blocked-duration": "$1 以降に再び申請できます。",
 	"scratch-confirmaccount-invalid-email": "メールアドレスが無効です。",
 	"scratch-confirmaccount-disagree-tos": "利用規約に同意しない場合はアカウントが申請できません。",
 	"scratch-confirmaccount-no-request-notes": "特記事項欄を記入してください。",
