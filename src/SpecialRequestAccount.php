@@ -224,7 +224,18 @@ class SpecialRequestAccount extends SpecialPage {
 		$form .= Html::rawElement(
 			'p',
 			[],
-			wfMessage('scratch-confirmaccount-vercode-explanation', sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID))->parse()
+			wfMessage('scratch-confirmaccount-vercode-explanation')->rawParams(
+				Html::element(
+					'a',
+					[
+						'href' => sprintf(ScratchVerification::PROJECT_LINK, $wgScratchVerificationProjectID),
+						'class' => 'plainlinks',
+						'target' => '_blank',
+						'rel' => 'noopener noreferrer'
+					],
+					wfMessage('scratch-confirmaccount-verification-project')->text()
+				)
+			)->parse()
 		);
 		$form .= Html::element(
 			'p',

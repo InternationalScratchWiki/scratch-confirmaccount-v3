@@ -15,6 +15,7 @@
 	"scratch-confirmaccount-email": "Label for email field",
 	"scratch-confirmaccount-request-submit": "Text of submit button",
 	"scratch-confirmaccount-vercode-explanation": "Instructions for user verification",
+	"scratch-confirmaccount-verification-project": "Link text to the user verification project",
 	"scratch-confirmaccount-checkbox-agree": "Text of ToS-agreement checkbox",
 	"scratch-confirmaccount-findrequest-nomatch": "Error when username+password combination for viewing own request is invalid",
 	"scratch-confirmaccount-request-notes-too-long": "Error when request notes are too long",
