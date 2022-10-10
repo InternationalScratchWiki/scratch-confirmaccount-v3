@@ -26,7 +26,7 @@ class ScratchVerification {
 	}
 
 	private static function commentsForProject($author, $project_id) {
-		return json_decode(file_get_contents(sprintf(
+		return json_decode(@file_get_contents(sprintf(
 			self::SCRATCH_COMMENT_API_URL, $author, $project_id
 		)), true);
 	}

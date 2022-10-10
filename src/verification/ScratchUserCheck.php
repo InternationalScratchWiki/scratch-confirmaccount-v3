@@ -8,7 +8,7 @@ class ScratchUserCheck {
 
 	private static function fetchProfile($username, &$isScratcher, &$joinedAt, &$error) {
 		$url = sprintf(self::PROFILE_URL, $username);
-		$html = file_get_contents($url);
+		$html = @file_get_contents($url);
 		$status_matches = array();
 		preg_match(self::STATUS_REGEX, $html, $status_matches);
 		if (empty($status_matches)) {
