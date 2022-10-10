@@ -70,6 +70,7 @@
 	"scratch-confirmaccount-ip-warning": "注意",
 	"scratch-confirmaccount-ip-warning-request": "申請時のIPアドレスでは、過去に以下のアカウントの申請が行われました:",
 	"scratch-confirmaccount-ip-warning-checkuser": "申請時のIPアドレスでは、過去に以下のアカウントにより編集が行われました:",
+	"scratch-confirmaccount-ip-warning-checkuser-time": "$1 (最終編集日時 $2)",
 	"scratch-confirmaccount-welcome": "ウィキへようこそ!",
 	"scratch-confirmaccount-welcome-summary": "ようこそ!",
 

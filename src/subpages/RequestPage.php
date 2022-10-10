@@ -388,7 +388,17 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
 		wfMessage($key)->text()
 	);
 	$disp .= Html::openElement('ul');
-	$disp .= implode('', array_map(function($value) {
+	$disp .= implode('', array_map(function($value) use($output) {
+		if ($value instanceof CheckUserEntry) {
+			return Html::rawElement(
+				'li',
+				[],
+				wfMessage('scratch-confirmaccount-ip-warning-checkuser-time')->rawParams(
+					Linker::userLink($value->userId, $value->username) . Linker::userToolLinks($value->userId, $value->username),
+					humanTimestamp($value->lastTimestamp, $output->getLanguage())
+				)->parse()
+			);
+		}
 		return Html::element('li', [], $value);
 	}, $usernames));
 	$disp .= Html::closeElement('ul');
@@ -414,15 +424,15 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 	
 	//for the checkuser usernames, remove any entries that match the username on the request (which may happen after the request is accepted and the user is editing)
 	$accountRequestWikiUsername = User::getCanonicalName($accountRequest->username);
-	$checkUserUsernames = array_filter(CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $dbr), 
-	function ($testUsername) use ($accountRequestWikiUsername) { return !empty($testUsername) && $testUsername !== $accountRequestWikiUsername; });
+	$checkUserEntries = array_filter(CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $dbr), 
+	function ($testEntry) use ($accountRequestWikiUsername) { return $testEntry->username !== null && $testEntry->username !== $accountRequestWikiUsername; });
 	
 	if (!empty($requestUsernames)) {
 		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-request', $requestUsernames);
 	}
 	
-	if (!empty($checkUserUsernames)) {
-		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames);
+	if (!empty($checkUserEntries)) {
+		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-checkuser', $checkUserEntries);
 	}
 }
 

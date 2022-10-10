@@ -70,6 +70,7 @@
 	"scratch-confirmaccount-ip-warning": "Label for warning",
 	"scratch-confirmaccount-ip-warning-request": "Warning shown when the user has requested an account before",
 	"scratch-confirmaccount-ip-warning-checkuser": "Warning shown when the user has edited before",
+	"scratch-confirmaccount-ip-warning-checkuser-time": "Text containing a link to the user and their last edit time",
 	"scratch-confirmaccount-welcome": "Welcome message posted on the talk page",
 	"scratch-confirmaccount-welcome-summary": "Edit summary used when posting welcome message",
 
