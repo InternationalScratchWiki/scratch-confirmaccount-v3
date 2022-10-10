@@ -187,7 +187,7 @@ function actionRequest(AccountRequest $request, bool $updateStatus, string $acti
 		'history_request_id' => $request->id,
 		'history_action' => $action,
 		'history_comment' => $comment,
-		'history_performer' => $userPerformingAction ?? $userPerformingAction->getId(),
+		'history_performer' => $userPerformingAction === null ? null : $userPerformingAction->getId(),
 		'history_timestamp' => $dbw->timestamp()
 	], __METHOD__);
 

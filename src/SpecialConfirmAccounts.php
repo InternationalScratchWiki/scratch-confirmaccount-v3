@@ -294,11 +294,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 
-		if (!$username) {
+		if ($username === '') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-block-invalid-username');
 			return;
 		}
-		if (!$reason) {
+		if ($reason === '') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-block-invalid-reason');
 			return;
 		}
@@ -438,9 +438,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output, $session);
-		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
+		} else if ($par && strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
 			return $this->blocksPage($par, $request, $output, $session);
-		} else if (strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
+		} else if ($par && strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
 			$bypassPage = new RequirementsBypassPage($this);
 			return $bypassPage->render($session);
 		} else if ($request->getText('username')) {

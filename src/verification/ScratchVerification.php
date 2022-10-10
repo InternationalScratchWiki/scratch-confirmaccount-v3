@@ -25,13 +25,16 @@ class ScratchVerification {
 		return $session->get('vercode');
 	}
 
-	private static function commentsForProject($author, $project_id) {
-		return json_decode(@file_get_contents(sprintf(
+	private static function commentsForProject($author, $project_id): array {
+		$comments = @file_get_contents(sprintf(
 			self::SCRATCH_COMMENT_API_URL, $author, $project_id
-		)), true);
+		));
+		if ($comments === false) return [];
+
+		return json_decode($comments, true);
 	}
 
-	private static function verifComments() {
+	private static function verifComments(): array {
 		global $wgScratchVerificationProjectAuthor;
 		global $wgScratchVerificationProjectID;
 		return self::commentsForProject(
