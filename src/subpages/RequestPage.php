@@ -435,7 +435,8 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 	$requestUsernames = getRequestUsernamesFromIP($accountRequest->ip, $accountRequest->username, $dbr);
 	
 	//for the checkuser usernames, remove any entries that match the username on the request (which may happen after the request is accepted and the user is editing)
-	$accountRequestWikiUsername = User::getCanonicalName($accountRequest->username);
+	$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
+	$accountRequestWikiUsername = $userNameUtils->getCanonical($accountRequest->username);
 	$checkUserEntries = array_filter(CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $dbr), 
 	function ($testEntry) use ($accountRequestWikiUsername) { return $testEntry->username !== null && $testEntry->username !== $accountRequestWikiUsername; });
 	
