@@ -414,13 +414,13 @@ function getRequestUsernamesFromIP($ip, string $usernameToIgnore, IDatabase $dbr
 	$entries = [];
 	$usernames = [];
 
-    foreach ($results as $row) {
+	foreach ($results as $row) {
 		if (in_array($row->request_username, $usernames)) continue;
 		$usernames[] = $row->request_username;
-    	$entries[] = AccountRequest::fromCompactRow($row);
-    }
+		$entries[] = AccountRequest::fromCompactRow($row);
+	}
 
-    return $entries;
+	return $entries;
 }
 
 

@@ -3,5 +3,5 @@
 namespace ScratchConfirmAccount\Hook;
 
 interface RequestedAccountCreatedHook {
-    public function onRequestedAccountCreated($request, string $actorUsername);
+	public function onRequestedAccountCreated($request, string $actorUsername);
 }
