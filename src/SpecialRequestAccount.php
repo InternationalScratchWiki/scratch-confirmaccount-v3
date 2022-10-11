@@ -438,9 +438,8 @@ class SpecialRequestAccount extends SpecialPage {
 		$password = $request->getText('password');
 
 		//see if there are any requests with the given password
-		$passwordFactory = $this->passwordFactory;
 		$requests = getAccountRequestsByUsername($username, $dbr);
-		$matchingRequests = array_filter($requests, function($accountRequest) use ($passwordFactory, $password) { return $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
+		$matchingRequests = array_filter($requests, function($accountRequest) use ($password) { return $this->passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($password); });
 
 		if (empty($matchingRequests)) {
 			$output->showErrorPage('error', 'scratch-confirmaccount-findrequest-nomatch');
