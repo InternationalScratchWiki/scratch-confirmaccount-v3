@@ -8,6 +8,9 @@ use MediaWiki\Hook\PersonalUrlsHook;
 use MediaWiki\SpecialPage\Hook\AuthChangeFormFieldsHook;
 
 class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, PersonalUrlsHook, AuthChangeFormFieldsHook {
+	/**
+	 * Loads extension-provided SQL schema updates.
+	 */
 	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$updater->addExtensionTable('scratch_accountrequest_request', __DIR__ . '/../sql/requests.sql');
 		$updater->addExtensionTable('scratch_accountrequest_block', __DIR__ . '/../sql/blocks.sql');
@@ -17,6 +20,9 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 		$updater->addExtensionField('scratch_accountrequest_block', 'block_expiration_timestamp', __DIR__ . '/../sql/block_expiration_timestamp.sql');
 	}
 
+	/**
+	 * Shows the number of pending requests on Recent Changes for those who can review the requests.
+	 */
 	public function onBeforePageDisplay($out, $skin) : void {
 		$user = $out->getUser();
 
@@ -62,6 +68,10 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 		}
 	}
 	
+	/**
+	 * Adds the preference in Special:Preferences to choose whether the
+	 * Scratch profile page should open after confirming/rejecting a request.
+	 */
 	public function onGetPreferences($user, &$preferences) {
 		//don't show if the user doesn't have permission to create accounts
 		if (!$user->isAllowed('createaccount')) {
@@ -76,8 +86,10 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 		return true;
 	}
 	
+	/**
+	 * Adds a link to Special:RequestAccount if a link exists for login.
+	 */
 	public function onPersonalUrls(&$personal_urls, &$title, $skin) : void {
-		# Add a link to Special:RequestAccount if a link exists for login
 		if (isset($personal_urls['login'])) {
 			$personal_urls['createaccount'] = [
 				'text' => wfMessage('requestaccount')->text(),
@@ -86,6 +98,9 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 		}
 	}
 	
+	/**
+	 * Shows "View Request" link in the login form.
+	 */
 	public function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
 		if ($action !== 'login') return;
 		$formDescriptor['requestAccount'] = [
