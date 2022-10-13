@@ -185,7 +185,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function requestTable($username, $status, &$linkRenderer) {
 		$pager = new AccountRequestPager($username, $status, $linkRenderer, $this->getLanguage());
 
-		if ($pager->getNumRows() == 0) {
+		if ($pager->getNumRows() === 0) {
 			return Html::element('p', [], wfMessage('scratch-confirmaccount-norequests')->text());
 		}
 
@@ -242,8 +242,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	function defaultPage(&$output) {
-		$linkRenderer = $this->getLinkRenderer();
-
 		$disp = Html::element('h3', [], wfMessage('scratch-confirmaccount-request-options')->text());
 		$disp .= Html::openElement('form', [
 			'action' => '',
@@ -296,11 +294,11 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return;
 		}
 
-		if (!$username) {
+		if ($username === '') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-block-invalid-username');
 			return;
 		}
-		if (!$reason) {
+		if ($reason === '') {
 			$output->showErrorPage('error', 'scratch-confirmaccount-block-invalid-reason');
 			return;
 		}
@@ -418,7 +416,6 @@ class SpecialConfirmAccounts extends SpecialPage {
 	function execute( $par ) {		
 		$request = $this->getRequest();
 		$output = $this->getOutput();
-		$language = $this->getLanguage();
 		
 		$output->setPageTitle( $this->msg( "confirmaccounts" )->escaped() );
 		
@@ -441,9 +438,9 @@ class SpecialConfirmAccounts extends SpecialPage {
 
 		if ($request->wasPosted()) {
 			return $this->handleFormSubmission($request, $output, $session);
-		} else if (strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
+		} else if ($par && strpos($par, wfMessage('scratch-confirmaccount-blocks')->text()) === 0) {
 			return $this->blocksPage($par, $request, $output, $session);
-		} else if (strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
+		} else if ($par && strpos($par, wfMessage('scratch-confirmaccount-requirements-bypasses-url')->text()) === 0) {
 			$bypassPage = new RequirementsBypassPage($this);
 			return $bypassPage->render($session);
 		} else if ($request->getText('username')) {

@@ -8,14 +8,20 @@ class ScratchUserCheck {
 
 	private static function fetchProfile($username, &$isScratcher, &$joinedAt, &$error) {
 		$url = sprintf(self::PROFILE_URL, $username);
-		$html = file_get_contents($url);
+		$html = @file_get_contents($url);
+		if ($html === false) {
+			$isScratcher = null; // can't tell Scratcher status
+			$error = 'scratch-confirmaccount-profile-error';
+			return;
+		}
 		$status_matches = array();
 		preg_match(self::STATUS_REGEX, $html, $status_matches);
 		if (empty($status_matches)) {
 			$isScratcher = null; // can't tell Scratcher status
 			$error = 'scratch-confirmaccount-profile-error';
+			return;
 		} else {
-			$isScratcher = $status_matches[1] != 'New';
+			$isScratcher = $status_matches[1] !== 'New';
 		}
 		$joined_matches = array();
 		preg_match(self::JOINED_REGEX, $html, $joined_matches);
@@ -34,7 +40,7 @@ class ScratchUserCheck {
 		global $wgScratchAccountCheckDisallowNewScratcher, $wgScratchAccountJoinedRequirement;
 		$disallowNewScratcher = $wgScratchAccountCheckDisallowNewScratcher;
 		$joinedAtRequirement = $wgScratchAccountJoinedRequirement;
-		if (!$disallowNewScratcher && $joinedAtRequirement == 0) {
+		if (!$disallowNewScratcher && $joinedAtRequirement === 0) {
 			return; // no need to check, both disabled
 		}
 

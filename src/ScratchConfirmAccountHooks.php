@@ -1,10 +1,17 @@
 <?php
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
+use MediaWiki\Hook\BeforePageDisplayHook;
+use MediaWiki\Preferences\Hook\GetPreferencesHook;
+use MediaWiki\Hook\PersonalUrlsHook;
+use MediaWiki\SpecialPage\Hook\AuthChangeFormFieldsHook;
 
-class ScratchConfirmAccountHooks {
-	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
+class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, PersonalUrlsHook, AuthChangeFormFieldsHook {
+	/**
+	 * Loads extension-provided SQL schema updates.
+	 */
+	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$updater->addExtensionTable('scratch_accountrequest_request', __DIR__ . '/../sql/requests.sql');
 		$updater->addExtensionTable('scratch_accountrequest_block', __DIR__ . '/../sql/blocks.sql');
 		$updater->addExtensionTable('scratch_accountrequest_history', __DIR__ . '/../sql/request_handling_history.sql');
@@ -13,17 +20,20 @@ class ScratchConfirmAccountHooks {
 		$updater->addExtensionField('scratch_accountrequest_block', 'block_expiration_timestamp', __DIR__ . '/../sql/block_expiration_timestamp.sql');
 	}
 
-	public static function pendingRequestNotice(OutputPage &$out, Skin &$skin) {
-		global $wgUser;
+	/**
+	 * Shows the number of pending requests on Recent Changes for those who can review the requests.
+	 */
+	public function onBeforePageDisplay($out, $skin) : void {
+		$user = $out->getUser();
 
 		//don't show if the user doesn't have permission to create accounts
-		if (!$wgUser->isAllowed('createaccount')) {
-			return true;
+		if (!$user->isAllowed('createaccount')) {
+			return;
 		}
 
 		//only show on Special:RecentChanges
 		if(!$out->getContext()->getTitle()->isSpecial('Recentchanges')){
-			return true;
+			return;
 		}
 		
 		$dbr = getReadOnlyDatabase();
@@ -31,7 +41,7 @@ class ScratchConfirmAccountHooks {
 		$out->addModuleStyles('ext.scratchConfirmAccount.css');
 		
 		$reqCounts = getNumberOfRequestsByStatus(['new'], $dbr)['new'];
-		$reqCounts += getNumberOfRequestsByStatusAndUser(['awaiting-admin'], $wgUser->getId(), $dbr)['awaiting-admin'];
+		$reqCounts += getNumberOfRequestsByStatusAndUser(['awaiting-admin'], $user->getId(), $dbr)['awaiting-admin'];
 		if ($reqCounts > 0) {
 			$reqCountText = Html::openElement('div', [
 				'class' => 'mw-scratch-confirmaccount-rc-awaiting'
@@ -56,11 +66,13 @@ class ScratchConfirmAccountHooks {
 			$reqCountText .= Html::closeElement('div');
 			$out->prependHTML($reqCountText);
 		}
-
-		return true;
 	}
 	
-	public static function onGetPreferences($user, &$preferences) {
+	/**
+	 * Adds the preference in Special:Preferences to choose whether the
+	 * Scratch profile page should open after confirming/rejecting a request.
+	 */
+	public function onGetPreferences($user, &$preferences) {
 		//don't show if the user doesn't have permission to create accounts
 		if (!$user->isAllowed('createaccount')) {
 			return true;
@@ -74,19 +86,23 @@ class ScratchConfirmAccountHooks {
 		return true;
 	}
 	
-	public static function onPersonalUrls(&$personal_urls, $title, $skin) {
-		# Add a link to Special:RequestAccount if a link exists for login
+	/**
+	 * Adds a link to Special:RequestAccount if a link exists for login.
+	 */
+	public function onPersonalUrls(&$personal_urls, &$title, $skin) : void {
 		if (isset($personal_urls['login'])) {
 			$personal_urls['createaccount'] = [
 				'text' => wfMessage('requestaccount')->text(),
 				'href' => SpecialPage::getTitleFor('RequestAccount')->getLocalUrl()
 			];
 		}
-		return true;
 	}
 	
-	public static function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
-		if ($action != 'login') return;
+	/**
+	 * Shows "View Request" link in the login form.
+	 */
+	public function onAuthChangeFormFields($request, $fieldInfo, &$formDescriptor, $action) {
+		if ($action !== 'login') return;
 		$formDescriptor['requestAccount'] = [
 			'type' => 'info',
 			'raw' => true,

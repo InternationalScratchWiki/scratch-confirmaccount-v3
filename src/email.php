@@ -23,8 +23,8 @@ function getTokenUrl($request_id, &$expiration, IDatabase $dbw) {
 	return $title->getCanonicalURL();
 }
 
-function sendConfirmationEmail($request_id, IDatabase $dbw) {
-	global $wgLang, $wgUser, $wgSitename, $wgPasswordSender;
+function sendConfirmationEmail($user, $lang, $request_id, IDatabase $dbw) {
+	global $wgSitename, $wgPasswordSender;
 	
 	$request = getAccountRequestById($request_id, $dbw);
 	if (!$request || empty($request->email) || $request->emailConfirmed) {
@@ -40,7 +40,7 @@ function sendConfirmationEmail($request_id, IDatabase $dbw) {
 		$request->username,
 		$wgSitename,
 		$url,
-		$wgLang->userTimeAndDate($expiration, $wgUser)
+		$lang->userTimeAndDate($expiration, $user)
 	)->text();
 	
 	$sender = new MailAddress($wgPasswordSender, wfMessage('emailsender')->text());

@@ -47,13 +47,31 @@ class AccountRequest {
 			$row->request_email_token_expiry
 		);
 	}
+
+	static function fromCompactRow($row) : AccountRequest {
+		return new AccountRequest(
+			$row->request_id,
+			$row->request_username,
+			null,
+			null,
+			null,
+			$row->request_status,
+			$row->request_timestamp,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		);
+	}
 	
 	function isActive() : bool {
 		return in_array($this->status, ['new', 'awaiting-admin', 'awaiting-user']);
 	}
 	
 	function isExpired() : bool {
-		return $this->expiry != null && $this->expiry < wfTimestampNow();
+		return $this->expiry !== null && $this->expiry < wfTimestampNow();
 	}
 }
 

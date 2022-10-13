@@ -3,15 +3,16 @@ require_once __DIR__ . '/../database/DatabaseInteractions.php';
 require_once __DIR__ . '/../database/CheckUserIntegration.php';
 require_once __DIR__ . '/../common.php';
 
+use ScratchConfirmAccount\Hook\HookRunner;
+
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
 function isAuthorizedToViewRequest($requestId, $userContext, &$session) {
-	return $userContext == 'admin' || ($session->exists('requestId') && $session->get('requestId') == $requestId);
+	return $userContext === 'admin' || ($session->exists('requestId') && $session->get('requestId') === $requestId);
 }
 
 function loginPage($loginType, &$pageContext, $session, $extra = null) {
-	$request = $pageContext->getRequest();
 	$output = $pageContext->getOutput();
 	
 	$form = Html::openElement('form', [
@@ -90,7 +91,7 @@ function confirmEmailPage($token, &$pageContext, $session) {
 
 //return if a request can actually be acted on in a given context
 function isActionableRequest(AccountRequest &$accountRequest, string $userContext) {
-	return $accountRequest->status != 'accepted' && !($accountRequest->status == 'rejected' && ($userContext == 'user' || $accountRequest->isExpired()));
+	return $accountRequest->status !== 'accepted' && !($accountRequest->status === 'rejected' && ($userContext === 'user' || $accountRequest->isExpired()));
 }
 
 //the headings to show in the actions section for each context
@@ -100,8 +101,7 @@ const actionHeadingsByContext = [
 ];
 
 function requestActionsForm(AccountRequest &$accountRequest, string $userContext, bool $hasHandledBefore, OutputPage &$output, SpecialPage &$pageContext, &$session, $timestamp) {
-	global $wgUser;
-
+	$user = $pageContext->getUser();
 	$request = $pageContext->getRequest();
 	if (isActionableRequest($accountRequest, $userContext)) { //don't allow anyone to comment on accepted requests and don't allow regular users to comment on rejected requests
 		$disp = '';
@@ -135,7 +135,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 			[
 				'type' => 'hidden',
 				'name' => 'shouldOpenScratchPage',
-				'value' => $userContext == 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $wgUser, 'scratch-confirmaccount-open-scratch')
+				'value' => $userContext === 'admin' && !$hasHandledBefore && $userOptionsLookup->getOption( $user, 'scratch-confirmaccount-open-scratch')
 			]
 		);
 		
@@ -159,7 +159,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		//show the list of actions, or just a hidden element if there is only one available action
 		$usable_actions = array_filter(actions, function($action) use($userContext) { return in_array($userContext, $action['performers']); });
 
-		if (sizeof($usable_actions) == 1) {
+		if (sizeof($usable_actions) === 1) {
 			$disp .= Html::element(
 				'input',
 				[
@@ -199,11 +199,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 		}
 		
 		//display the common list of admin comments
-		if ($userContext == 'admin') {
-			$options = Xml::listDropDownOptions(
-				 wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(),
-				 [ 'other' => wfMessage( 'other' )->text() ]
-			 );
+		if ($userContext === 'admin') {
 			$disp .= Xml::listDropDown('scratch-confirmaccount-comment-dropdown', wfMessage( 'scratch-confirmaccount-common-admin-comments' )->text(), wfMessage('scratch-confirmaccount-dropdown-other')->text(), '', 'mw-scratch-confirmaccount-bigselect');
 		}
 		
@@ -240,7 +236,7 @@ function requestActionsForm(AccountRequest &$accountRequest, string $userContext
 }
 
 function requestMetadataDisplay(AccountRequest &$accountRequest, string $userContext, Language $language, OutputPage &$output) {
-	global $wgUser;
+	$user = $output->getUser();
 	
 	$disp = '';
 	
@@ -286,7 +282,7 @@ function requestMetadataDisplay(AccountRequest &$accountRequest, string $userCon
 		linkToScratchProfile($accountRequest->username)
 	);
 	$disp .= Html::closeElement('tr');
-	if ($userContext == 'admin' && CheckUserIntegration::isLoaded() && $wgUser->isAllowed('checkuser')) {
+	if ($userContext === 'admin' && CheckUserIntegration::isLoaded() && $user->isAllowed('checkuser')) {
 		$disp .= Html::openElement('tr');
 		$disp .= Html::element(
 			'th',
@@ -340,7 +336,7 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		$row = '';
 		
 		//see if we have a "edit conflict"
-		$isConflicted = $conflictTimestamp != null && $historyEntry->timestamp > $conflictTimestamp;
+		$isConflicted = $conflictTimestamp !== null && $historyEntry->timestamp > $conflictTimestamp;
 		
 		//if we see a conflict and this is the first conflicted entry we've seen, show a warning
 		if ($isConflicted && !$hasReachedConflictPoint) {
@@ -380,6 +376,7 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 }
 
 function requestAltWarningDisplay(OutputPage &$output, string $key, array &$usernames) {
+	$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 	$disp = Html::openElement('fieldset');
 	$disp .= Html::element(
 		'legend',
@@ -392,7 +389,28 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
 		wfMessage($key)->text()
 	);
 	$disp .= Html::openElement('ul');
-	$disp .= implode('', array_map(function($value) {
+	$disp .= implode('', array_map(function($value) use($output, $linkRenderer) {
+		if ($value instanceof CheckUserEntry) {
+			return Html::rawElement(
+				'li',
+				[],
+				wfMessage('scratch-confirmaccount-ip-warning-checkuser-time')->rawParams(
+					Linker::userLink($value->userId, $value->username) . Linker::userToolLinks($value->userId, $value->username),
+					humanTimestamp($value->lastTimestamp, $output->getLanguage())
+				)->parse()
+			);
+		} elseif ($value instanceof AccountRequest) {
+			return Html::rawElement(
+				'li',
+				[],
+				wfMessage('scratch-confirmaccount-ip-warning-request-time')->rawParams(
+					$linkRenderer->makeKnownLink(SpecialPage::getTitleFor('ConfirmAccounts', (string)$value->id), $value->username),
+					humanTimestamp($value->timestamp, $output->getLanguage())
+				)->params(
+					wfMessage(statuses[$value->status])->text()
+				)->parse()
+			);
+		}
 		return Html::element('li', [], $value);
 	}, $usernames));
 	$disp .= Html::closeElement('ul');
@@ -409,7 +427,7 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
  * @param dbr A readable database connection reference
  */
 function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, IDatabase $dbr) : void {
-	if ($userContext != 'admin') {
+	if ($userContext !== 'admin') {
 		return;
 	}
 	
@@ -417,21 +435,22 @@ function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userCo
 	$requestUsernames = getRequestUsernamesFromIP($accountRequest->ip, $accountRequest->username, $dbr);
 	
 	//for the checkuser usernames, remove any entries that match the username on the request (which may happen after the request is accepted and the user is editing)
-	$accountRequestWikiUsername = User::getCanonicalName($accountRequest->username);
-	$checkUserUsernames = array_filter(CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $dbr), 
-	function ($testUsername) use ($accountRequestWikiUsername) { return $testUsername != $accountRequestWikiUsername; });
+	$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
+	$accountRequestWikiUsername = $userNameUtils->getCanonical($accountRequest->username);
+	$checkUserEntries = array_filter(CheckUserIntegration::getCUUsernamesFromIP($accountRequest->ip, $dbr), 
+	function ($testEntry) use ($accountRequestWikiUsername) { return $testEntry->username !== null && $testEntry->username !== $accountRequestWikiUsername; });
 	
 	if (!empty($requestUsernames)) {
 		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-request', $requestUsernames);
 	}
 	
-	if (!empty($checkUserUsernames)) {
-		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-checkuser', $checkUserUsernames);
+	if (!empty($checkUserEntries)) {
+		requestAltWarningDisplay($output, 'scratch-confirmaccount-ip-warning-checkuser', $checkUserEntries);
 	}
 }
 
 function emailConfirmationForm(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, SpecialPage &$pageContext, &$session) {
-	if ($userContext == 'user' && $accountRequest->status !='accepted' && $accountRequest->status !='rejected') {
+	if ($userContext === 'user' && $accountRequest->status !== 'accepted' && $accountRequest->status !== 'rejected') {
 		$disp = '';
 		if (!empty($accountRequest->email) && !$accountRequest->emailConfirmed) {
 			$disp .= Html::openElement('form', [
@@ -466,10 +485,7 @@ function emailConfirmationForm(AccountRequest &$accountRequest, string $userCont
 }
 
 function requestPage($requestId, string $userContext, SpecialPage &$pageContext, $session, $conflictTimestamp = null) {
-	global $wgUser;
-	
 	$output = $pageContext->getOutput();
-	$request = $pageContext->getRequest();
 	$language = $pageContext->getLanguage();
 	
 	$dbr = getReadOnlyDatabase();
@@ -503,25 +519,28 @@ function requestPage($requestId, string $userContext, SpecialPage &$pageContext,
 	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
 }
 
-function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
-	global $wgUser, $wgAutoWelcomeNewUsers;
+function handleAccountCreation($accountRequest, OutputPage &$output, IDatabase $dbw) {
+	global $wgAutoWelcomeNewUsers;
+
+	$user = $output->getUser();
 
 	if (userExists($accountRequest->username, $dbw)) {
 		$output->showErrorPage('error', 'scratch-confirmaccount-user-exists');
 		return;
 	}
 
-	$createdUser = createAccount($accountRequest, $wgUser, $dbw);
-	Hooks::run('ScratchConfirmAccountHooks::onCreateAccount', [$accountRequest, $wgUser->getName()]);
+	$createdUser = createAccount($accountRequest, $user, $dbw);
+	$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
+	$hookRunner->onRequestedAccountCreated($accountRequest, $user->getName());
 	
 	if ($wgAutoWelcomeNewUsers) {
 		$talkPage = new WikiPage($createdUser->getTalkPage());
-		$updater = $talkPage->newPageUpdater($wgUser);
+		$updater = $talkPage->newPageUpdater($user);
 		$updater->setContent(
 			SlotRecord::MAIN,
 			new WikitextContent('{{subst:MediaWiki:Scratch-confirmaccount-welcome}} ~~~~')
 		);
-		if ($wgUser->isAllowed('autopatrol')) {
+		if ($user->isAllowed('autopatrol')) {
 			$updater->setRcPatrolStatus(RecentChange::PRC_AUTOPATROLLED);
 		}
 		$updater->saveRevision(
@@ -535,16 +554,14 @@ function handleAccountCreation($accountRequest, &$output, IDatabase $dbw) {
 
 function authenticateForViewingRequest($requestId, &$session) {
 	$session->persist();
-	$session->set('requestId', $requestId);
+	$session->set('requestId', (string)$requestId);
 	$session->save();
 }
 
 function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $session) {
-	global $wgUser;
-	
+	$user = $pageContext->getUser();
 	$request = $pageContext->getRequest();
 	$output = $pageContext->getOutput();
-	$language = $pageContext->getLanguage();
 
 	$requestId = $request->getText('requestid');
 
@@ -582,20 +599,20 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 		return;
 	}
 	
-	if (trim($request->getText('comment', '') == '')) {
+	if (trim($request->getText('comment', '')) === '') {
 		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-empty-comment');
 		return;
 	}
 
-	if ($accountRequest->status == 'accepted') {
+	if ($accountRequest->status === 'accepted') {
 		//request was already accepted, so we can't act on it
 		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-accepted');
 		return;
 	}
 
-	if ($userContext == 'user' && $accountRequest->status == 'rejected') {
+	if ($userContext === 'user' && $accountRequest->status === 'rejected') {
 		cancelTransaction($dbw, $mutexId);
 		$output->showErrorPage('error', 'scratch-confirmaccount-already-rejected');
 		return;
@@ -608,13 +625,14 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 		return;
 	}
 	
-	$updateStatus = $userContext == 'admin' || $accountRequest->status != 'new';
+	$updateStatus = $userContext === 'admin' || $accountRequest->status !== 'new';
 
-	actionRequest($accountRequest, $updateStatus, $action, $userContext == 'admin' ? $wgUser : null, $request->getText('comment'), $dbw);
+	actionRequest($accountRequest, $updateStatus, $action, $userContext === 'admin' ? $user : null, $request->getText('comment'), $dbw);
 	
-	Hooks::run('ScratchConfirmAccountHooks::onAccountRequestAction', [$accountRequest, $action, $userContext == 'admin' ? $wgUser->getName() : null, $request->getText('comment')]);
+	$hookRunner = new HookRunner(MediaWikiServices::getInstance()->getHookContainer());
+	$hookRunner->onAccountRequestAction($accountRequest, $action, $userContext === 'admin' ? $user->getName() : null, $request->getText('comment'));
 	
-	if ($action == 'set-status-accepted') {
+	if ($action === 'set-status-accepted') {
 		handleAccountCreation($accountRequest, $output, $dbw);
 	} else {
 		$output->addHTML(Html::rawElement(

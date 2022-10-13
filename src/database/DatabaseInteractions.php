@@ -4,8 +4,10 @@ require_once __DIR__ . '/../common.php';
 
 use MediaWiki\MediaWikiServices;
 
-function getTransactableDatabase(string $mutexId) : IDatabase {	
-	$dbw = wfGetDB( DB_MASTER );
+function getTransactableDatabase(string $mutexId) : IDatabase {
+	// TODO switch after 1.39 update
+	$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
+	$dbw = $loadBalancer->getConnection( defined('DB_PRIMARY') ? DB_PRIMARY : DB_MASTER );
 	$dbw->startAtomic( $mutexId );
 	
 	return $dbw;
@@ -20,7 +22,8 @@ function cancelTransaction(IDatabase $dbw, string $mutexId) : void {
 }
 
 function getReadOnlyDatabase() {
-	return wfGetDB( DB_REPLICA );
+	$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
+	return $loadBalancer->getConnection( DB_REPLICA );
 }
 
 function getSingleBlock(string $username, IDatabase $dbr) {
@@ -71,7 +74,7 @@ function deleteBlock(string $username, IDatabase $dbw) {
  * @param email The email address (may be empty) for the request
  * @param ip The IP from which the request was submitted
  * @param dbw A writeable database instance
- * @return The ID of the request if creating the request succeeded, or null if creating the request failed due to there already being an active request under that username
+ * @return ?int The ID of the request if creating the request succeeded, or null if creating the request failed due to there already being an active request under that username
  */
 function createAccountRequest(string $username, string $passwordHash, string $requestNotes, string $email, string $ip, IDatabase $dbw) : ?int {
 	$dbw->insert('scratch_accountrequest_request', [
@@ -93,10 +96,10 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 	private $criteria;
 	function __construct($username, $status) {
 		$this->criteria = [];
-		if ($status != null) {
+		if ($status !== null) {
 			$this->criteria['request_status'] = $status;
 		}
-		if ($username != null) {
+		if ($username !== null && $username !== '') {
 			$this->criteria['LOWER(CONVERT(request_username using utf8))'] = strtolower($username);
 		}
 
@@ -184,7 +187,7 @@ function actionRequest(AccountRequest $request, bool $updateStatus, string $acti
 		'history_request_id' => $request->id,
 		'history_action' => $action,
 		'history_comment' => $comment,
-		'history_performer' => $userPerformingAction == null ? null : $userPerformingAction->getId(),
+		'history_performer' => $userPerformingAction === null ? null : $userPerformingAction->getId(),
 		'history_timestamp' => $dbw->timestamp()
 	], __METHOD__);
 
@@ -328,7 +331,7 @@ function removeUsernameRequirementsBypass(string $username, IDatabase $dbw) {
  *
  * @param username The username of of the user being requested
  * @param dbr A readable database
- * @return true if it is possible to create a request under the given username, false if there is already an active request under that username
+ * @return bool true if it is possible to create a request under the given username, false if there is already an active request under that username
  */
 function canMakeRequestForUsername(string $username, IDatabase $dbr) : bool {
 	return !$dbr->selectField('scratch_accountrequest_request', '1', ['request_active_username' => strtolower($username)], __METHOD__, []);
@@ -384,18 +387,40 @@ function setRequestEmailConfirmed($request_id, IDatabase $dbw) {
  * @param usernameToIgnore Do not return any users with this username (case-insensitive)
  * @param dbr A readable database connection
  *
- * @return An array of usernames with account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
+ * @return array An array of account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
  */
 function getRequestUsernamesFromIP($ip, string $usernameToIgnore, IDatabase $dbr) : array {
-	return $dbr->selectFieldValues(
+	// Why not DISTINCT?
+	// Well, DISTINCT does not really work well with multiple columns - neither does GROUP BY.
+	// Rather than building a complex query we just let it query all and have PHP filter.
+	$results = $dbr->select(
 		'scratch_accountrequest_request',
-		'DISTINCT request_username',
+		[
+			'request_username',
+			'request_id',
+			'request_timestamp',
+			'request_status',
+		],
 		[
 			'request_ip' => $ip,
 			'LOWER(CONVERT(request_username using utf8)) != ' . $dbr->addQuotes(strtolower($usernameToIgnore))
 		],
-		__METHOD__
+		__METHOD__,
+		[
+			'ORDER BY' => 'request_timestamp DESC'
+		]		
 	);
+
+	$entries = [];
+	$usernames = [];
+
+	foreach ($results as $row) {
+		if (in_array($row->request_username, $usernames)) continue;
+		$usernames[] = $row->request_username;
+		$entries[] = AccountRequest::fromCompactRow($row);
+	}
+
+	return $entries;
 }
 
 

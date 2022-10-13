@@ -2,16 +2,20 @@
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 require_once __DIR__ . '/subpages/RequestPage.php';
 
-use MediaWiki\MediaWikiServices;
-
 class ScratchConfirmAccountPreAuthenticationProvider extends MediaWiki\Auth\AbstractPreAuthenticationProvider {
+	private PasswordFactory $passwordFactory;
+
+	public function __construct(PasswordFactory $passwordFactory) {
+		$this->passwordFactory = $passwordFactory;
+	}
+	
 	public function testForAuthentication(array $reqs) {
 		foreach ($reqs as $authRequest) {
-			if (get_class($authRequest) == 'MediaWiki\Auth\PasswordAuthenticationRequest') {
+			if (get_class($authRequest) === 'MediaWiki\Auth\PasswordAuthenticationRequest') {
 				//ignore any non-password authentication requests (like "remember me" or whatever)
 				$response = $this->handlePasswordAuthenticationRequest($authRequest);
 				
-				if ($response != null) {
+				if ($response) {
 					return $response;
 				}
 			}
@@ -23,12 +27,10 @@ class ScratchConfirmAccountPreAuthenticationProvider extends MediaWiki\Auth\Abst
 	private function handlePasswordAuthenticationRequest(MediaWiki\Auth\PasswordAuthenticationRequest $authRequest) : ?Status {
 		$dbr = getReadOnlyDatabase();
 		
-		$passwordFactory = MediaWikiServices::getInstance()->getPasswordFactory();
-		
 		//find active but non-accepted requests under the username that have the password specified in the request
 		$activeRequestsUnderUsername = array_filter(getAccountRequestsByUsername($authRequest->username, $dbr), 
-			function (AccountRequest $accountRequest) use ($passwordFactory, $authRequest) { 
-				return !$accountRequest->isExpired() && $accountRequest->status != 'accepted' && $passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($authRequest->password); 
+			function (AccountRequest $accountRequest) use ($authRequest) { 
+				return !$accountRequest->isExpired() && $accountRequest->status !== 'accepted' && $this->passwordFactory->newFromCipherText($accountRequest->passwordHash)->verify($authRequest->password); 
 			});
 		
 		if (!empty($activeRequestsUnderUsername)) {
