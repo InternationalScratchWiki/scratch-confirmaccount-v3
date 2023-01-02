@@ -98,8 +98,6 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 				'href' => SpecialPage::getTitleFor('RequestAccount')->getLocalUrl()
 			];
 		}
-		
-		//print_r($links); die;
 	}
 	
 	/**
