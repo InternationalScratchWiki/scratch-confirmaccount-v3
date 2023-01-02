@@ -54,7 +54,7 @@
 		"LoadExtensionSchemaUpdates": "main",
 		"BeforePageDisplay": "main",
 		"GetPreferences": "main",
-		"PersonalUrls": "main",
+		"SkinTemplateNavigation::Universal": "main",
 		"AuthChangeFormFields": "main"
 	},
 	"ResourceModules": {

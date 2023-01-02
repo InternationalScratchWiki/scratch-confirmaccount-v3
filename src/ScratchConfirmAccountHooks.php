@@ -4,10 +4,10 @@ require_once __DIR__ . '/database/DatabaseInteractions.php';
 use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Preferences\Hook\GetPreferencesHook;
-use MediaWiki\Hook\PersonalUrlsHook;
+use MediaWiki\Hook\SkinTemplateNavigation__UniversalHook;
 use MediaWiki\SpecialPage\Hook\AuthChangeFormFieldsHook;
 
-class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, PersonalUrlsHook, AuthChangeFormFieldsHook {
+class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, BeforePageDisplayHook, GetPreferencesHook, SkinTemplateNavigation__UniversalHook, AuthChangeFormFieldsHook {
 	/**
 	 * Loads extension-provided SQL schema updates.
 	 */
@@ -89,13 +89,17 @@ class ScratchConfirmAccountHooks implements LoadExtensionSchemaUpdatesHook, Befo
 	/**
 	 * Adds a link to Special:RequestAccount if a link exists for login.
 	 */
-	public function onPersonalUrls(&$personal_urls, &$title, $skin) : void {
-		if (isset($personal_urls['login'])) {
-			$personal_urls['createaccount'] = [
+	public function onSkinTemplateNavigation__Universal($skin, &$links) : void {
+		$user = $skin->getUser();
+		
+		if ($user->isAnon() && isset($links['user-menu'])) {
+			$links['user-menu']['createaccount'] = [
 				'text' => wfMessage('requestaccount')->text(),
 				'href' => SpecialPage::getTitleFor('RequestAccount')->getLocalUrl()
 			];
 		}
+		
+		//print_r($links); die;
 	}
 	
 	/**
