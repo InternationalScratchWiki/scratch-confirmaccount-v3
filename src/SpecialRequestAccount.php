@@ -16,12 +16,14 @@ class SpecialRequestAccount extends SpecialPage {
 
 	private PasswordFactory $passwordFactory;
 	private HookContainer $hookContainer;
+	private JobQueueGroup $jobQueueGroup;
 	
-	function __construct(PasswordFactory $passwordFactory, HookContainer $hookContainer) {
+	function __construct(PasswordFactory $passwordFactory, HookContainer $hookContainer, JobQueueGroup $jobQueueGroup) {
 		parent::__construct( 'RequestAccount' );
 
 		$this->passwordFactory = $passwordFactory;
 		$this->hookContainer = $hookContainer;
+		$this->jobQueueGroup = $jobQueueGroup;
 	}
 
 	function accountRequestFormData(&$out_error, IDatabase $dbr) {
@@ -372,7 +374,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$session = $request->getSession();
 
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('user', $this, $session);
+			handleRequestActionSubmission('user', $this, $session, $this->jobQueueGroup);
 		} else if ($request->getText('findRequest')) {
 			$this->handleFindRequestFormSubmission();
 		} else if ($request->getText('confirmEmail')) {
