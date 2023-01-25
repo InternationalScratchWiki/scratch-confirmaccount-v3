@@ -40,8 +40,12 @@ class AccountRequestPager extends AbstractAccountRequestPager {
 }
 
 class SpecialConfirmAccounts extends SpecialPage {
-	function __construct() {
+	private JobQueueGroup $jobQueueGroup;
+	
+	function __construct(JobQueueGroup $jobQueueGroup) {
 		parent::__construct( 'ConfirmAccounts', 'createaccount' );
+		
+		$this->jobQueueGroup = $jobQueueGroup;
 	}
 
 	function getGroupName() {
@@ -317,7 +321,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
 		
 		commitTransaction($dbw, $mutexId);
-		JobQueueGroup::singleton()->push(new ExpiredBlockCleanupJob());
+		$this->jobQueueGroup->push(new ExpiredBlockCleanupJob());
 	}
 
 	function handleUnblockFormSubmission(&$request, &$output, &$session) {
@@ -348,12 +352,12 @@ class SpecialConfirmAccounts extends SpecialPage {
 		$output->redirect(SpecialPage::getTitleFor('ConfirmAccounts', wfMessage('scratch-confirmaccount-blocks')->text())->getFullURL());
 		
 		commitTransaction($dbw, $mutexId);
-		JobQueueGroup::singleton()->push(new ExpiredBlockCleanupJob());
+		$this->jobQueueGroup->push(new ExpiredBlockCleanupJob());
 	}
 
 	function handleFormSubmission(&$request, &$output, &$session) {
 		if ($request->getText('action')) {
-			handleRequestActionSubmission('admin', $this, $session);
+			handleRequestActionSubmission('admin', $this, $session, $this->jobQueueGroup);
 		} else if ($request->getText('blockSubmit')) {
 			$this->handleBlockFormSubmission($request, $output, $session);
 		} else if ($request->getText('unblockSubmit')) {

@@ -36,10 +36,16 @@
 			"class": "SpecialRequestAccount",
 			"services": [
 				"PasswordFactory",
-				"HookContainer"
+				"HookContainer",
+				"JobQueueGroup"
 			]
 		},
-		"ConfirmAccounts": "SpecialConfirmAccounts"
+		"ConfirmAccounts": {
+			"class": "SpecialConfirmAccounts",
+			"services": [
+				"JobQueueGroup"
+			]
+		}
 	},
 	"JobClasses": {
 		"accountRequestCleanup": "AccountRequestCleanupJob",

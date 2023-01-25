@@ -558,7 +558,7 @@ function authenticateForViewingRequest($requestId, &$session) {
 	$session->save();
 }
 
-function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $session) {
+function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $session, JobQueueGroup $jobQueueGroup) {
 	$user = $pageContext->getUser();
 	$request = $pageContext->getRequest();
 	$output = $pageContext->getOutput();
@@ -645,7 +645,7 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 	commitTransaction($dbw, $mutexId);
 	
 	//also when someone acts on a request, add an option to clear out old account request passwords
-	JobQueueGroup::singleton()->push(new AccountRequestCleanupJob());
+	$jobQueueGroup->push(new AccountRequestCleanupJob());
 	//And remove expired blocks
-	JobQueueGroup::singleton()->push(new ExpiredBlockCleanupJob());
+	$jobQueueGroup->push(new ExpiredBlockCleanupJob());
 }
