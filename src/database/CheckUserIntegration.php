@@ -55,7 +55,7 @@ class CheckUserEntry {
 	public int $userId;
 	public string $lastTimestamp;
 
-	public function __construct(?string $username, int $userId, string $lastTimestamp) {
+	public function __construct(string $username, int $userId, string $lastTimestamp) {
 		$this->username = $username;
 		$this->userId = $userId;
 		$this->lastTimestamp = $lastTimestamp;
