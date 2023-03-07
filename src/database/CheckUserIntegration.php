@@ -1,4 +1,5 @@
 <?php
+use Wikimedia\IPUtils;
 
 class CheckUserIntegration {
 	/**
@@ -28,7 +29,7 @@ class CheckUserIntegration {
 				'cuc_timestamp' => 'MAX(cuc_timestamp)',
 				'user_id' => 'MAX(user_id)'
 			],
-			['cuc_ip_hex' => IP::toHex($ip)],
+			['cuc_ip_hex' => IPUtils::toHex($ip)],
 			__METHOD__,
 			[
 				'GROUP BY' => 'user_name',
@@ -40,7 +41,9 @@ class CheckUserIntegration {
 		$entries = [];
 
 		foreach ($results as $row) {
-			$entries[] = CheckUserEntry::fromRow($row);
+			if ($row->user_name) {
+				$entries[] = CheckUserEntry::fromRow($row);
+			}
 		}
 
 		return $entries;
