@@ -96,11 +96,17 @@ function isCSRF(&$session, $csrftoken) {
  * @param username The Scratch username whose profile is being linked to
  * @return string A simple <a> link to the user's profile with the contents also being the username
  */
-function linkToScratchProfile(string $username) : string {
+function linkToScratchProfile(string $username, bool $scrollToComments) : string {
+	if (!$scrollToComments) {
+		$profileURL = 'https://scratch.mit.edu/users/' . $username;
+	} else {
+		$profileURL = 'https://scratch.mit.edu/users/' . $username . "#comments";
+	}
+
 	return Html::element(
 		'a',
 		[
-			'href' => 'https://scratch.mit.edu/users/' . $username,
+			'href' => $profileURL,
 			'target' => '_blank',
 			'id' => 'mw-scratch-confirmaccount-profile-link'
 		],
