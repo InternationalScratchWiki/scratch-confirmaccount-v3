@@ -573,7 +573,12 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 	$mutexId = 'scratch-confirmaccount-action-request-' . $requestId;
 
 	$dbw = getTransactableDatabase($mutexId);
-	
+
+	if($user->pingLimiter("requestaccountaction", 1)){
+		cancelTransaction($dbw, $mutexId);
+		$output->showErrorPage("actionthrottled", "actionthrottledtext");
+		return;
+	}
 	//find the request
 	$accountRequest = getAccountRequestById($requestId, $dbw);
 	if (!$accountRequest) {
