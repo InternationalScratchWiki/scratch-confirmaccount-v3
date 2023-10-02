@@ -574,9 +574,9 @@ function handleRequestActionSubmission($userContext, SpecialPage $pageContext, $
 
 	$dbw = getTransactableDatabase($mutexId);
 
-	if($user->pingLimiter("requestaccountaction", 1)){
+	if($user->pingLimiter('requestaccountaction')){
 		cancelTransaction($dbw, $mutexId);
-		$output->showErrorPage("actionthrottled", "actionthrottledtext");
+		$output->showErrorPage('actionthrottled', 'actionthrottledtext');
 		return;
 	}
 	//find the request
