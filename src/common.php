@@ -53,12 +53,7 @@ function passwordMinMax() {
 }
 
 function humanTimestamp($dbTimestamp, $language) {
-	$ts = new MWTimestamp($dbTimestamp);
-	return Html::element(
-		'span',
-		['title' => $ts->getTimestamp(TS_DB) . ' (UTC)'],
-		$language->getHumanTimestamp($ts)
-	);
+	return wfTimestamp(TS_RFC2822, $dbTimestamp);
 }
 
 function humanTimestampOrInfinite($dbTimestamp, $language) {
