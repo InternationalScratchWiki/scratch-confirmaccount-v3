@@ -59,12 +59,13 @@ $(function () {
 
     elem.onblur = function() {
 	var currentname = elem.value || "";
-        var usernameblock = new OO.ui.infuse(elem.parentElement.parentElement.parentElement.parentElement);// Pain
+        var usernameblock = new OO.ui.infuse(elem.parentElement.parentElement.parentElement.parentElement);
+	// Start with username input field, and go up 4 levels, to the entire username container that OOUI will infuse onto
 	var noticebox = [];
-	if(currentname.length > 0 && currentname[0].match("[a-z]")){
+	if(currentname.length > 0 && currentname[0].match("[a-z]")){// Compare first letter to a regex, to check if it starts with a lowercase letter
 		noticebox[0] = new mw.message("createacct-normalization", "", currentname[0].toUpperCase() + currentname.slice(1)).text();
+		// If it'd change, add a notice with the first letter captialized
 	}
-	console.log(noticebox);
-	usernameblock.setNotices(noticebox);
+	usernameblock.setNotices(noticebox);// Save out any notices (importantly, this will *remove* a notice if it no longer applies)
     }
 });
