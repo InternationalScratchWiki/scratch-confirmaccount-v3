@@ -74,7 +74,8 @@
 			],
 			"localBasePath": "resources",
 			"messages": [
-				"scratch-confirmaccount-click-copy-alert"
+				"scratch-confirmaccount-click-copy-alert",
+				"createacct-normalization"
 			],
 			"dependencies": [
 				"mediawiki.util",

@@ -35,6 +35,7 @@ $(function () {
     if (!elem) return;
     elem.onclick = function() {
         copyToClipboard(document.getElementById("mw-scratch-confirmaccount-verifcode"));
+        mw.notify( mw.message( 'scratch-confirmaccount-click-copy-alert', { autoHide: true }, {autoHideSeconds: 5}) ); // Use an i18n message to send a notification
     }
 });
 
@@ -48,6 +49,22 @@ function copyToClipboard(temptext) {
         tempItem.focus();
         tempItem.select();
         document.execCommand('copy');
-        mw.notify( mw.message( 'scratch-confirmaccount-click-copy-alert', { autoHide: true }, {autoHideSeconds: 5}) ); // Use an i18n message to send a notification
         tempItem.parentElement.removeChild(tempItem);
       }
+
+
+$(function () {
+    const elem = document.getElementsByName("scratchusername")[0];
+    if (!elem) return;
+
+    elem.onblur = function() {
+	var currentname = elem.value || "";
+        var usernameblock = new OO.ui.infuse(elem.parentElement.parentElement.parentElement.parentElement);// Pain
+	var noticebox = [];
+	if(currentname.length > 0 && currentname[0].match("[a-z]")){
+		noticebox[0] = new mw.message("createacct-normalization", "", currentname[0].toUpperCase() + currentname.slice(1)).text();
+	}
+	console.log(noticebox);
+	usernameblock.setNotices(noticebox);
+    }
+});

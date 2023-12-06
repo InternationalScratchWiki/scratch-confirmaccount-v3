@@ -186,12 +186,14 @@ class SpecialRequestAccount extends SpecialPage {
 					new OOUI\TextInputWidget( [
 						'name' => 'scratchusername',
 						'required' => true,
-						'value' => $request->getText('scratchusername')
+						'value' => $request->getText('scratchusername'),
 					] ),
 					[
 						'label' => wfMessage('scratch-confirmaccount-scratchusername')->text(),
 						'align' => 'top',
-					]
+						'infusable' => true
+					],
+					
 				),
 				new OOUI\FieldLayout(
 					new OOUI\TextInputWidget( [
