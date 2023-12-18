@@ -191,7 +191,7 @@ class SpecialRequestAccount extends SpecialPage {
 					[
 						'label' => wfMessage('scratch-confirmaccount-scratchusername')->text(),
 						'align' => 'top',
-						'infusable' => true
+						'infusable' => true,
 					],
 					
 				),
