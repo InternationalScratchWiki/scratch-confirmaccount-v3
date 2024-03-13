@@ -9,7 +9,7 @@ class ScratchUserCheck {
 	private static function fetchProfile($username, &$isScratcher, &$joinedAt, &$error) {
 		$url = sprintf(self::PROFILE_URL, $username);
 		$html = @file_get_contents($url, false, stream_context_create([
-			'http' => ['header' => 'Accept-Language: en\r\nCookie: scratchlanguage=en']
+			'http' => ['header' => "Accept-Language: en\r\nCookie: scratchlanguage=en"]
 		]));
 		if ($html === false) {
 			$isScratcher = null; // can't tell Scratcher status
