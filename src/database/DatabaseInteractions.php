@@ -266,6 +266,9 @@ function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	//if there was any requirements bypass, remove it
 	removeUsernameRequirementsBypass($request->username, $dbw);
 	
+	//update user count
+	DeferredUpdates::addUpdate( SiteStatsUpdate::factory( [ 'users' => 1 ] ) );
+	
 	return $user;
 }
 
