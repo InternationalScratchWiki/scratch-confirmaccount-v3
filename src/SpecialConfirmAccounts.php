@@ -451,7 +451,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 			return $this->searchByUsername($request->getText('username'), $request, $output);
 		} else if (isset(statuses[$par])) {
 			return $this->listRequestsByStatus($par, $output);
-		} else if (ctype_digit($par)) {
+		} else if (ctype_digit($par ?? '')) {
 			return requestPage($par, 'admin', $this, $request->getSession());
 		} else if (empty($par)) {
 			return $this->defaultPage($output);
