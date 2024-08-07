@@ -67,9 +67,9 @@ $(function () {
 			noticebox[0] = new mw.message("scratch-confirmaccount-username-disallowed").text();
 		}
 		else{
-			if(currentname[0].match("[A-Za-z]")){// Compare first letter to a regex, to check if it starts with a lowercase letter
+			if(currentname[0].match("[A-Za-z]")){// Compare first letter to a regex, to check if it starts with an uppercase or lowercase letter
 				noticebox[0] = new mw.message("scratch-confirmaccount-username-warning", currentname[0].toUpperCase() + currentname.slice(1)).text();
-				// If it'd change, add a notice with the first letter captialized
+				// If they may want alternative capitalization, add a preview of how it will look once it's approved
 			}
 		}
 	}
