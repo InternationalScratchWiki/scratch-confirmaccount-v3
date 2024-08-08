@@ -76,6 +76,8 @@
 	"scratch-confirmaccount-welcome": "Welcome to the wiki!",
 	"scratch-confirmaccount-welcome-summary": "Welcome!",
 
+	"scratch-confirmaccount-username-disallowed": "Due to technical restrictions, usernames that start with an underscore, end with an underscore, or have two consecutive underscores in the middle cannot be used. Please use a different account to request. If you do not have any other accounts, please contact an administrator for help.",
+	"scratch-confirmaccount-username-warning": "Your username will show up as $1. You may change the capitalization of any of the letters, except for the first letter, which must be capitalized and cannot be lowercase.",
 	"scratch-confirmaccount-invalid-username": "The username is invalid. Make sure to type your Scratch username. Due to technical reasons, some usernames which start or end with underscore are not allowed. Please contact an administrator if this is the case for you",
 	"scratch-confirmaccount-user-exists": "The user is already registered.",
 	"scratch-confirmaccount-request-exists": "The request is already received. Please wait for the administrators to handle it.",

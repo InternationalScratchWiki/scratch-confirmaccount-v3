@@ -78,7 +78,7 @@ class SpecialRequestAccount extends SpecialPage {
 		}
 
 		//make sure the user actually commented the verification code
-		if (ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session)) !== $username) {
+		if (strtolower(ScratchVerification::topVerifCommenter(ScratchVerification::sessionVerificationCode($session))) !== strtolower($username)) {
 			$out_error = wfMessage('scratch-confirmaccount-verif-missing', $username)->parse();
 			return;
 		}
