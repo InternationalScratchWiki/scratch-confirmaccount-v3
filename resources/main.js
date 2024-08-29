@@ -57,14 +57,21 @@ $(function () {
     const elem = document.getElementsByName("scratchusername")[0];
     if (!elem) return;
 
-    elem.onblur = function() {
+    elem.onkeyup = function() {
 	var currentname = elem.value || "";
         var usernameblock = new OO.ui.infuse(elem.closest('.oo-ui-layout'));
 	// Start with username input field, and go to the entire username container that OOUI will infuse onto
 	var noticebox = [];
-	if(currentname.length > 0 && currentname[0].match("[a-z]")){// Compare first letter to a regex, to check if it starts with a lowercase letter
-		noticebox[0] = new mw.message("createacct-normalization", "", currentname[0].toUpperCase() + currentname.slice(1)).text();
-		// If it'd change, add a notice with the first letter captialized
+	if(currentname.length > 0){
+		if(currentname.match("^_+|_+$|__+")){
+			noticebox[0] = new mw.message("scratch-confirmaccount-username-disallowed").text();
+		}
+		else{
+			if(currentname[0].match("[A-Za-z]")){// Compare first letter to a regex, to check if it starts with an uppercase or lowercase letter
+				noticebox[0] = new mw.message("scratch-confirmaccount-username-warning", currentname[0].toUpperCase() + currentname.slice(1)).text();
+				// If they may want alternative capitalization, add a preview of how it will look once it's approved
+			}
+		}
 	}
 	usernameblock.setNotices(noticebox);// Save out any notices (importantly, this will *remove* a notice if it no longer applies)
     }
