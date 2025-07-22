@@ -426,7 +426,7 @@ function requestAltWarningDisplay(OutputPage &$output, string $key, array &$user
  * @param output The page where the output will be displayed
  * @param dbr A readable database connection reference
  */
-function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, IDatabase $dbr) : void {
+function requestCheckUserDisplay(AccountRequest &$accountRequest, string $userContext, OutputPage &$output, Wikimedia\Rdbms\DBConnRef $dbr) : void {
 	if ($userContext !== 'admin') {
 		return;
 	}
@@ -519,7 +519,7 @@ function requestPage($requestId, string $userContext, SpecialPage &$pageContext,
 	emailConfirmationForm($accountRequest, $userContext, $output, $pageContext,$session);
 }
 
-function handleAccountCreation($accountRequest, OutputPage &$output, IDatabase $dbw) {
+function handleAccountCreation($accountRequest, OutputPage &$output, Wikimedia\Rdbms\DBConnRef $dbw) {
 	global $wgAutoWelcomeNewUsers;
 
 	$user = $output->getUser();

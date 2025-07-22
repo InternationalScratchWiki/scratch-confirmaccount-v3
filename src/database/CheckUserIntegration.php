@@ -17,7 +17,7 @@ class CheckUserIntegration {
 	 * @param dbr A readable database connection
 	 * @return CheckUserEntry[] An array of checkuser records from \p ip, or empty if checkuser is not installed
 	 */
-	public static function getCUUsernamesFromIP($ip, IDatabase $dbr) : array {
+	public static function getCUUsernamesFromIP($ip, Wikimedia\Rdbms\DBConnRef $dbr) : array {
 		if (!self::isLoaded()) {
 			return [];
 		}

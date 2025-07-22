@@ -4,7 +4,7 @@ require_once __DIR__ . '/../common.php';
 
 use MediaWiki\MediaWikiServices;
 
-function getTransactableDatabase(string $mutexId) : IDatabase {
+function getTransactableDatabase(string $mutexId) : Wikimedia\Rdbms\DBConnRef {
 	// TODO switch after 1.39 update
 	$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbw = $loadBalancer->getConnection( defined('DB_PRIMARY') ? DB_PRIMARY : DB_MASTER );
@@ -13,11 +13,11 @@ function getTransactableDatabase(string $mutexId) : IDatabase {
 	return $dbw;
 }
 
-function commitTransaction(IDatabase $dbw, string $mutexId) : void {
+function commitTransaction(Wikimedia\Rdbms\DBConnRef $dbw, string $mutexId) : void {
 	$dbw->endAtomic( $mutexId );
 }
 
-function cancelTransaction(IDatabase $dbw, string $mutexId) : void {
+function cancelTransaction(Wikimedia\Rdbms\DBConnRef $dbw, string $mutexId) : void {
 	$dbw->endAtomic( $mutexId );
 }
 
@@ -26,12 +26,12 @@ function getReadOnlyDatabase() {
 	return $loadBalancer->getConnection( DB_REPLICA );
 }
 
-function getSingleBlock(string $username, IDatabase $dbr) {
+function getSingleBlock(string $username, Wikimedia\Rdbms\DBConnRef $dbr) {
 	$row = $dbr->selectRow('scratch_accountrequest_block', array('block_username', 'block_reason', 'block_expiration_timestamp'), ['LOWER(CONVERT(block_username using utf8))' => strtolower($username)], __METHOD__);
 	return $row ? AccountRequestUsernameBlock::fromRow($row) : false;
 }
 
-function addBlock(string $username, string $reason, ?string $expirationTimestamp, User $blocker, IDatabase $dbw) {
+function addBlock(string $username, string $reason, ?string $expirationTimestamp, User $blocker, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$dbw->insert('scratch_accountrequest_block', [
 		'block_username' => $username,
 		'block_reason' => $reason,
@@ -41,7 +41,7 @@ function addBlock(string $username, string $reason, ?string $expirationTimestamp
 	], __METHOD__);
 }
 
-function updateBlock(string $username, string $reason, ?string $expirationTimestamp, User $blocker, IDatabase $dbw) {
+function updateBlock(string $username, string $reason, ?string $expirationTimestamp, User $blocker, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$updates = [
 		'block_reason' => $reason,
 		'block_blocker_user_id' => $blocker->getId(),
@@ -53,7 +53,7 @@ function updateBlock(string $username, string $reason, ?string $expirationTimest
 	$dbw->update('scratch_accountrequest_block', $updates, ['block_username' => $username], __METHOD__);
 }
 
-function purgeExpiredBlocks(IDatabase $dbw) {	
+function purgeExpiredBlocks(Wikimedia\Rdbms\DBConnRef $dbw) {	
 	$dbw->delete('scratch_accountrequest_block',
 	[
 		'block_expiration_timestamp IS NOT NULL',
@@ -62,7 +62,7 @@ function purgeExpiredBlocks(IDatabase $dbw) {
 	__METHOD__);
 }
 
-function deleteBlock(string $username, IDatabase $dbw) {
+function deleteBlock(string $username, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$dbw->delete('scratch_accountrequest_block', ['block_username' => $username], __METHOD__);
 }
 
@@ -76,7 +76,7 @@ function deleteBlock(string $username, IDatabase $dbw) {
  * @param dbw A writeable database instance
  * @return ?int The ID of the request if creating the request succeeded, or null if creating the request failed due to there already being an active request under that username
  */
-function createAccountRequest(string $username, string $passwordHash, string $requestNotes, string $email, string $ip, IDatabase $dbw) : ?int {
+function createAccountRequest(string $username, string $passwordHash, string $requestNotes, string $email, string $ip, Wikimedia\Rdbms\DBConnRef $dbw) : ?int {
 	$dbw->insert('scratch_accountrequest_request', [
 		'request_username' => $username,
 		'request_active_username' => strtolower($username),
@@ -125,7 +125,7 @@ abstract class AbstractAccountRequestPager extends ReverseChronologicalPager {
 	abstract function rowFromRequest(AccountRequest $accountRequest);
 }
 
-function getAccountRequestsByUsername(string $username, IDatabase $dbr) : array {
+function getAccountRequestsByUsername(string $username, Wikimedia\Rdbms\DBConnRef $dbr) : array {
 	$result = $dbr->select('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_notes', 'request_ip', 'request_status', 'request_expiry', 'request_email_confirmed', 'request_email_token', 'request_email_token_expiry', 'request_last_updated'), ['LOWER(CONVERT(request_username using utf8))' => strtolower($username)], __METHOD__, ['ORDER BY' => 'request_timestamp DESC']);
 
 	$results = [];
@@ -135,7 +135,7 @@ function getAccountRequestsByUsername(string $username, IDatabase $dbr) : array 
 	return $results;
 }
 
-function getNumberOfRequestsByStatus(array $statuses, IDatabase $dbr) : array {
+function getNumberOfRequestsByStatus(array $statuses, Wikimedia\Rdbms\DBConnRef $dbr) : array {
 	$result = $dbr->select('scratch_accountrequest_request', ['request_status', 'count' => 'COUNT(request_id)'], ['request_status' => $statuses], __METHOD__, ['GROUP BY' => 'request_status']);
 
 	$statusCounts = [];
@@ -149,7 +149,7 @@ function getNumberOfRequestsByStatus(array $statuses, IDatabase $dbr) : array {
 	return $statusCounts;
 }
 
-function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id, IDatabase $dbr) : array {
+function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id, Wikimedia\Rdbms\DBConnRef $dbr) : array {
 	$result = $dbr->select(
 		['scratch_accountrequest_history', 'scratch_accountrequest_request'],
 		['request_status', 'count' => 'COUNT(DISTINCT history_request_id)'],
@@ -170,13 +170,13 @@ function getNumberOfRequestsByStatusAndUser(array $statuses, $user_id, IDatabase
 	return $statusCounts;
 }
 
-function getAccountRequestById($id, IDatabase $dbr) {
+function getAccountRequestById($id, Wikimedia\Rdbms\DBConnRef $dbr) {
 	$result = $dbr->selectRow('scratch_accountrequest_request', array('request_id', 'request_username', 'password_hash', 'request_email', 'request_timestamp', 'request_last_updated', 'request_expiry', 'request_notes', 'request_ip', 'request_status', 'request_email_token', 'request_email_confirmed', 'request_email_token_expiry'), ['request_id' => $id], __METHOD__);
 
 	return $result ? AccountRequest::fromRow($result) : false;
 }
 
-function actionRequest(AccountRequest $request, bool $updateStatus, string $action, ?User $userPerformingAction, string $comment, IDatabase $dbw) {
+function actionRequest(AccountRequest $request, bool $updateStatus, string $action, ?User $userPerformingAction, string $comment, Wikimedia\Rdbms\DBConnRef $dbw) {
 	global $wgScratchAccountRequestRejectCooldownDays;
 	
 	$mutexId = 'scratch-confirmaccount-action-request[' . $request->id . ']';
@@ -208,7 +208,7 @@ function actionRequest(AccountRequest $request, bool $updateStatus, string $acti
 	$dbw->endAtomic($mutexId);
 }
 
-function getRequestHistory(AccountRequest $request, IDatabase $dbr) : array {
+function getRequestHistory(AccountRequest $request, Wikimedia\Rdbms\DBConnRef $dbr) : array {
 	$result = $dbr->select(['scratch_accountrequest_history', 'user'], [
 		'history_timestamp',
 		'history_action',
@@ -226,7 +226,7 @@ function getRequestHistory(AccountRequest $request, IDatabase $dbr) : array {
 	return $history;
 }
 
-function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
+function createAccount(AccountRequest $request, User $creator, Wikimedia\Rdbms\DBConnRef $dbw) {
 	//first create the user and add it to the database
 	$userFactory = MediaWikiServices::getInstance()->getUserFactory();
 	$user = $userFactory->newFromName($request->username);
@@ -272,7 +272,7 @@ function createAccount(AccountRequest $request, User $creator, IDatabase $dbw) {
 	return $user;
 }
 
-function purgeOldAccountRequestPasswords(IDatabase $dbw) {	
+function purgeOldAccountRequestPasswords(Wikimedia\Rdbms\DBConnRef $dbw) {	
 	$dbw->update('scratch_accountrequest_request', ['password_hash' => '', 'request_active_username' => null],
 	[
 		'request_status' => ['accepted', 'rejected'],
@@ -280,7 +280,7 @@ function purgeOldAccountRequestPasswords(IDatabase $dbw) {
 	]);
 }
 
-function userExists(string $username, IDatabase $dbr) : bool {
+function userExists(string $username, Wikimedia\Rdbms\DBConnRef $dbr) : bool {
 	// Use db directly to make it case insensitive
 	return $dbr->selectRowCount(
 		'user',
@@ -290,7 +290,7 @@ function userExists(string $username, IDatabase $dbr) : bool {
 	) > 0;
 }
 
-function getUsernameBypasses(IDatabase $dbr) {
+function getUsernameBypasses(Wikimedia\Rdbms\DBConnRef $dbr) {
 	return $dbr->selectFieldValues(
 		'scratch_accountrequest_requirements_bypass',
 		'bypass_username',
@@ -299,7 +299,7 @@ function getUsernameBypasses(IDatabase $dbr) {
 	);
 }
 
-function hasUsernameRequirementsBypass(string $username, IDatabase $dbr) : bool {
+function hasUsernameRequirementsBypass(string $username, Wikimedia\Rdbms\DBConnRef $dbr) : bool {
 	return $dbr->selectRowCount(
 		'scratch_accountrequest_requirements_bypass', 
 		'1',
@@ -308,7 +308,7 @@ function hasUsernameRequirementsBypass(string $username, IDatabase $dbr) : bool 
 	) > 0;
 }
 
-function addUsernameRequirementsBypass(string $username, IDatabase $dbw) {
+function addUsernameRequirementsBypass(string $username, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$dbw->insert(
 		'scratch_accountrequest_requirements_bypass', 
 		[
@@ -319,7 +319,7 @@ function addUsernameRequirementsBypass(string $username, IDatabase $dbw) {
 	);
 }
 
-function removeUsernameRequirementsBypass(string $username, IDatabase $dbw) {
+function removeUsernameRequirementsBypass(string $username, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$dbw->delete(
 		'scratch_accountrequest_requirements_bypass', 
 		[
@@ -336,11 +336,11 @@ function removeUsernameRequirementsBypass(string $username, IDatabase $dbw) {
  * @param dbr A readable database
  * @return bool true if it is possible to create a request under the given username, false if there is already an active request under that username
  */
-function canMakeRequestForUsername(string $username, IDatabase $dbr) : bool {
+function canMakeRequestForUsername(string $username, Wikimedia\Rdbms\DBConnRef $dbr) : bool {
 	return !$dbr->selectField('scratch_accountrequest_request', '1', ['request_active_username' => strtolower($username)], __METHOD__, []);
 }
 
-function getBlocks(IDatabase $dbr) : array {
+function getBlocks(Wikimedia\Rdbms\DBConnRef $dbr) : array {
 	$result = $dbr->select(
 		'scratch_accountrequest_block',
 		['block_username', 'block_reason', 'block_expiration_timestamp'],
@@ -357,7 +357,7 @@ function getBlocks(IDatabase $dbr) : array {
 	return $blocks;
 }
 
-function setRequestEmailToken($request_id, string $hash, $expiry, IDatabase $dbw) {
+function setRequestEmailToken($request_id, string $hash, $expiry, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$dbw->update(
 		'scratch_accountrequest_request',
 		[
@@ -370,7 +370,7 @@ function setRequestEmailToken($request_id, string $hash, $expiry, IDatabase $dbw
 	);
 }
 
-function setRequestEmailConfirmed($request_id, IDatabase $dbw) {
+function setRequestEmailConfirmed($request_id, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$dbw->update(
 		'scratch_accountrequest_request',
 		[
@@ -392,7 +392,7 @@ function setRequestEmailConfirmed($request_id, IDatabase $dbw) {
  *
  * @return array An array of account requests originating from the IP address \p ip, but excluding \p usernameToIgnore
  */
-function getRequestUsernamesFromIP($ip, string $usernameToIgnore, IDatabase $dbr) : array {
+function getRequestUsernamesFromIP($ip, string $usernameToIgnore, Wikimedia\Rdbms\DBConnRef $dbr) : array {
 	// Why not DISTINCT?
 	// Well, DISTINCT does not really work well with multiple columns - neither does GROUP BY.
 	// Rather than building a complex query we just let it query all and have PHP filter.
@@ -427,7 +427,7 @@ function getRequestUsernamesFromIP($ip, string $usernameToIgnore, IDatabase $dbr
 }
 
 
-function rejectOldAwaitingUserRequests(IDatabase $dbw) : void {
+function rejectOldAwaitingUserRequests(Wikimedia\Rdbms\DBConnRef $dbw) : void {
 	global $wgScratchAccountAutoRejectStaleAwaitingUserRequestDays;
 	
 	//find all stale requests and for each request, the admin who marked it as "awaiting user" (there is guaranteed to be one since for a request to have status "awaiting user", it must have received the action "set-status-awaiting-user")
