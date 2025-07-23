@@ -365,7 +365,7 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		if ($historyEntry->performer === null) {
 			$row .= Html::element('p', [], $historyEntry->comment);
 		} else {
-			$row .= Html::rawElement('p', [], Linker::formatComment($historyEntry->comment));
+			$row .= Html::rawElement('p', [], Linker::expandLocalLinks($historyEntry->comment));
 		}
 		$row .= Html::closeElement('div');
 

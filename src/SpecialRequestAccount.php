@@ -428,7 +428,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 
-	function handleAuthenticationFormSubmission(IDatabase $dbr) {		
+	function handleAuthenticationFormSubmission(Wikimedia\Rdbms\DBConnRef $dbr) {		
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$session = $request->getSession();
