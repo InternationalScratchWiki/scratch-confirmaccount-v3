@@ -66,7 +66,7 @@
 	"scratch-confirmaccount-not-blocked": "The username is not blocked.",
 	"scratch-confirmaccount-block-invalid-username": "You must enter the username to block.",
 	"scratch-confirmaccount-block-invalid-reason": "You must enter the reason.",
-	"scratch-confirmaccount-csrf": "The action was prevented to protect the wiki from an [[wikipedia:Cross-site request forgery|CSRF attack]]. Please try again.",
+	"scratch-confirmaccount-csrf": "Your request failed to submit due to a technical error. Please try again.",
 	"scratch-confirmaccount-ipaddress": "IP address",
 	"scratch-confirmaccount-ip-warning": "Warning",
 	"scratch-confirmaccount-ip-warning-request": "The following accounts have made account requests from the same IP address as this user:",

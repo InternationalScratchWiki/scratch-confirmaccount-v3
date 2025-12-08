@@ -95,7 +95,7 @@ function linkToScratchProfile(string $username) : string {
 	return Html::element(
 		'a',
 		[
-			'href' => 'https://scratch.mit.edu/users/' . $username,
+			'href' => 'https://scratch.mit.edu/users/' . $username . '/#comments',
 			'target' => '_blank',
 			'id' => 'mw-scratch-confirmaccount-profile-link'
 		],

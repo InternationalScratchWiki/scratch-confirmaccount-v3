@@ -23,25 +23,25 @@ class CheckUserIntegration {
 		}
 
 		$results = $dbr->select(
-			['cu_changes', 'user'],
+			['cu_changes', 'actor'],
 			[
-				'user_name' => 'user_name',
+				'cuc_actor' => 'cuc_actor',
 				'cuc_timestamp' => 'MAX(cuc_timestamp)',
-				'user_id' => 'MAX(user_id)'
+				'actor_name' => 'actor_name'
 			],
 			['cuc_ip_hex' => IPUtils::toHex($ip)],
 			__METHOD__,
 			[
-				'GROUP BY' => 'user_name',
+				'GROUP BY' => 'cuc_actor',
 				'ORDER BY' => 'cuc_timestamp DESC'
 			],
-			['user' => ['LEFT JOIN', 'user_id=cuc_user']]
+			['user' => ['LEFT JOIN', 'user_id=cuc_actor']]
 		);
 
 		$entries = [];
 
 		foreach ($results as $row) {
-			if ($row->user_name) {
+			if ($row->cuc_actor) {
 				$entries[] = CheckUserEntry::fromRow($row);
 			}
 		}
@@ -62,6 +62,6 @@ class CheckUserEntry {
 	}
 
 	public static function fromRow($row) : CheckUserEntry {
-		return new CheckUserEntry($row->user_name, $row->user_id, $row->cuc_timestamp);
+		return new CheckUserEntry($row->actor_name, $row->cuc_actor, $row->cuc_timestamp);
 	}
 }
