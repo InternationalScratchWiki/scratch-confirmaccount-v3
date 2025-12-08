@@ -110,7 +110,7 @@ class SpecialConfirmAccounts extends SpecialPage {
 	}
 
 	//show a form that allows editing an existing block or adding a new one (leave the username blank)
-	function singleBlockForm($blockedUsername, &$request, &$output, &$session, IDatabase $dbr) {
+	function singleBlockForm($blockedUsername, &$request, &$output, &$session, Wikimedia\Rdbms\DBConnRef $dbr) {
 		if (!$this->canViewBlocks()) {
 			throw new PermissionsError('block');
 		}

@@ -26,15 +26,15 @@ class SpecialRequestAccount extends SpecialPage {
 		$this->jobQueueGroup = $jobQueueGroup;
 	}
 
-	function accountRequestFormData(&$out_error, IDatabase $dbr) {
+	function accountRequestFormData(&$out_error, Wikimedia\Rdbms\DBConnRef $dbr) {
 		global $wgScratchAccountJoinedRequirement;
 
 		$request = $this->getRequest();
 		$session = $request->getSession();
 		
 		//if the user is IP banned, don't even consider anything else
-		if ($this->getUser()->isBlockedFromCreateAccount()) {
-			$block = $this->getUser()->getBlock();
+		$block = $this->getUser()->getBlock();
+		if ($block && $block->isCreateAccountBlocked()) {
 			$out_error = wfMessage('scratch-confirmaccount-ip-blocked', $block->getReasonComment()->text)->parse();
 			return;
 		}
@@ -428,7 +428,7 @@ class SpecialRequestAccount extends SpecialPage {
 		$output->addHTML($form);
 	}
 
-	function handleAuthenticationFormSubmission(IDatabase $dbr) {		
+	function handleAuthenticationFormSubmission(Wikimedia\Rdbms\DBConnRef $dbr) {		
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		$session = $request->getSession();
