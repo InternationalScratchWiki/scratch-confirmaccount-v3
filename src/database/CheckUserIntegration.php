@@ -1,5 +1,6 @@
 <?php
 use Wikimedia\IPUtils;
+use Wikimedia\Rdbms\SelectQueryBuilder;
 
 class CheckUserIntegration {
 	/**
@@ -21,29 +22,28 @@ class CheckUserIntegration {
 		if (!self::isLoaded()) {
 			return [];
 		}
-
-		$results = $dbr->select(
-			['cu_changes', 'actor'],
-			[
-				'cuc_actor' => 'cuc_actor',
+		
+		$results = $dbr->newSelectQueryBuilder()
+			->select([
 				'cuc_timestamp' => 'MAX(cuc_timestamp)',
-				'actor_name' => 'actor_name'
-			],
-			['cuc_ip_hex' => IPUtils::toHex($ip)],
-			__METHOD__,
-			[
-				'GROUP BY' => 'cuc_actor',
-				'ORDER BY' => 'cuc_timestamp DESC'
-			],
-			['user' => ['LEFT JOIN', 'user_id=cuc_actor']]
-		);
+				'user_id' => 'user_id',
+				'user_name' => 'user_name'
+			])
+			->from('cu_changes')
+			->join('actor', null, 'actor_id=cuc_actor')
+			->join('user', null, 'user_id=actor_user')
+			->where([
+				'user_id IS NOT NULL',
+				'cuc_ip_hex' => IPUtils::toHex($ip)
+			])
+			->orderBy('cuc_timestamp', SelectQueryBuilder::SORT_DESC)
+			->caller(__METHOD__)
+			->fetchResultSet();
 
 		$entries = [];
 
 		foreach ($results as $row) {
-			if ($row->cuc_actor) {
-				$entries[] = CheckUserEntry::fromRow($row);
-			}
+			$entries[] = CheckUserEntry::fromRow($row);
 		}
 
 		return $entries;
@@ -62,6 +62,6 @@ class CheckUserEntry {
 	}
 
 	public static function fromRow($row) : CheckUserEntry {
-		return new CheckUserEntry($row->actor_name, $row->cuc_actor, $row->cuc_timestamp);
+		return new CheckUserEntry($row->user_name, $row->user_id, $row->cuc_timestamp);
 	}
 }
