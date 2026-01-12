@@ -37,6 +37,7 @@ class CheckUserIntegration {
 				'cuc_ip_hex' => IPUtils::toHex($ip)
 			])
 			->orderBy('cuc_timestamp', SelectQueryBuilder::SORT_DESC)
+			->groupBy('user_id')
 			->caller(__METHOD__)
 			->fetchResultSet();
 
