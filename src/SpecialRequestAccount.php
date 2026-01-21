@@ -397,7 +397,13 @@ class SpecialRequestAccount extends SpecialPage {
 
 		//display errors if there are any relevant
 		if ($error) {
-			$form .= Html::rawElement('p', ['class' => 'errorbox'], $error);
+			$form .= new OOUI\MessageWidget([
+				'type' => 'error',
+				'label' => new OOUI\HtmlSnippet(
+					Html::rawElement('strong', [], wfMessage('scratch-confirm-account-request-error-notice')) .
+					Html::rawElement('div', [], $error)
+				)
+			]);
 		}
 
 		if ($this->getUser()->isRegistered()) {
