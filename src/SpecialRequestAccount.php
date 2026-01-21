@@ -335,10 +335,6 @@ class SpecialRequestAccount extends SpecialPage {
 		$sentEmail = false;
 		ScratchVerification::generateNewCodeForSession($session);
 		if ($requestId !== null) { //only send the verification email if this request actually created the request
-			//run hooks for handling that the request was submitted
-			$hookRunner = new HookRunner($this->hookContainer);
-			$hookRunner->onAccountRequestSubmitted($requestId, $formData['username'], $formData['requestnotes']);
-
 			if ($formData['email']) {
 				$sentEmail = sendConfirmationEmail($this->getUser(), $this->getLanguage(), $requestId, $dbw);
 			}
@@ -350,12 +346,15 @@ class SpecialRequestAccount extends SpecialPage {
 			} else {
 				$message = 'scratch-confirmaccount-success';
 			}
+			
+			//run hooks for handling that the request was submitted
+			$hookRunner = new HookRunner($this->hookContainer);
+			$hookRunner->onAccountRequestSubmitted($requestId, $formData['username'], $formData['requestnotes']);
 		} else { //if we encountered a race condition of getting a duplicate request, show the existing request instead
 			//TODO: link to FindRequest instead
 			$message = 'scratch-confirmaccount-success-noid';
 		}
 		assert(isset($message));
-		
 
 		//and show the output
 		$output->addHTML(Html::rawElement(
