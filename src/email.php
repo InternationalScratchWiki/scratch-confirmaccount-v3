@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/database/DatabaseInteractions.php';
 
-function confirmationToken($request_id, &$expiration, IDatabase $dbw) {
+function confirmationToken($request_id, &$expiration, Wikimedia\Rdbms\DBConnRef $dbw) {
 	global $wgUserEmailConfirmationTokenExpiry;
 	
 	$now = time();
@@ -16,14 +16,14 @@ function confirmationToken($request_id, &$expiration, IDatabase $dbw) {
 	return $token;
 }
 
-function getTokenUrl($request_id, &$expiration, IDatabase $dbw) {
+function getTokenUrl($request_id, &$expiration, Wikimedia\Rdbms\DBConnRef $dbw) {
 	$token = confirmationToken($request_id, $expiration, $dbw);
 	// Hack to bypass l10n
 	$title = Title::makeTitle( NS_MAIN, "Special:RequestAccount/ConfirmEmail/$token" );
 	return $title->getCanonicalURL();
 }
 
-function sendConfirmationEmail($user, $lang, $request_id, IDatabase $dbw) {
+function sendConfirmationEmail($user, $lang, $request_id, Wikimedia\Rdbms\DBConnRef $dbw) {
 	global $wgSitename, $wgPasswordSender;
 	
 	$request = getAccountRequestById($request_id, $dbw);
