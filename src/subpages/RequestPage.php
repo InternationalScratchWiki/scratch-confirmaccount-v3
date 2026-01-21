@@ -365,7 +365,9 @@ function requestHistoryDisplay(AccountRequest &$accountRequest, array &$history,
 		if ($historyEntry->performer === null) {
 			$row .= Html::element('p', [], $historyEntry->comment);
 		} else {
-			$row .= Html::rawElement('p', [], Linker::expandLocalLinks($historyEntry->comment));
+			$commentFormatter = MediaWikiServices::getInstance()->getCommentFormatter();
+			
+			$row .= Html::rawElement('p', [], $commentFormatter->format($historyEntry->comment));
 		}
 		$row .= Html::closeElement('div');
 
